@@ -1,0 +1,34 @@
+{
+  "name": "node-express-typescript",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tsc-build": "tsc",
+    "tsc-build-db": "ts-node ./src/index.ts",
+    "tsc-dev": "ts-node -r dotenv/config ./src/server.ts",
+    "ts-start": "nodemon ./dist/server.js",
+    "tsc-prod": "npm run tsc-build && npm run ts-start",
+    "start": "set \"NODE_ENV=development\" && node app.js",
+    "dev": "NODE_ENV=development nodemon app.js",
+    "test": "set \"NODE_ENV=test\" && mocha test/*/*.js --exit --recursive --timeout 5000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "mysql2": "^2.2.5",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.2.29"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.9",
+    "@types/node": "^14.14.14",
+    "nodemon": "^2.0.6",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.3"
+  }
+}
