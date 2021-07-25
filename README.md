@@ -23,7 +23,7 @@ The following is the front-end of source code
 , [Busker exhibition space information](https://opendata.culture.tw/frontsite/openData/detail?datasetId=540)
 
 
-## Runnin Sever
+## Running Sever
 If you wish to run the server, the first step is installing [Node.js](https://nodejs.org/en/)
 ### Download server need packages
 ```
