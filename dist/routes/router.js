@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const user_routes_1 = require("./user.routes");
+const member_routes_1 = require("./member.routes");
 const router = [
-    new user_routes_1.default(),
+    new member_routes_1.MemberRoutes(),
 ];
 exports.default = router;
 //# sourceMappingURL=router.js.map

@@ -1,2 +1,4 @@
 node_modules/
 .env
+src/env/prod.env
+src/env/dev.env

@@ -1,1 +1,1 @@
-{"version":3,"file":"router.js","sourceRoot":"","sources":["../../src/routes/router.ts"],"names":[],"mappings":";;AACA,+CAAuC;AAEvC,MAAM,MAAM,GAAqB;IAC/B,IAAI,qBAAU,EAAE;CACjB,CAAC;AAEF,kBAAe,MAAM,CAAC"}
+{"version":3,"file":"router.js","sourceRoot":"","sources":["../../src/routes/router.ts"],"names":[],"mappings":";;AACA,mDAA+C;AAC/C,MAAM,MAAM,GAAqB;IAC/B,IAAI,4BAAY,EAAE;CACnB,CAAC;AAEF,kBAAe,MAAM,CAAC"}

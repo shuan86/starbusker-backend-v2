@@ -1,38 +1,58 @@
 import 'reflect-metadata';
-import * as express from "express";
-import * as bodyParser from "body-parser";
+import express from "express";
 import router from "./routes/router";
-import { createConnection } from 'typeorm';
+import { createConnection, getConnection } from 'typeorm';
 import config from './config/ormconfig';
-import { User } from './entities/user.entity';
+import cors from 'cors'
+import { envSetup } from "./envSetup";
+import * as dotenv from 'dotenv'
+dotenv.config({ path: envSetup() })
+const corsOptions = {
+  origin: [
+    'http://www.example.com',
+    'http://localhost:3000',
+  ],
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
 
-class App {
+
+export class App {
   public app: express.Application;
-
   constructor() {
     this.app = express();
     this.config();
     this.routerSetup();
-    this.mysqlSetup();
-  }
+    if (process.env.mode == 'prod' || process.env.mode == 'dev') {
+      this.dbSetup();
+    }
+    else if (process.env.mode == 'test') {
 
+    }
+
+  }
   private config(): void {
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: false }));
+    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.json());
+    this.app.use(cors(corsOptions));
   }
-
   private routerSetup() {
     for (const route of router) {
       this.app.use(route.getPrefix(), route.getRouter());
     }
   }
 
-  private mysqlSetup() {
-    createConnection(config).then(connection => {
+  public async dbSetup() {
+    try {
+      const connection = await createConnection(config)
       console.log("Has connected to DB? ", connection.isConnected);
-      let userRepository = connection.getRepository(User);
-    }).catch(error => console.log("TypeORM connection error: ", error));
+    } catch (error) {
+      console.log("TypeORM connection error: ", error)
+    }
   }
+
 }
 
-export default new App().app;
+export const app = new App().app
+// app.setup()
+

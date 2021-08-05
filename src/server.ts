@@ -1,6 +1,8 @@
-import app from "./app";
-const PORT = 3000;
+import { app } from "./app";
+const PORT = 8081;
 
-app.listen(PORT, () => {
+let server = app.listen(PORT, () => {
   console.log('Express server listening on Port ', PORT);
-}) 
+})
+
+export default server
