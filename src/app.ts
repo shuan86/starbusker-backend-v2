@@ -15,8 +15,6 @@ const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-
-
 export class App {
   public app: express.Application;
   constructor() {
@@ -29,7 +27,6 @@ export class App {
     else if (process.env.mode == 'test') {
 
     }
-
   }
   private config(): void {
     this.app.use(express.urlencoded({ extended: true }));

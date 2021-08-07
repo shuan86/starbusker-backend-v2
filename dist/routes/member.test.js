@@ -16,31 +16,24 @@ const supertest_1 = __importDefault(require("supertest"));
 const app_1 = require("../../src/app");
 const memberRepo_1 = require("../repositories/memberRepo");
 const mockDbTestConnection_1 = require("../mock/mockDbTestConnection");
+const rsa_1 = require("../moudles/rsa");
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("beforeAll");
     const connection = yield mockDbTestConnection_1.mockConnection.create();
-    console.log("Has connected to DB? ", connection.isConnected);
+    console.log("beforeAll Has connected to DB? ", connection.isConnected);
 }));
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("afterAll");
     yield mockDbTestConnection_1.mockConnection.close();
 }));
 beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-    console.log("beforeEach");
     yield mockDbTestConnection_1.mockConnection.clear();
 }));
-describe("member repo test", () => {
-    it("Test enroll:it should be return 200", () => __awaiter(void 0, void 0, void 0, function* () {
-        const repo = new memberRepo_1.MemberRepo();
-        const result = yield repo.enroll(repo.generateFixedMemberMockData());
-        console.log("result:", result);
-        expect(result.status).toBe(200);
-    }));
-});
 describe("member api test ", () => {
     it("post /api/member: it should return status 200", () => __awaiter(void 0, void 0, void 0, function* () {
+        //將buffer send 出去後 會轉成字串型態，接收端要將字串在轉回buffer 
         const repo = new memberRepo_1.MemberRepo();
-        const response = yield supertest_1.default(app_1.app).post("/api/member").send(repo.generateFixedMemberMockData());
+        const jsonData = JSON.stringify(repo.generateFixedMemberMockData());
+        const encryptData = rsa_1.encrypt(jsonData);
+        const response = yield supertest_1.default(app_1.app).post("/api/member").send({ 'encryptData': encryptData });
         expect(response.statusCode).toBe(200);
     }));
 });

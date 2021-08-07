@@ -28,13 +28,19 @@ If you wish to run the server, the first step is installing [Node.js](https://no
 npm install
 ```
 ### Start Server
-1. Setup database environment,open **.env** file,modify following parameter
+1. Setup database environment,open **test.env dev.env prod.env** file,modify following parameter
 ```
 MYSQL_USERNAME=root
 MYSQL_PASSWORD=123456
 MYSQL_DB=test
 ```
-2. Open your terminal and run following command,server will listen on port  3000
+2. Setup RSA password,pubkic key and private key,modify following parameter 
+```
+ priPassword = 'your password'
+ privateKey='-----BEGIN ENCRYPTED PRIVATE KEY-----   -----END ENCRYPTED PRIVATE KEY-----'
+ publicKey='-----BEGIN PUBLIC KEY----- -----END PUBLIC KEY-----'
+```
+3. Open your terminal and run following command,server will listen on port  3000
 ``` 
 npm run tsc-prod
 ```
