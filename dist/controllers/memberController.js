@@ -9,34 +9,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.enroll = void 0;
+exports.login = exports.enroll = exports.init = void 0;
 const Member_1 = require("../entities/Member");
 const memberRepo_1 = require("../repositories/memberRepo");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const rsa_1 = require("../moudles/rsa");
+const memberType_1 = require("../types/memberType");
+const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        yield memberRepo_1.memberRepo.enroll(memberRepo_1.memberRepo.generateFixedMemberMockData());
+        res.status(200).send('sucessful init');
+    }
+    catch (error) {
+        console.error('api enroll error:', error);
+    }
+});
+exports.init = init;
 const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    //decrypt->json parse -> class
     try {
         const encryptData = req.body.encryptData;
         const data = rsa_1.decrypt(encryptData);
         const member = class_transformer_1.plainToClass(Member_1.Member, JSON.parse(data));
         const errors = yield class_validator_1.validate(member, { skipMissingProperties: true });
         if (errors.length > 0) {
-            console.error(errors);
-            res.status(400).send(errors);
+            // console.error(errors);
+            res.status(400).send(`error format`);
             return;
         }
         else {
             const result = yield memberRepo_1.memberRepo.enroll(member);
-            if (result.status == 200) {
-                res.status(200).send('enroll sucessful');
-            }
-            else if (result.status == 400) {
-                res.status(400).send('enroll parameter error');
-            }
-            else if (result.status == 401) {
-                res.status(401).send('enroll fail:membe is exist');
+            if (result.status == 200 || result.status == 401) {
+                res.status(result.status).send(result.data);
             }
             else {
                 res.status(500).send('server is busying');
@@ -48,4 +52,34 @@ const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.enroll = enroll;
+const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const encryptData = req.body.encryptData;
+        const data = rsa_1.decrypt(encryptData);
+        const member = class_transformer_1.plainToClass(memberType_1.LoginType, JSON.parse(data));
+        const errors = yield class_validator_1.validate(member, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            res.status(400).send(`login parameter error`);
+            return;
+        }
+        else {
+            const result = yield memberRepo_1.memberRepo.login(member);
+            if (result.status == 200) {
+                const memberId = yield memberRepo_1.memberRepo.getIdByAccount(member.account);
+                req.session.member = memberId;
+                res.status(result.status).send(result.data);
+            }
+            else if (result.status == 401) {
+                res.status(result.status).send(result.data);
+            }
+            else {
+                res.status(500).send('server is busying');
+            }
+        }
+    }
+    catch (error) {
+        console.error('api login error:', error);
+    }
+});
+exports.login = login;
 //# sourceMappingURL=memberController.js.map

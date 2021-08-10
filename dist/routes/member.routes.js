@@ -35,10 +35,12 @@ class MemberRoutes extends route_abstract_1.default {
         this.router.get('/test', (req, res) => {
             res.status(200).send('you called user path test!');
         });
-        this.router.route('/member')
+        this.router.route('/init')
+            .get(memberController.init);
+        this.router.route('/enroll')
             .post(memberController.enroll);
-        this.router.route('/member')
-            .get(memberController.enroll);
+        this.router.route('/login')
+            .post(memberController.login);
     }
 }
 exports.MemberRoutes = MemberRoutes;

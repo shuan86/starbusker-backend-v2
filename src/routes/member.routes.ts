@@ -11,10 +11,12 @@ export class MemberRoutes extends IRoute {
     this.router.get('/test', (req: Request, res: Response) => {
       res.status(200).send('you called user path test!')
     });
-    this.router.route('/member')
+    this.router.route('/init')
+      .get(memberController.init);
+    this.router.route('/enroll')
       .post(memberController.enroll);
-    this.router.route('/member')
-      .get(memberController.enroll);
+    this.router.route('/login')
+      .post(memberController.login);
 
   }
 }

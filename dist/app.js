@@ -40,12 +40,14 @@ const ormconfig_1 = __importDefault(require("./config/ormconfig"));
 const cors_1 = __importDefault(require("cors"));
 const envSetup_1 = require("./envSetup");
 const dotenv = __importStar(require("dotenv"));
+const express_session_1 = __importDefault(require("express-session"));
 dotenv.config({ path: envSetup_1.envSetup() });
 const corsOptions = {
     origin: [
         'http://www.example.com',
         'http://localhost:3000',
     ],
+    credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -64,6 +66,12 @@ class App {
         this.app.use(express_1.default.urlencoded({ extended: true }));
         this.app.use(express_1.default.json());
         this.app.use(cors_1.default(corsOptions));
+        this.app.use(express_session_1.default({
+            secret: 'mySecret',
+            name: 'member',
+            saveUninitialized: false,
+            resave: true,
+        }));
     }
     routerSetup() {
         for (const route of router_1.default) {

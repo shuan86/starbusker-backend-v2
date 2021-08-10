@@ -6,12 +6,15 @@ import config from './config/ormconfig';
 import cors from 'cors'
 import { envSetup } from "./envSetup";
 import * as dotenv from 'dotenv'
+import session from "express-session";
 dotenv.config({ path: envSetup() })
 const corsOptions = {
   origin: [
     'http://www.example.com',
     'http://localhost:3000',
+
   ],
+  credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
@@ -32,6 +35,12 @@ export class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
+    this.app.use(session({
+      secret: 'mySecret',
+      name: 'member', // optional
+      saveUninitialized: false,
+      resave: true,
+    }))
   }
   private routerSetup() {
     for (const route of router) {

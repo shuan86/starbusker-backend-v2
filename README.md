@@ -56,15 +56,14 @@ npm run tsc-prod
 | `email` | `string` | **Required** |member's email (maximum length:20,minimum length:2)|
 | `name` | `string` | **Required** |member's name (maximum length:20,minimum length:2)|
 
-#### Response
-##### Code:200
-##### Description:sucessful enroll
-##### Code:400
-##### Description:enroll parameter error 
-##### Code:401
-##### Description:enroll fail
-##### Code:500
-##### Description:server is busying  
+#### Response  
+| Code     | Description |Result                |
+| :------- | :------- | :------------------------- |
+| `200` |sucessful enroll|`"sucessful enroll"`|
+| `400` |input error format|`"error format"`|
+| `401` |member is exist|`"enroll fail:memberExist"`|
+| `500` |server is busying|`"server is busying"`|
+
 ******
 ###  Enroll busker
 #### Requset
@@ -78,12 +77,12 @@ npm run tsc-prod
 | `name` | `string` | **Required** |member's name (maximum length:20,minimum length:2)|
 
 #### Response
-##### Code:200
-##### Description:sucessful enroll
-##### Code:400
-##### Description:enroll parameter error 
-##### Code:401
-##### Description:enroll fail 
+| Code     | Description |Result                |
+| :------- | :------- | :------------------------- |
+| `200` |sucessful enroll|`"sucessful enroll"`|
+| `400` |input error format|`"error format"`|
+| `401` |member is exist|`"enroll fail:memberExist"`|
+| `500` |server is busying|`"server is busying"`|
 ******
 ###  Login
 #### Requset
@@ -93,15 +92,12 @@ npm run tsc-prod
 | `account` | `string` | **Required** |member's account|
 | `password` | `string` | **Required** |member's password|
 #### Response
-##### Code:200
-##### Description:sucessful login 
-``` json
-{"memberId":1,"status":"new"}
-```
-##### Code:400
-##### Description:client parameter error 
-##### Code:401
-##### Description:client login fail 
+| Code     | Description |Result                |
+| :------- | :------- | :------------------------- |
+| `200` |sucessful login|`"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}`"|
+| `400` |input error format|`"error format"`|
+| `401` |login fail|`"login fail"`|
+| `500` |server is busying|`"server is busying"`|
 ******
 ## License
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
