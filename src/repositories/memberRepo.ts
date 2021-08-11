@@ -145,7 +145,7 @@ export class MemberRepo {
                 member.password = infoData.password
                 await repo.save({ ...member })
                 repoData.status = 200
-                repoData.data = 'failed to get member info'
+                repoData.data = ''
                 return repoData
             }
             else {

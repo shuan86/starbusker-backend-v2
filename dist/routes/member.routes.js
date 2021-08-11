@@ -38,7 +38,7 @@ class MemberRoutes extends route_abstract_1.default {
         });
         this.router.route('/init')
             .get(memberController.init);
-        this.router.route('/enroll')
+        this.router.route('/member')
             .post(memberController.enroll);
         this.router.route('/login')
             .post(memberController.login);
@@ -47,7 +47,7 @@ class MemberRoutes extends route_abstract_1.default {
         this.router.route('/memberInfo')
             .get(auth_1.authMember, memberController.getMemberInfo);
         this.router.route('/memberInfo')
-            .post(auth_1.authMember, memberController.updateMemberInfo);
+            .put(auth_1.authMember, memberController.updateMemberInfo);
     }
 }
 exports.MemberRoutes = MemberRoutes;

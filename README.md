@@ -61,29 +61,11 @@ npm run tsc-prod
 | :------- | :------- | :------------------------- |
 | `200` |sucessful enroll|`"sucessful enroll"`|
 | `400` |parameter errort|`"parameter error"`|
-| `401` |member is exist|`"enroll fail:memberExist"`|
+| `401` |member is exist|`"member is Exist"`|
 | `500` |server is busying|`"server is busying"`|
 
 ******
-###  Enroll busker
-##### Requset
-`Post api/busker`
-| Parameter | Type     | Require |Description                |
-| :-------- | :------- | :------- | :------------------------- |
-| `account` | `string` | **Required** |member's account (maximum length:20,minimum length:2)|
-| `password` | `string` | **Required** |member's password (maximum length:20,minimum length:2)|
-| `male` | `bool` | **Required** |member's male (true:man,false:woman)|
-| `email` | `string` | **Required** |member's email (maximum length:20,minimum length:2)|
-| `name` | `string` | **Required** |member's name (maximum length:20,minimum length:2)|
 
-##### Response
-| Code     | Description |Result                |
-| :------- | :------- | :------------------------- |
-| `200` |sucessful enroll|`"sucessful enroll"`|
-| `400` |parameter error|`"parameter error"`|
-| `401` |member is exist|`"enroll fail:memberExist"`|
-| `500` |server is busying|`"server is busying"`|
-******
 ###  Login
 ##### Requset
 `Post api/login`
@@ -100,7 +82,7 @@ npm run tsc-prod
 | `500` |server is busying|`"server is busying"`|
 ******
 ###  Logout
-`you need to login`
+`you need to login first`
 ##### Requset
 `Post api/logout`
 ##### Response
@@ -111,8 +93,51 @@ npm run tsc-prod
 | `401` |logout fail|`"logout fail"`|
 | `500` |server is busying|`"server is busying"`|
 ******
+
+###  Get member info
+`Get api/memberInfo`
+`you need to login first`
+
+##### Response
+| Code     | Description |Result                |
+| :------- | :--------------  | :------------------------- |
+| `200` |sucessful get member info|`"{name:'',account:'',email:'','description:'',}"`|
+| `401` |failed to get member info |`"failed to get member info、you aren't member "`|
+| `500` |server is busying|`"server is busying"`|
 ******
-###  Get Buskers Performances Data
+###  Update member info
+`Put api/memberInfo`
+`you need to login first`
+##### Requset
+| Parameter | Type     | Require |Description                |
+| :-------- | :------- | :------- | :------------------------- |
+| `name` | `string` | **Required** |member's name|
+| `email` | `string` | **Required** |member's email|
+| `password` | `string` | **Required** |member's password|
+##### Response
+| Code     | Description |Result                |
+| :------- | :--------------  | :------------------------- |
+| `200` |sucessful update member info|`""`|
+| `401` |failed to update member info |`"failed to get member info、you aren't member "`|
+| `500` |server is busying|`"server is busying"`|
+******
+###  Apply busker 
+##### Requset
+`Post api/busker`
+`you need to login first`
+| Parameter | Type     | Require |Description                |
+| :-------- | :------- | :------- | :------------------------- |
+| `descripton` | `string` | **Required** |member's account (maximum length:200,minimum length:1)|
+| `type` | `number` | **Required** |performance's type (0:other,1:singer,2:drawer,3:drummer)|
+##### Response
+| Code     | Description |Result                |
+| :------- | :------- | :------------------------- |
+| `200` |sucessful apply|`""`|
+| `400` |parameter error|`"parameter error"`|
+| `401` |failed to apply|`"failed to apply、you aren't member"`|
+| `500` |server is busying|`"server is busying"`|
+******
+###  Get buskers performances data
 ##### Requset
 `get api/performances`
 | Parameter | Type     | Require |Description                |
@@ -126,7 +151,7 @@ npm run tsc-prod
 | `400` |parameter error |`"parameter error"`|
 | `500` |server is busying|`"server is busying"`|
 ******
-###  Post Busker Performance Data
+###  Apply busker performance 
 ##### Requset
 `Post api/performance`
 `you need to login first`
@@ -135,19 +160,17 @@ npm run tsc-prod
 | `title` | `string` | **Required** |performance's title|
 | `description` | `string` | **Required** |performance's description|
 | `time` | `string` | **Required** |performance's time|
-| `line money` | `number` | **Required** |member donate money|
-| `latitude` | `string` | **Required** |performance's latitude|
-| `longitude` | `string` | **Required** |performance's longitude|
+| `location` | `string` | **Required** |performance's location|
 ##### Response
 | Code     | Description |Result                |
 | :------- | :--------------  | :------------------------- |
 | `200` |sucessful add performance|`""`|
 | `400` |parameter error |`"parameter error"`|
-| `401` |failed to add performance |`"failed to add performance"`|
+| `401` |failed to apply |`"failed to apply、you aren't member or busker"`|
 | `500` |server is busying|`"server is busying"`|
-******
-get member info
-put member info
-******
+
+
+
+
 ## License
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)

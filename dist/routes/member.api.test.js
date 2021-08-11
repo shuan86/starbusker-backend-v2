@@ -48,7 +48,7 @@ beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mockDbTestConnection_1.mockConnection.clear();
 }));
 exports.apiPath = {
-    enroll: '/api/enroll',
+    member: '/api/member',
     login: '/api/login',
     memberInfo: '/api/memberInfo'
 };
@@ -57,23 +57,23 @@ describe("test post /api/member ", () => {
         //correct enroll
         const repo = new memberRepo_1.MemberRepo();
         const postData = mockRequestData.generateEncryptPostData(repo.generateFixedMemberMockData());
-        const response = yield supertest_1.default(app_1.app).post(exports.apiPath.enroll).send(Object.assign({}, postData));
+        const response = yield supertest_1.default(app_1.app).post(exports.apiPath.member).send(Object.assign({}, postData));
         expect(response.statusCode).toBe(200);
     }));
     it(" it should return status 400 if repeat enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         //repeat enroll
         const repo = new memberRepo_1.MemberRepo();
         const postData1 = mockRequestData.generateEncryptPostData(repo.generateFixedMemberMockData());
-        const response1 = yield supertest_1.default(app_1.app).post(exports.apiPath.enroll).send(Object.assign({}, postData1));
+        const response1 = yield supertest_1.default(app_1.app).post(exports.apiPath.member).send(Object.assign({}, postData1));
         expect(response1.statusCode).toBe(200);
         const postData2 = mockRequestData.generateEncryptPostData(repo.generateFixedMemberMockData());
-        const response2 = yield supertest_1.default(app_1.app).post(exports.apiPath.enroll).send(Object.assign({}, postData2));
+        const response2 = yield supertest_1.default(app_1.app).post(exports.apiPath.member).send(Object.assign({}, postData2));
         expect(response2.statusCode).toBe(401);
     }));
     it(" it should return status 400 if use error format", () => __awaiter(void 0, void 0, void 0, function* () {
         //error format
         const postData = mockRequestData.generateEncryptPostData({ account: 'ss' });
-        const response = yield supertest_1.default(app_1.app).post(exports.apiPath.enroll).send(Object.assign({}, postData));
+        const response = yield supertest_1.default(app_1.app).post(exports.apiPath.member).send(Object.assign({}, postData));
         expect(response.statusCode).toBe(400);
     }));
 });
@@ -81,7 +81,7 @@ describe("test post /api/login ", () => {
     it(" it should return status 200 if use correct account and password", () => __awaiter(void 0, void 0, void 0, function* () {
         const repo = new memberRepo_1.MemberRepo();
         const mockMember = repo.generateFixedMemberMockData();
-        const enrollResult = yield supertest_1.default(app_1.app).post(exports.apiPath.enroll).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember)));
+        const enrollResult = yield supertest_1.default(app_1.app).post(exports.apiPath.member).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember)));
         expect(enrollResult.statusCode).toBe(200);
         const loginData = repo.generateLoginData(mockMember.account, mockMember.password);
         const loginResult = yield supertest_1.default(app_1.app).post(exports.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(loginData)));
@@ -90,7 +90,7 @@ describe("test post /api/login ", () => {
     it(" it should return status 401 if use wrong account or password", () => __awaiter(void 0, void 0, void 0, function* () {
         const repo = new memberRepo_1.MemberRepo();
         const mockMember = repo.generateFixedMemberMockData();
-        const enrollResult = yield supertest_1.default(app_1.app).post(exports.apiPath.enroll).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember)));
+        const enrollResult = yield supertest_1.default(app_1.app).post(exports.apiPath.member).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember)));
         expect(enrollResult.statusCode).toBe(200);
         const wrongAccountData = repo.generateLoginData('mockAccount', mockMember.password);
         const wrongAccountResult = yield supertest_1.default(app_1.app).post(exports.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(wrongAccountData)));
@@ -100,12 +100,12 @@ describe("test post /api/login ", () => {
         expect(wrongPasswordResult.statusCode).toBe(401);
     }));
 });
-describe("test get /api/memberInfo and post /api/memberInfo", () => {
+describe("test get /api/memberInfo and put /api/memberInfo", () => {
     let cookies;
     beforeEach((done) => {
         const repo = new memberRepo_1.MemberRepo();
         const mockMember = repo.generateFixedMemberMockData();
-        const enrollResult = supertest_1.default(app_1.app).post(exports.apiPath.enroll).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember))).then((res) => {
+        const enrollResult = supertest_1.default(app_1.app).post(exports.apiPath.member).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember))).then((res) => {
             const loginData = repo.generateLoginData(mockMember.account, mockMember.password);
             supertest_1.default(app_1.app).post(exports.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(loginData))).expect(200, (err, res) => {
                 if (err)
@@ -124,7 +124,7 @@ describe("test get /api/memberInfo and post /api/memberInfo", () => {
         const repo = new memberRepo_1.MemberRepo();
         const mockMemberData = repo.generateFixedMemberMockData();
         mockMemberData.name = 'mock';
-        const memberInfoResult = yield supertest_1.default(app_1.app).post(exports.apiPath.memberInfo).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMemberData)));
+        const memberInfoResult = yield supertest_1.default(app_1.app).put(exports.apiPath.memberInfo).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMemberData)));
         expect(memberInfoResult.statusCode).toBe(200);
         // const getmemberInfoResult = await request(app).get(apiPath.memberInfo).set("Cookie", [cookies])
         // expect(getmemberInfoResult.).toBe(200);

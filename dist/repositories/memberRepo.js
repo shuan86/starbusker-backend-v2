@@ -163,7 +163,7 @@ class MemberRepo {
                     member.password = infoData.password;
                     yield repo.save(Object.assign({}, member));
                     repoData.status = 200;
-                    repoData.data = 'failed to get member info';
+                    repoData.data = '';
                     return repoData;
                 }
                 else {

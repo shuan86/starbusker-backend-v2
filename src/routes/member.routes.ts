@@ -14,7 +14,7 @@ export class MemberRoutes extends IRoute {
     });
     this.router.route('/init')
       .get(memberController.init);
-    this.router.route('/enroll')
+    this.router.route('/member')
       .post(memberController.enroll);
     this.router.route('/login')
       .post(memberController.login);
@@ -23,6 +23,6 @@ export class MemberRoutes extends IRoute {
     this.router.route('/memberInfo')
       .get(authMember, memberController.getMemberInfo);
     this.router.route('/memberInfo')
-      .post(authMember, memberController.updateMemberInfo);
+      .put(authMember, memberController.updateMemberInfo);
   }
 }
