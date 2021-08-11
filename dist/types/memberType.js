@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoginType = void 0;
+exports.UpdateMemberInfoType = exports.LoginType = void 0;
 class LoginType {
     constructor(account, password) {
         this.account = account;
@@ -8,4 +8,12 @@ class LoginType {
     }
 }
 exports.LoginType = LoginType;
+class UpdateMemberInfoType {
+    constructor(name, email, password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
+}
+exports.UpdateMemberInfoType = UpdateMemberInfoType;
 //# sourceMappingURL=memberType.js.map

@@ -1,10 +1,68 @@
-import { Busker } from "../entities/Busker";
-import { IMember } from "../interfaces/IMember";
+import { Busker, BuskerKind } from "../entities/Busker";
 import { getBuskerRepo } from './databaseRepo'
-import { LoginType, FrontEndMemberDataType } from "../types/memberType";
 import { ReponseType } from "../types/reponseType";
+import { ApplyPerformanceType } from "../types/buskerType";
+
 export class BuskerRepo {
-    public mockMemberCount = 0
+    public mockCount = 0
+    public generateFixedMockData(memberId: number): Busker {
+        const mockData: Busker = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description`, member: null }
+        // const mockMember = Object.assign(new Busker(), mockData)
+        return mockData
+    }
+    public generateDiffMockData(memberId: number): Busker {
+        const mockData: Busker = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description${this.mockCount}`, member: null }
+        this.mockCount++
+        return mockData
+    }
+
+
+    public async apply(memberId: number, data: Busker): Promise<ReponseType> {
+        let repoData: ReponseType = { status: 501, data: '' }
+        try {
+            const repo = getBuskerRepo()
+            const isBuskerExist: Busker = await repo.findOne({ memberId: memberId })
+            if (isBuskerExist) {
+                repoData.data = 'failed to apply'
+                repoData.status = 401
+                return repoData
+            }
+            else {
+                await repo.save(data)
+                repoData.status = 200
+                repoData.data = ''
+                return repoData
+            }
+        } catch (error) {
+            console.error('apply error:', error);
+        }
+        return repoData
+    }
+    public async applyPerformance(memberId: number, data: ApplyPerformanceType): Promise<ReponseType> {
+        let repoData: ReponseType = { status: 501, data: '' }
+        try {
+            const repo = getBuskerRepo()
+            const isBuskerExist: Busker = await repo.findOne({ memberId: memberId })
+            if (isBuskerExist) {
+                const d = { a: 123 }
+                await repo.save({ ...data })
+                repoData.status = 200
+                repoData.data = ''
+                return repoData
+            }
+            else {
+                repoData.data = 'failed to apply'
+                repoData.status = 401
+                return repoData
+
+            }
+        } catch (error) {
+            console.error('apply error:', error);
+        }
+        return repoData
+    }
+
+
     public async isBuskerByMemberId(id: number): Promise<boolean> {
         try {
             const repo = getBuskerRepo()
@@ -29,6 +87,7 @@ export class BuskerRepo {
             console.error('getIdByAccount:', error);
         }
     }
+
     /**
      * name
      */

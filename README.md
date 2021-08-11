@@ -46,7 +46,7 @@ npm run tsc-prod
 ```
 ## API Server
 ###  Enroll member
-#### Requset
+##### Requset
 `Post api/member`
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
@@ -56,17 +56,17 @@ npm run tsc-prod
 | `email` | `string` | **Required** |member's email (maximum length:20,minimum length:2)|
 | `name` | `string` | **Required** |member's name (maximum length:20,minimum length:2)|
 
-#### Response  
+##### Response  
 | Code     | Description |Result                |
 | :------- | :------- | :------------------------- |
 | `200` |sucessful enroll|`"sucessful enroll"`|
-| `400` |input error format|`"error format"`|
+| `400` |parameter errort|`"parameter error"`|
 | `401` |member is exist|`"enroll fail:memberExist"`|
 | `500` |server is busying|`"server is busying"`|
 
 ******
 ###  Enroll busker
-#### Requset
+##### Requset
 `Post api/busker`
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
@@ -76,28 +76,78 @@ npm run tsc-prod
 | `email` | `string` | **Required** |member's email (maximum length:20,minimum length:2)|
 | `name` | `string` | **Required** |member's name (maximum length:20,minimum length:2)|
 
-#### Response
+##### Response
 | Code     | Description |Result                |
 | :------- | :------- | :------------------------- |
 | `200` |sucessful enroll|`"sucessful enroll"`|
-| `400` |input error format|`"error format"`|
+| `400` |parameter error|`"parameter error"`|
 | `401` |member is exist|`"enroll fail:memberExist"`|
 | `500` |server is busying|`"server is busying"`|
 ******
 ###  Login
-#### Requset
+##### Requset
 `Post api/login`
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
 | `account` | `string` | **Required** |member's account|
 | `password` | `string` | **Required** |member's password|
-#### Response
+##### Response
 | Code     | Description |Result                |
 | :------- | :------- | :------------------------- |
 | `200` |sucessful login|`"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}`"|
-| `400` |input error format|`"error format"`|
+| `400` |parameter error|`"parameter error"`|
 | `401` |login fail|`"login fail"`|
 | `500` |server is busying|`"server is busying"`|
+******
+###  Logout
+`you need to login`
+##### Requset
+`Post api/logout`
+##### Response
+
+| Code     | Description |Result                |
+| :------- | :------- | :------------------------- |
+| `200` |sucessful logout|`""`|
+| `401` |logout fail|`"logout fail"`|
+| `500` |server is busying|`"server is busying"`|
+******
+******
+###  Get Buskers Performances Data
+##### Requset
+`get api/performances`
+| Parameter | Type     | Require |Description                |
+| :-------- | :------- | :------- | :------------------------- |
+| `time` | `string` | **Required** |performances's time|
+| `page` | `number` | **Required** |member's password|
+##### Response
+| Code     | Description |Result                |
+| :------- | :------- | :------------------------- |
+| `200` |sucessful get data|`"{title: "",description: "",time: "",line money: 0,latitude:0,longitude: 0"}`"|
+| `400` |parameter error |`"parameter error"`|
+| `500` |server is busying|`"server is busying"`|
+******
+###  Post Busker Performance Data
+##### Requset
+`Post api/performance`
+`you need to login first`
+| Parameter | Type     | Require |Description                |
+| :-------- | :------- | :------- | :------------------------- |
+| `title` | `string` | **Required** |performance's title|
+| `description` | `string` | **Required** |performance's description|
+| `time` | `string` | **Required** |performance's time|
+| `line money` | `number` | **Required** |member donate money|
+| `latitude` | `string` | **Required** |performance's latitude|
+| `longitude` | `string` | **Required** |performance's longitude|
+##### Response
+| Code     | Description |Result                |
+| :------- | :--------------  | :------------------------- |
+| `200` |sucessful add performance|`""`|
+| `400` |parameter error |`"parameter error"`|
+| `401` |failed to add performance |`"failed to add performance"`|
+| `500` |server is busying|`"server is busying"`|
+******
+get member info
+put member info
 ******
 ## License
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)

@@ -2,6 +2,7 @@ import { Expose } from "class-transformer";
 import { IsDefined } from "class-validator";
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Busker } from './Busker'
+
 @Entity()
 export class Member {
   @PrimaryGeneratedColumn()

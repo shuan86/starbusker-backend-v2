@@ -9,15 +9,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Busker = void 0;
+exports.Busker = exports.BuskerKind = void 0;
 const typeorm_1 = require("typeorm");
+const class_transformer_1 = require("class-transformer");
+const class_validator_1 = require("class-validator");
 const Member_1 = require("./Member");
 var BuskerKind;
 (function (BuskerKind) {
-    BuskerKind[BuskerKind["singer"] = 0] = "singer";
-    BuskerKind[BuskerKind["drawer"] = 1] = "drawer";
-    BuskerKind[BuskerKind["other"] = 2] = "other";
-})(BuskerKind || (BuskerKind = {}));
+    BuskerKind[BuskerKind["other"] = 0] = "other";
+    BuskerKind[BuskerKind["singer"] = 1] = "singer";
+    BuskerKind[BuskerKind["drawer"] = 2] = "drawer";
+    BuskerKind[BuskerKind["drummer"] = 3] = "drummer";
+})(BuskerKind = exports.BuskerKind || (exports.BuskerKind = {}));
 let Busker = class Busker {
 };
 __decorate([
@@ -29,9 +32,17 @@ __decorate([
     __metadata("design:type", Member_1.Member)
 ], Busker.prototype, "member", void 0);
 __decorate([
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
     typeorm_1.Column(),
     __metadata("design:type", Number)
 ], Busker.prototype, "kind", void 0);
+__decorate([
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Busker.prototype, "description", void 0);
 Busker = __decorate([
     typeorm_1.Entity()
 ], Busker);

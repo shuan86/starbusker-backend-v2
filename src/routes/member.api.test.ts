@@ -3,6 +3,7 @@ import { app } from '../app'
 import { MemberRepo } from "../repositories/memberRepo";
 import { mockConnection } from "../mock/mockDbTestConnection";
 import * as mockRequestData from "../utils/request";
+
 beforeAll(async () => {
     const connection = await mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
@@ -14,9 +15,11 @@ afterAll(async () => {
 beforeEach(async () => {
     await mockConnection.clear();
 });
+
 export const apiPath = {
     enroll: '/api/enroll',
-    login: '/api/login'
+    login: '/api/login',
+    memberInfo: '/api/memberInfo'
 }
 describe("test post /api/member ", () => {
     it(" it should return status 200 if correct enroll", async () => {
@@ -65,4 +68,35 @@ describe("test post /api/login ", () => {
         const wrongPasswordResult = await request(app).post(apiPath.login).send({ ...mockRequestData.generateEncryptPostData(wrongPasswordData) });
         expect(wrongPasswordResult.statusCode).toBe(401);
     });
+});
+
+describe("test get /api/memberInfo and post /api/memberInfo", () => {
+    let cookies;
+    beforeEach((done) => {
+        const repo = new MemberRepo()
+        const mockMember = repo.generateFixedMemberMockData()
+        const enrollResult = request(app).post(apiPath.enroll).send({ ...mockRequestData.generateEncryptPostData(mockMember) }).then((res) => {
+            const loginData = repo.generateLoginData(mockMember.account, mockMember.password)
+            request(app).post(apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) }).expect(200, (err, res) => {
+                if (err) return done(err);
+                // expect(res.headers).property("set-cookie");
+                cookies = res.headers["set-cookie"].pop().split(";")[0];
+                done();
+            });
+        });
+    });
+    it(" get /api/memberInfo:it should return status 200 if use correct login", async () => {
+        const memberInfoResult = await request(app).get(apiPath.memberInfo).set("Cookie", [cookies])
+        expect(memberInfoResult.statusCode).toBe(200);
+    });
+    it(" put /api/memberInfo:it should return status 200 if use correct login", async () => {
+        const repo = new MemberRepo()
+        const mockMemberData = repo.generateFixedMemberMockData()
+        mockMemberData.name = 'mock'
+        const memberInfoResult = await request(app).post(apiPath.memberInfo).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptPostData(mockMemberData) })
+        expect(memberInfoResult.statusCode).toBe(200);
+        // const getmemberInfoResult = await request(app).get(apiPath.memberInfo).set("Cookie", [cookies])
+        // expect(getmemberInfoResult.).toBe(200);
+    });
+
 });

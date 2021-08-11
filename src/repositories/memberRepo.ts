@@ -1,7 +1,7 @@
 import { Member } from "../entities/Member";
 import { IMember } from "../interfaces/IMember";
 import { getMemberRepos } from './databaseRepo'
-import { LoginType, FrontEndMemberDataType } from "../types/memberType";
+import { LoginType, FrontEndMemberDataType, UpdateMemberInfoType } from "../types/memberType";
 import { ReponseType } from "../types/reponseType";
 import { buskerRepo } from "./buskerRepo";
 export class MemberRepo {
@@ -14,6 +14,10 @@ export class MemberRepo {
 
     public generateLoginData(account: string, password: string): LoginType {
         const data: LoginType = new LoginType(account, password)
+        return data
+    }
+    public generateMemberInfoData(account: string, password: string, email: string): UpdateMemberInfoType {
+        const data: UpdateMemberInfoType = new UpdateMemberInfoType(account, password, email)
         return data
     }
     public generateFixedMemberMockData(): Member {
@@ -37,20 +41,20 @@ export class MemberRepo {
         // }
         // return false
     }
-    public async enroll(member: Member): Promise<ReponseType> {
+    public async enroll(data: Member): Promise<ReponseType> {
         let repoData: ReponseType = { status: 501, data: '' }
         try {
             const repo = getMemberRepos()
-            const isMemberExist: Member = await repo.findOne({ account: member.account })
+            const isMemberExist: Member = await repo.findOne({ account: data.account })
             if (isMemberExist) {
-                console.log(`enroll fail:${member.account} is exist`);
+                console.log(`enroll fail:${data.account} is exist`);
                 repoData.data = 'enroll fail:memberExist'
                 repoData.status = 401
                 return repoData
             }
             else {
-                await repo.save(member)
-                console.log('enroll suessful:', member.account);
+                await repo.save(data)
+                console.log('enroll suessful:', data.account);
                 repoData.status = 200
                 repoData.data = 'enroll suessful'
                 return repoData
@@ -68,17 +72,8 @@ export class MemberRepo {
             const member: Member = await repo.findOne({ account: data.account, password: data.password })
             if (member != undefined) {
                 console.log('login sucessful:', member);
-                const isBusker = await buskerRepo.isBuskerByMemberId(member.id)
+                const frontEndMemberData = await this.getMemberInfoDataById(member.id)
                 repoData.status = 200
-                const frontEndMemberData: FrontEndMemberDataType = {
-                    account: member.account,
-                    male: member.male,
-                    email: member.email,
-                    name: member.name,
-                    exp: member.exp,
-                    avatar: member.avatar,
-                    isBusker: isBusker
-                }
                 repoData.data = JSON.stringify(frontEndMemberData)
                 return repoData
             }
@@ -92,7 +87,77 @@ export class MemberRepo {
         }
         return repoData
     }
+    public async getMemberInfoById(id: number): Promise<ReponseType> {
+        let repoData: ReponseType = { status: 501, data: '' }
 
+        try {
+            const repo = getMemberRepos()
+            const member = await repo.findOne({ id })
+            if (member) {
+                const frontEndMemberData = await this.getMemberInfoDataById(id)
+                repoData.status = 200
+                repoData.data = JSON.stringify(frontEndMemberData)
+                return repoData
+            }
+            else {
+                repoData.status = 401
+                repoData.data = 'failed to get member info'
+                return repoData
+            }
+        }
+        catch (error) {
+            console.error('getMemberInfoById:', error);
+        }
+    }
+    public async getMemberInfoDataById(id: number): Promise<FrontEndMemberDataType> {
+        try {
+            const repo = getMemberRepos()
+            const member = await repo.findOne({ id })
+            if (member) {
+                const isBusker = await buskerRepo.isBuskerByMemberId(member.id)
+                const frontEndMemberData: FrontEndMemberDataType = {
+                    account: member.account,
+                    male: member.male,
+                    email: member.email,
+                    name: member.name,
+                    exp: member.exp,
+                    avatar: member.avatar,
+                    isBusker: isBusker
+                }
+                return frontEndMemberData
+            }
+            else
+                return null
+        }
+        catch (error) {
+            console.error('getMemberInfoById:', error);
+        }
+    }
+    public async updateMemberInfoById(id: number, infoData: UpdateMemberInfoType): Promise<ReponseType> {
+        let repoData: ReponseType = { status: 501, data: '' }
+
+        try {
+            const repo = getMemberRepos()
+            const member = await repo.findOne({ id })
+            if (member) {
+                member.name = infoData.name
+                member.email = infoData.email
+                member.password = infoData.password
+                await repo.save({ ...member })
+                repoData.status = 200
+                repoData.data = 'failed to get member info'
+                return repoData
+            }
+            else {
+                repoData.status = 401
+                repoData.data = 'failed to get member info'
+                return repoData
+            }
+        }
+        catch (error) {
+            console.error('getMemberInfoById:', error);
+        }
+    }
     public async getIdByAccount(account: string): Promise<number> {
         try {
             const repo = getMemberRepos()

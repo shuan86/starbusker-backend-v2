@@ -6,7 +6,7 @@ import { memberRepo } from '../repositories/memberRepo';
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
-import { LoginType, FrontEndMemberDataType } from '../types/memberType'
+import { LoginType, UpdateMemberInfoType } from '../types/memberType'
 declare module 'express-session' {
     interface SessionData {
         member: number;
@@ -31,7 +31,7 @@ export const enroll = async (req: Request, res: Response) => {
         const errors = await validate(member, { skipMissingProperties: true })
         if (errors.length > 0) {
             // console.error(errors);
-            res.status(400).send(`error format`);
+            res.status(400).send(`parameter error`);
             return;
         } else {
             const result = await memberRepo.enroll(member)
@@ -53,7 +53,7 @@ export const login = async (req: Request, res: Response) => {
         const member = plainToClass(LoginType, JSON.parse(data))
         const errors = await validate(member, { skipMissingProperties: true })
         if (errors.length > 0) {
-            res.status(400).send(`login parameter error`);
+            res.status(400).send(`parameter error`);
             return;
         } else {
             const result = await memberRepo.login(member)
@@ -71,5 +71,45 @@ export const login = async (req: Request, res: Response) => {
         }
     } catch (error) {
         console.error('api login error:', error);
+    }
+
+}
+export const logout = (req: Request, res: Response) => {
+    try {
+
+        req.session.destroy(() => {
+            console.log('session destroyed')
+        })
+        res.status(200).send('')
+    } catch (error) {
+        console.error('api logout error:', error);
+    }
+}
+
+export const getMemberInfo = async (req: Request, res: Response) => {
+    try {
+        const result = await memberRepo.getMemberInfoById(req.session.member)
+        res.status(result.status).send(result.data)
+    } catch (error) {
+        console.error('api getMemberInfo error:', error);
+    }
+}
+export const updateMemberInfo = async (req: Request, res: Response) => {
+    try {
+        const encryptData = req.body.encryptData
+        const data = decrypt(encryptData)
+        const infoData = plainToClass(UpdateMemberInfoType, JSON.parse(data))
+        const errors = await validate(infoData, { skipMissingProperties: true })
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        }
+        else {
+            const result = await memberRepo.updateMemberInfoById(req.session.member, infoData)
+            res.status(result.status).send(result.data)
+        }
+    } catch (error) {
+        console.error('api updateMemberInfoById error:', error);
     }
 }

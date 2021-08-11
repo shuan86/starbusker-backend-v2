@@ -10,10 +10,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buskerRepo = exports.BuskerRepo = void 0;
+const Busker_1 = require("../entities/Busker");
 const databaseRepo_1 = require("./databaseRepo");
 class BuskerRepo {
     constructor() {
-        this.mockMemberCount = 0;
+        this.mockCount = 0;
         // public async enroll(member: Member): Promise<ReponseType> {
         //     let repoData: ReponseType = { status: 501, data: '' }
         //     try {
@@ -37,6 +38,65 @@ class BuskerRepo {
         //     }
         //     return repoData
         // }
+    }
+    generateFixedMockData(memberId) {
+        const mockData = { id: 0, memberId: memberId, kind: Busker_1.BuskerKind.singer, description: `description`, member: null };
+        // const mockMember = Object.assign(new Busker(), mockData)
+        return mockData;
+    }
+    generateDiffMockData(memberId) {
+        const mockData = { id: 0, memberId: memberId, kind: Busker_1.BuskerKind.singer, description: `description${this.mockCount}`, member: null };
+        this.mockCount++;
+        return mockData;
+    }
+    apply(memberId, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let repoData = { status: 501, data: '' };
+            try {
+                const repo = databaseRepo_1.getBuskerRepo();
+                const isBuskerExist = yield repo.findOne({ memberId: memberId });
+                if (isBuskerExist) {
+                    repoData.data = 'failed to apply';
+                    repoData.status = 401;
+                    return repoData;
+                }
+                else {
+                    yield repo.save(data);
+                    repoData.status = 200;
+                    repoData.data = '';
+                    return repoData;
+                }
+            }
+            catch (error) {
+                console.error('apply error:', error);
+            }
+            return repoData;
+        });
+    }
+    applyPerformance(memberId, data) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let repoData = { status: 501, data: '' };
+            try {
+                const repo = databaseRepo_1.getBuskerRepo();
+                const isBuskerExist = yield repo.findOne({ memberId: memberId });
+                if (isBuskerExist) {
+                    const d = { a: 123 };
+                    yield repo.save(Object.assign({}, data));
+                    repoData.status = 200;
+                    repoData.data = '';
+                    return repoData;
+                }
+                else {
+                    repoData.data = 'failed to apply';
+                    repoData.status = 401;
+                    return repoData;
+                }
+            }
+            catch (error) {
+                console.error('apply error:', error);
+            }
+            return repoData;
+        });
     }
     isBuskerByMemberId(id) {
         return __awaiter(this, void 0, void 0, function* () {

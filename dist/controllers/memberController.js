@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.enroll = exports.init = void 0;
+exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.login = exports.enroll = exports.init = void 0;
 const Member_1 = require("../entities/Member");
 const memberRepo_1 = require("../repositories/memberRepo");
 const class_transformer_1 = require("class-transformer");
@@ -34,7 +34,7 @@ const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const errors = yield class_validator_1.validate(member, { skipMissingProperties: true });
         if (errors.length > 0) {
             // console.error(errors);
-            res.status(400).send(`error format`);
+            res.status(400).send(`parameter error`);
             return;
         }
         else {
@@ -59,7 +59,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const member = class_transformer_1.plainToClass(memberType_1.LoginType, JSON.parse(data));
         const errors = yield class_validator_1.validate(member, { skipMissingProperties: true });
         if (errors.length > 0) {
-            res.status(400).send(`login parameter error`);
+            res.status(400).send(`parameter error`);
             return;
         }
         else {
@@ -82,4 +82,47 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.login = login;
+const logout = (req, res) => {
+    try {
+        req.session.destroy(() => {
+            console.log('session destroyed');
+        });
+        res.status(200).send('');
+    }
+    catch (error) {
+        console.error('api logout error:', error);
+    }
+};
+exports.logout = logout;
+const getMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield memberRepo_1.memberRepo.getMemberInfoById(req.session.member);
+        res.status(result.status).send(result.data);
+    }
+    catch (error) {
+        console.error('api getMemberInfo error:', error);
+    }
+});
+exports.getMemberInfo = getMemberInfo;
+const updateMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const encryptData = req.body.encryptData;
+        const data = rsa_1.decrypt(encryptData);
+        const infoData = class_transformer_1.plainToClass(memberType_1.UpdateMemberInfoType, JSON.parse(data));
+        const errors = yield class_validator_1.validate(infoData, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        }
+        else {
+            const result = yield memberRepo_1.memberRepo.updateMemberInfoById(req.session.member, infoData);
+            res.status(result.status).send(result.data);
+        }
+    }
+    catch (error) {
+        console.error('api updateMemberInfoById error:', error);
+    }
+});
+exports.updateMemberInfo = updateMemberInfo;
 //# sourceMappingURL=memberController.js.map

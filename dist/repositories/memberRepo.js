@@ -25,6 +25,10 @@ class MemberRepo {
         const data = new memberType_1.LoginType(account, password);
         return data;
     }
+    generateMemberInfoData(account, password, email) {
+        const data = new memberType_1.UpdateMemberInfoType(account, password, email);
+        return data;
+    }
     generateFixedMemberMockData() {
         const mockData = { id: 0, account: `t${this.mockMemberCount}`, password: '123', male: true, email: `t${this.mockMemberCount}@gmail.com`, name: `${this.mockMemberCount}_name`, exp: this.mockMemberCount };
         const mockMember = Object.assign(new Member_1.Member(), mockData);
@@ -47,21 +51,21 @@ class MemberRepo {
             // return false
         });
     }
-    enroll(member) {
+    enroll(data) {
         return __awaiter(this, void 0, void 0, function* () {
             let repoData = { status: 501, data: '' };
             try {
                 const repo = databaseRepo_1.getMemberRepos();
-                const isMemberExist = yield repo.findOne({ account: member.account });
+                const isMemberExist = yield repo.findOne({ account: data.account });
                 if (isMemberExist) {
-                    console.log(`enroll fail:${member.account} is exist`);
+                    console.log(`enroll fail:${data.account} is exist`);
                     repoData.data = 'enroll fail:memberExist';
                     repoData.status = 401;
                     return repoData;
                 }
                 else {
-                    yield repo.save(member);
-                    console.log('enroll suessful:', member.account);
+                    yield repo.save(data);
+                    console.log('enroll suessful:', data.account);
                     repoData.status = 200;
                     repoData.data = 'enroll suessful';
                     return repoData;
@@ -81,17 +85,8 @@ class MemberRepo {
                 const member = yield repo.findOne({ account: data.account, password: data.password });
                 if (member != undefined) {
                     console.log('login sucessful:', member);
-                    const isBusker = yield buskerRepo_1.buskerRepo.isBuskerByMemberId(member.id);
+                    const frontEndMemberData = yield this.getMemberInfoDataById(member.id);
                     repoData.status = 200;
-                    const frontEndMemberData = {
-                        account: member.account,
-                        male: member.male,
-                        email: member.email,
-                        name: member.name,
-                        exp: member.exp,
-                        avatar: member.avatar,
-                        isBusker: isBusker
-                    };
                     repoData.data = JSON.stringify(frontEndMemberData);
                     return repoData;
                 }
@@ -105,6 +100,81 @@ class MemberRepo {
                 console.error('error login fail:', error);
             }
             return repoData;
+        });
+    }
+    getMemberInfoById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let repoData = { status: 501, data: '' };
+            try {
+                const repo = databaseRepo_1.getMemberRepos();
+                const member = yield repo.findOne({ id });
+                if (member) {
+                    const frontEndMemberData = yield this.getMemberInfoDataById(id);
+                    repoData.status = 200;
+                    repoData.data = JSON.stringify(frontEndMemberData);
+                    return repoData;
+                }
+                else {
+                    repoData.status = 401;
+                    repoData.data = 'failed to get member info';
+                    return repoData;
+                }
+            }
+            catch (error) {
+                console.error('getMemberInfoById:', error);
+            }
+        });
+    }
+    getMemberInfoDataById(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const repo = databaseRepo_1.getMemberRepos();
+                const member = yield repo.findOne({ id });
+                if (member) {
+                    const isBusker = yield buskerRepo_1.buskerRepo.isBuskerByMemberId(member.id);
+                    const frontEndMemberData = {
+                        account: member.account,
+                        male: member.male,
+                        email: member.email,
+                        name: member.name,
+                        exp: member.exp,
+                        avatar: member.avatar,
+                        isBusker: isBusker
+                    };
+                    return frontEndMemberData;
+                }
+                else
+                    return null;
+            }
+            catch (error) {
+                console.error('getMemberInfoById:', error);
+            }
+        });
+    }
+    updateMemberInfoById(id, infoData) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let repoData = { status: 501, data: '' };
+            try {
+                const repo = databaseRepo_1.getMemberRepos();
+                const member = yield repo.findOne({ id });
+                if (member) {
+                    member.name = infoData.name;
+                    member.email = infoData.email;
+                    member.password = infoData.password;
+                    yield repo.save(Object.assign({}, member));
+                    repoData.status = 200;
+                    repoData.data = 'failed to get member info';
+                    return repoData;
+                }
+                else {
+                    repoData.status = 401;
+                    repoData.data = 'failed to get member info';
+                    return repoData;
+                }
+            }
+            catch (error) {
+                console.error('getMemberInfoById:', error);
+            }
         });
     }
     getIdByAccount(account) {

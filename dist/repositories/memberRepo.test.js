@@ -50,5 +50,37 @@ describe("member repo test", () => {
         const wrongAccointResult = yield repo.login(wrongAccountloginData);
         expect(wrongAccointResult.status).toBe(401); //wrong account
     }));
+    it("Test getMemberInfoById:it should be return t0 if use correct member id(0)", () => __awaiter(void 0, void 0, void 0, function* () {
+        const repo = new memberRepo_1.MemberRepo();
+        const member = repo.generateFixedMemberMockData();
+        databaseRepo_1.getMemberRepos().findOne = jest.fn().mockReturnValue(member);
+        const result = yield repo.getMemberInfoDataById(member.id);
+        expect(result.account).toBe(member.account); //wrong account
+    }));
+    it("Test getMemberInfoById:it should be return null if use wrong member id(-1)", () => __awaiter(void 0, void 0, void 0, function* () {
+        const repo = new memberRepo_1.MemberRepo();
+        const member = repo.generateFixedMemberMockData();
+        databaseRepo_1.getMemberRepos().findOne = jest.fn().mockReturnValue(null);
+        const result = yield repo.getMemberInfoDataById(-1);
+        expect(result).toBe(null); //wrong account
+    }));
+    it("Test updateMemberInfoById:it should be return 200 if use correct member id and set name:mockname and password:456", () => __awaiter(void 0, void 0, void 0, function* () {
+        const repo = new memberRepo_1.MemberRepo();
+        const member = repo.generateFixedMemberMockData();
+        const mockUpdateMemberInfoData = repo.generateMemberInfoData(member.name, member.password, member.email);
+        databaseRepo_1.getMemberRepos().findOne = jest.fn().mockReturnValue(member);
+        databaseRepo_1.getMemberRepos().save = jest.fn().mockReturnValue(null);
+        const result = yield repo.updateMemberInfoById(member.id, mockUpdateMemberInfoData);
+        expect(result.status).toBe(200);
+    }));
+    it("Test updateMemberInfoById:it should be return 401 if use wrong member id and set name:mockname and password:456", () => __awaiter(void 0, void 0, void 0, function* () {
+        const repo = new memberRepo_1.MemberRepo();
+        const member = repo.generateFixedMemberMockData();
+        const mockUpdateMemberInfoData = repo.generateMemberInfoData(member.name, member.password, member.email);
+        databaseRepo_1.getMemberRepos().findOne = jest.fn().mockReturnValue(null);
+        databaseRepo_1.getMemberRepos().save = jest.fn().mockReturnValue(null);
+        const result = yield repo.updateMemberInfoById(-1, mockUpdateMemberInfoData);
+        expect(result.status).toBe(401);
+    }));
 });
 //# sourceMappingURL=memberRepo.test.js.map

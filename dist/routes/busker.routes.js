@@ -44,11 +44,7 @@ class MemberRoutes extends route_abstract_1.default {
             .post(memberController.login);
         this.router.route('/logout')
             .post(auth_1.authMember, memberController.logout);
-        this.router.route('/memberInfo')
-            .get(auth_1.authMember, memberController.getMemberInfo);
-        this.router.route('/memberInfo')
-            .post(auth_1.authMember, memberController.updateMemberInfo);
     }
 }
 exports.MemberRoutes = MemberRoutes;
-//# sourceMappingURL=member.routes.js.map
+//# sourceMappingURL=busker.routes.js.map

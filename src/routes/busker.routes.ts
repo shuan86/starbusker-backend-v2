@@ -20,9 +20,5 @@ export class MemberRoutes extends IRoute {
       .post(memberController.login);
     this.router.route('/logout')
       .post(authMember, memberController.logout);
-    this.router.route('/memberInfo')
-      .get(authMember, memberController.getMemberInfo);
-    this.router.route('/memberInfo')
-      .post(authMember, memberController.updateMemberInfo);
   }
 }
