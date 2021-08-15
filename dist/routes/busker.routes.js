@@ -22,29 +22,26 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MemberRoutes = void 0;
+exports.BuskerRoutes = void 0;
 const route_abstract_1 = __importDefault(require("./route.abstract"));
-const memberController = __importStar(require("../controllers/memberController"));
-const auth_1 = require("../middlewares/auth");
-class MemberRoutes extends route_abstract_1.default {
-    // private memberController: MemberController = new MemberController();
+const buskerController = __importStar(require("../controllers/buskerController"));
+// import { BuskerController } from "../controllers/buskerController";
+const router_1 = require("../config/router");
+class BuskerRoutes extends route_abstract_1.default {
+    // private buskerController: BuskerController = new BuskerController();
     constructor() {
         super();
         this.setRoutes();
     }
     setRoutes() {
-        this.router.get('/test', (req, res) => {
-            res.status(200).send('you called user path test!');
-        });
-        this.router.route('/init')
-            .get(memberController.init);
-        this.router.route('/enroll')
-            .post(memberController.enroll);
-        this.router.route('/login')
-            .post(memberController.login);
-        this.router.route('/logout')
-            .post(auth_1.authMember, memberController.logout);
+        // this.router.get('/test', (req: Request, res: Response) => {
+        //   res.status(200).send('you called user path test!')
+        // });
+        this.router.route(router_1.apiPath.enrollBusker)
+            .post(buskerController.enroll);
+        this.router.route(router_1.apiPath.performance)
+            .post(buskerController.applyPerformance);
     }
 }
-exports.MemberRoutes = MemberRoutes;
+exports.BuskerRoutes = BuskerRoutes;
 //# sourceMappingURL=busker.routes.js.map

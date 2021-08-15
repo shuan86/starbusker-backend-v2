@@ -15,6 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.mockConnection = void 0;
 const typeorm_1 = require("typeorm");
 const ormconfig_1 = __importDefault(require("../config/ormconfig"));
+const memberRepo_1 = require("../repositories/memberRepo");
+const buskerRepo_1 = require("../repositories/buskerRepo");
+// import { clear as clearBuskerData } from '../repositories/per'
 exports.mockConnection = {
     create() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -23,6 +26,8 @@ exports.mockConnection = {
     },
     close() {
         return __awaiter(this, void 0, void 0, function* () {
+            // await clearBuskerData()
+            // await clearMemberData()
             yield typeorm_1.getConnection().close();
         });
     },
@@ -34,6 +39,18 @@ exports.mockConnection = {
                 const repository = connection.getRepository(entity.name);
                 yield repository.query(`DELETE FROM ${entity.tableName}`);
             })));
+        });
+    },
+    clearAllRepo() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield buskerRepo_1.clear();
+            yield memberRepo_1.clear();
+            // const connection = getConnection();
+            // const entities = connection.entityMetadatas;
+            // await Promise.all(entities.map(async (entity) => {
+            //     const repository = connection.getRepository(entity.name);
+            //     await repository.query(`DELETE FROM ${entity.tableName}`);
+            // }));
         });
     },
 };

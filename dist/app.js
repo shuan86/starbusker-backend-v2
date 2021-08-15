@@ -34,7 +34,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.app = exports.App = void 0;
 require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
-const router_1 = __importDefault(require("./routes/router"));
+const router_1 = require("./routes/router");
 const typeorm_1 = require("typeorm");
 const ormconfig_1 = __importDefault(require("./config/ormconfig"));
 const cors_1 = __importDefault(require("cors"));
@@ -74,7 +74,7 @@ class App {
         }));
     }
     routerSetup() {
-        for (const route of router_1.default) {
+        for (const route of router_1.router) {
             this.app.use(route.getPrefix(), route.getRouter());
         }
     }

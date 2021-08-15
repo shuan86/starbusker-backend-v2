@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import express from "express";
-import router from "./routes/router";
+import { router } from "./routes/router";
 import { createConnection, getConnection } from 'typeorm';
 import config from './config/ormconfig';
 import cors from 'cors'

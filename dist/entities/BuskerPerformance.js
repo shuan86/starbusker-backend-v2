@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BuskerPerformance = void 0;
+exports.ApplyPerformanceType = exports.BuskerPerformance = void 0;
 const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -21,7 +21,7 @@ __decorate([
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "id", void 0);
 __decorate([
-    typeorm_1.ManyToOne(type => Busker_1.Busker, busker => busker.id),
+    typeorm_1.Column(),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "buskerId", void 0);
 __decorate([
@@ -39,21 +39,21 @@ __decorate([
 __decorate([
     class_validator_1.IsDefined(),
     class_transformer_1.Expose(),
-    typeorm_1.Column(),
-    __metadata("design:type", String)
+    typeorm_1.Column({ type: 'datetime', default: () => 'NOW()' }),
+    __metadata("design:type", Date)
 ], BuskerPerformance.prototype, "time", void 0);
 __decorate([
     typeorm_1.Column(),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "lineMoney", void 0);
 __decorate([
-    typeorm_1.Column(),
+    typeorm_1.Column({ type: "double" }),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "latitude", void 0);
 __decorate([
     class_validator_1.IsDefined(),
     class_transformer_1.Expose(),
-    typeorm_1.Column(),
+    typeorm_1.Column({ type: "double" }),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "longitude", void 0);
 __decorate([
@@ -62,8 +62,22 @@ __decorate([
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], BuskerPerformance.prototype, "location", void 0);
+__decorate([
+    typeorm_1.ManyToOne(type => Busker_1.Busker, busker => busker.performances, { onDelete: 'CASCADE' }),
+    __metadata("design:type", Busker_1.Busker)
+], BuskerPerformance.prototype, "busker", void 0);
 BuskerPerformance = __decorate([
     typeorm_1.Entity()
 ], BuskerPerformance);
 exports.BuskerPerformance = BuskerPerformance;
+//front-end request format
+class ApplyPerformanceType {
+    constructor(tile, description, time, location) {
+        this.tile = tile;
+        this.description = description;
+        this.time = time;
+        this.location = location;
+    }
+}
+exports.ApplyPerformanceType = ApplyPerformanceType;
 //# sourceMappingURL=BuskerPerformance.js.map

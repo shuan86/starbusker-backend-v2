@@ -24,6 +24,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MemberRoutes = void 0;
 const route_abstract_1 = __importDefault(require("./route.abstract"));
+const router_1 = require("../config/router");
 const memberController = __importStar(require("../controllers/memberController"));
 const auth_1 = require("../middlewares/auth");
 class MemberRoutes extends route_abstract_1.default {
@@ -36,17 +37,15 @@ class MemberRoutes extends route_abstract_1.default {
         this.router.get('/test', (req, res) => {
             res.status(200).send('you called user path test!');
         });
-        this.router.route('/init')
-            .get(memberController.init);
-        this.router.route('/member')
+        this.router.route(router_1.apiPath.enroll)
             .post(memberController.enroll);
-        this.router.route('/login')
+        this.router.route(router_1.apiPath.login)
             .post(memberController.login);
-        this.router.route('/logout')
+        this.router.route(router_1.apiPath.logout)
             .post(auth_1.authMember, memberController.logout);
-        this.router.route('/memberInfo')
+        this.router.route(router_1.apiPath.memberInfo)
             .get(auth_1.authMember, memberController.getMemberInfo);
-        this.router.route('/memberInfo')
+        this.router.route(router_1.apiPath.memberInfo)
             .put(auth_1.authMember, memberController.updateMemberInfo);
     }
 }

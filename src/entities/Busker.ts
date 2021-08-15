@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany, RelationId } from "typeorm";
 import { Expose } from "class-transformer";
 import { IsDefined } from "class-validator";
 import { Member } from './Member'
+import { BuskerPerformance } from "./BuskerPerformance";
 export enum BuskerKind {
   other,
   singer,
@@ -14,14 +15,27 @@ export enum BuskerKind {
 export class Busker {
   @PrimaryGeneratedColumn()
   id: number;
-  @ManyToOne(type => Member, member => member.id) member: Member;
+  @Column()
   memberId: number;
   @IsDefined()
   @Expose()
   @Column()
-  kind: BuskerKind;//街頭藝人種類
+  type: BuskerKind;//街頭藝人種類
   @IsDefined()
   @Expose()
   @Column()
   description: string
+  @ManyToOne(type => Member, member => member.buskers, { onDelete: 'CASCADE' })
+  member: Member;
+  @OneToMany(type => BuskerPerformance, busker => busker.buskerId, { cascade: true })
+  performances: BuskerPerformance[]
+}
+//front-end request format
+export class EnrollBuskerType {
+  description: string
+  type: BuskerKind
+  constructor(description: string, type: BuskerKind) {
+    this.description = description
+    this.type = type
+  }
 }
