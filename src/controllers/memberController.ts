@@ -2,7 +2,7 @@
 import { Request, response, Response } from 'express';
 import { IMember } from "../interfaces/IMember";
 import { Member } from "../entities/Member";
-import { memberRepo } from '../repositories/memberRepo';
+import * as memberRepo from '../repositories/memberRepo';
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";

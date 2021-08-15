@@ -8,7 +8,7 @@ import { Busker } from './Busker'
 export class BuskerPerformance {
   @PrimaryGeneratedColumn()
   id: number;
-  @ManyToOne(type => Busker, busker => busker.id)
+  @Column()
   buskerId: number;
   @IsDefined()
   @Expose()
@@ -34,4 +34,19 @@ export class BuskerPerformance {
   @Expose()
   @Column()
   location: string
+  @ManyToOne(type => Busker, busker => busker.performances, { onDelete: 'CASCADE' })
+  busker: Busker
+}
+//front-end request format
+export class ApplyPerformanceType {
+  tile: string
+  description: string
+  time: string
+  location: string
+  constructor(tile: string, description: string, time: string, location: string) {
+    this.tile = tile
+    this.description = description
+    this.time = time
+    this.location = location
+  }
 }

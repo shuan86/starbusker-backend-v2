@@ -1,102 +1,91 @@
 import request from "supertest"
 import { app } from '../app'
-import { MemberRepo } from "../repositories/memberRepo";
+import * as memberRepo from "../repositories/memberRepo";
 import { mockConnection } from "../mock/mockDbTestConnection";
+import { prefixApiPath, apiPath } from "../config/router";
 import * as mockRequestData from "../utils/request";
-
 beforeAll(async () => {
     const connection = await mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
 });
+beforeEach(async () => {
+    await mockConnection.clearAllRepo();
+});
 afterAll(async () => {
     await mockConnection.close();
 });
+describe(`test post ${prefixApiPath}${apiPath.enroll}(enroll) `, () => {
+    let postData
+    beforeEach(async () => {
 
-beforeEach(async () => {
-    await mockConnection.clear();
-});
-
-export const apiPath = {
-    member: '/api/member',
-    login: '/api/login',
-    memberInfo: '/api/memberInfo'
-}
-describe("test post /api/member ", () => {
+        postData = mockRequestData.generateEncryptPostData(memberRepo.generateFixedMemberMockData())
+    });
     it(" it should return status 200 if correct enroll", async () => {
-        //correct enroll
-        const repo = new MemberRepo()
-        const postData = mockRequestData.generateEncryptPostData(repo.generateFixedMemberMockData())
-        const response = await request(app).post(apiPath.member).send({ ...postData });
+        const response = await request(app).post(prefixApiPath + apiPath.enroll).send({ ...postData });
         expect(response.statusCode).toBe(200);
     });
     it(" it should return status 400 if repeat enroll", async () => {
         //repeat enroll
-        const repo = new MemberRepo()
-        const postData1 = mockRequestData.generateEncryptPostData(repo.generateFixedMemberMockData())
-        const response1 = await request(app).post(apiPath.member).send({ ...postData1 });
+        // const repo = new MemberRepo()
+        const response1 = await request(app).post(prefixApiPath + apiPath.enroll).send({ ...postData });
         expect(response1.statusCode).toBe(200);
-        const postData2 = mockRequestData.generateEncryptPostData(repo.generateFixedMemberMockData())
-        const response2 = await request(app).post(apiPath.member).send({ ...postData2 });
+        const response2 = await request(app).post(prefixApiPath + apiPath.enroll).send({ ...postData });
         expect(response2.statusCode).toBe(401);
     });
     it(" it should return status 400 if use error format", async () => {
         //error format
-        const postData = mockRequestData.generateEncryptPostData({ account: 'ss' })
-        const response = await request(app).post(apiPath.member).send({ ...postData });
+        const wrongData = mockRequestData.generateEncryptPostData({ account: 'ss' })
+        const response = await request(app).post(prefixApiPath + apiPath.enroll).send({ ...wrongData });
         expect(response.statusCode).toBe(400);
     });
 });
-describe("test post /api/login ", () => {
+describe(`test post ${prefixApiPath}${apiPath.login}(login)`, () => {
+    let mockMember
+    beforeEach(async () => {
+        mockMember = memberRepo.generateFixedMemberMockData()
+        await request(app).post(prefixApiPath + apiPath.enroll).send({ ...mockRequestData.generateEncryptPostData(mockMember) });
+    });
     it(" it should return status 200 if use correct account and password", async () => {
-        const repo = new MemberRepo()
-        const mockMember = repo.generateFixedMemberMockData()
-        const enrollResult = await request(app).post(apiPath.member).send({ ...mockRequestData.generateEncryptPostData(mockMember) });
-        expect(enrollResult.statusCode).toBe(200);
-        const loginData = repo.generateLoginData(mockMember.account, mockMember.password)
-        const loginResult = await request(app).post(apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) });
+        const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password)
+        const loginResult = await request(app).post(prefixApiPath + apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) });
         expect(loginResult.statusCode).toBe(200);
     });
-    it(" it should return status 401 if use wrong account or password", async () => {
-        const repo = new MemberRepo()
-        const mockMember = repo.generateFixedMemberMockData()
-        const enrollResult = await request(app).post(apiPath.member).send({ ...mockRequestData.generateEncryptPostData(mockMember) });
-        expect(enrollResult.statusCode).toBe(200);
-        const wrongAccountData = repo.generateLoginData('mockAccount', mockMember.password)
-        const wrongAccountResult = await request(app).post(apiPath.login).send({ ...mockRequestData.generateEncryptPostData(wrongAccountData) });
+    it(" it should return status 401 if use wrong account ", async () => {
+        const wrongAccountData = memberRepo.generateLoginData('mockAccount', mockMember.password)
+        const wrongAccountResult = await request(app).post(prefixApiPath + apiPath.login).send({ ...mockRequestData.generateEncryptPostData(wrongAccountData) });
         expect(wrongAccountResult.statusCode).toBe(401);
-        const wrongPasswordData = repo.generateLoginData(mockMember.account, 'mockPassword')
-        const wrongPasswordResult = await request(app).post(apiPath.login).send({ ...mockRequestData.generateEncryptPostData(wrongPasswordData) });
+
+    });
+    it(" it should return status 401 if use wrong  password", async () => {
+        const wrongPasswordData = memberRepo.generateLoginData(mockMember.account, 'mockPassword')
+        const wrongPasswordResult = await request(app).post(prefixApiPath + apiPath.login).send({ ...mockRequestData.generateEncryptPostData(wrongPasswordData) });
         expect(wrongPasswordResult.statusCode).toBe(401);
+
     });
 });
-
-describe("test get /api/memberInfo and put /api/memberInfo", () => {
+describe(`test get ${prefixApiPath}${apiPath.memberInfo} and put ${prefixApiPath}${apiPath.memberInfo}(get and update memberInfo)`, () => {
     let cookies;
-    beforeEach((done) => {
-        const repo = new MemberRepo()
-        const mockMember = repo.generateFixedMemberMockData()
-        const enrollResult = request(app).post(apiPath.member).send({ ...mockRequestData.generateEncryptPostData(mockMember) }).then((res) => {
-            const loginData = repo.generateLoginData(mockMember.account, mockMember.password)
-            request(app).post(apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) }).expect(200, (err, res) => {
-                if (err) return done(err);
-                // expect(res.headers).property("set-cookie");
-                cookies = res.headers["set-cookie"].pop().split(";")[0];
-                done();
-            });
-        });
+    beforeEach(async () => {
+        try {
+            const mockMember = memberRepo.generateFixedMemberMockData()
+            const enrollResult = await request(app).post(prefixApiPath + apiPath.member).send({ ...mockRequestData.generateEncryptPostData(mockMember) })
+            expect(enrollResult.statusCode).toBe(200);
+            const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password)
+            const res = await request(app).post(prefixApiPath + apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) }).expect(200);
+            cookies = res.headers["set-cookie"].pop().split(";")[0];
+        } catch (error) {
+            console.error('error:', error);
+        }
     });
     it(" get /api/memberInfo:it should return status 200 if use correct login", async () => {
-        const memberInfoResult = await request(app).get(apiPath.memberInfo).set("Cookie", [cookies])
+        const memberInfoResult = await request(app).get(prefixApiPath + apiPath.memberInfo).set("Cookie", [cookies])
         expect(memberInfoResult.statusCode).toBe(200);
     });
     it(" put /api/memberInfo:it should return status 200 if use correct login", async () => {
-        const repo = new MemberRepo()
-        const mockMemberData = repo.generateFixedMemberMockData()
+        const mockMemberData = memberRepo.generateFixedMemberMockData()
         mockMemberData.name = 'mock'
-        const memberInfoResult = await request(app).put(apiPath.memberInfo).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptPostData(mockMemberData) })
+        const memberInfoResult = await request(app).put(prefixApiPath + apiPath.memberInfo).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptPostData(mockMemberData) })
         expect(memberInfoResult.statusCode).toBe(200);
-        // const getmemberInfoResult = await request(app).get(apiPath.memberInfo).set("Cookie", [cookies])
-        // expect(getmemberInfoResult.).toBe(200);
     });
 
 });

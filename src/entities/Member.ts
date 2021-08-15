@@ -31,7 +31,7 @@ export class Member {
   exp: number;
   @Column({ default: '', nullable: true })
   avatar: string;
-  @OneToMany(type => Busker, busker => busker.memberId)
+  @OneToMany(type => Busker, busker => busker.memberId, { cascade: true })
   buskers: Busker[];
 
 }

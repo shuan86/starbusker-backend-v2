@@ -1,7 +1,10 @@
 import MainRoute from "./route.abstract";
 import { MemberRoutes } from "./member.routes";
-const router: Array<MainRoute> = [
-  new MemberRoutes(),
-];
+import { BuskerRoutes } from "./busker.routes";
+import { SystemRoutes } from "./system.routes";
 
-export default router;
+export const router: Array<MainRoute> = [
+  new MemberRoutes(),
+  new SystemRoutes(),
+  new BuskerRoutes()
+];

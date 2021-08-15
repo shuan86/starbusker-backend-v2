@@ -12,8 +12,9 @@
     "start": "set \"NODE_ENV=development\" && node app.js prod",
     "prod": " npm run tsc-build && npm run ts-start prod",
     "dev": " npm run tsc-build && npm run ts-start dev",
-    "test": " jest     test",
-    "test:watch": "jest --watch"
+    "test": " jest test",
+    "test:path": " jest  --testPathPattern='buskerRepo.test'",
+    "test:watch": "jest --watch test"
   },
   "keywords": [],
   "author": "",

@@ -1,151 +1,206 @@
-import { Busker, BuskerKind } from "../entities/Busker";
-import { getBuskerRepo } from './databaseRepo'
+import { Busker, BuskerKind, EnrollBuskerType } from "../entities/Busker";
+import { BuskerPerformance, ApplyPerformanceType } from "../entities/BuskerPerformance";
+
+import { getBuskerRepo, getBuskerPerformanceRepo } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
-import { ApplyPerformanceType } from "../types/buskerType";
-
-export class BuskerRepo {
-    public mockCount = 0
-    public generateFixedMockData(memberId: number): Busker {
-        const mockData: Busker = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description`, member: null }
-        // const mockMember = Object.assign(new Busker(), mockData)
-        return mockData
+import { locationArr } from "../mock/buskerPerformance";
+let mockCount = 0
+export const generateEnrollBusker = (description: string, type: BuskerKind): EnrollBuskerType => {
+    const data = new EnrollBuskerType(description, type)
+    return data
+}
+export const generatePerformance = (buskerId: number, title: string, description: string, time: string, location: string, lineMoney: number = 0, latitude: number = 0, longitude: number = 0): BuskerPerformance => {
+    const data: BuskerPerformance = {
+        id: 0, buskerId, title, description
+        , time, lineMoney, latitude, longitude, location, busker: null
     }
-    public generateDiffMockData(memberId: number): Busker {
-        const mockData: Busker = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description${this.mockCount}`, member: null }
-        this.mockCount++
-        return mockData
+    return data
+}
+//front end format
+export const generateApplyPerformance = (tile: string, description: string, time: string, location: string): ApplyPerformanceType => {
+    const data = new ApplyPerformanceType(tile, description, time, location)
+    return data
+}
+
+
+export const generateFixedMockData = (memberId: number): Busker => {
+    // const mockData = { id: 0, memberId: memberId, type: BuskerKind.singer, description: `description` }
+    // const mockMember = Object.assign(new Busker(), mockData)
+    // return mockMember
+    const mockData: Busker = {
+        id: 0, memberId: memberId, type: BuskerKind.singer
+        , description: `description`, member: null, performances: []
     }
 
+    return { ...mockData }
+}
+export const generateDiffMockData = (memberId: number): Busker => {
+    // const mockData = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description${mockCount}` }
+    // const mockMember = Object.assign(new Busker(), mockData)
+    const mockData: Busker = {
+        id: 0, memberId: memberId, type: BuskerKind.singer,
+        description: `description${mockCount}`, member: null, performances: []
+    }
 
-    public async apply(memberId: number, data: Busker): Promise<ReponseType> {
-        let repoData: ReponseType = { status: 501, data: '' }
-        try {
-            const repo = getBuskerRepo()
-            const isBuskerExist: Busker = await repo.findOne({ memberId: memberId })
-            if (isBuskerExist) {
-                repoData.data = 'failed to apply'
-                repoData.status = 401
-                return repoData
-            }
-            else {
-                await repo.save(data)
-                repoData.status = 200
-                repoData.data = ''
-                return repoData
-            }
-        } catch (error) {
-            console.error('apply error:', error);
+    mockCount++
+    return mockData
+}
+export const getCurrentData = () => {
+    const date = new Date();
+    const data = date.getUTCFullYear() + '-' +
+        ('00' + (date.getUTCMonth() + 1)).slice(-2) + '-' +
+        ('00' + date.getUTCDate()).slice(-2) + ' ' +
+        ('00' + date.getUTCHours()).slice(-2) + ':' +
+        ('00' + date.getUTCMinutes()).slice(-2) + ':' +
+        ('00' + date.getUTCSeconds()).slice(-2);
+    return data
+}
+export const generateDiffPerformanceMockData = (buskerId: number): BuskerPerformance => {
+    let count = mockCount
+    if (mockCount > locationArr.length) {
+        count = Math.floor(locationArr.length % count)
+    }
+
+    const mockData: BuskerPerformance = {
+        id: 0, buskerId, title: `title${mockCount}`
+        , description: `description${mockCount}`
+        , time: getCurrentData()
+        , lineMoney: 0
+        , latitude: locationArr[count].latitude
+        , longitude: locationArr[count].longtiude
+        , location: locationArr[count].location
+        , busker: null
+    }
+    mockCount++
+    return { ...mockData }
+}
+
+
+export const enroll = async (data: Busker) => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const busker = await createBusker(data)
+        if (busker == null) {
+            repoData.data = 'enroll fail:memberExist'
+            repoData.status = 401
+        }
+        else {
+            repoData.status = 200
+            repoData.data = 'enroll suessful'
         }
         return repoData
-    }
-    public async applyPerformance(memberId: number, data: ApplyPerformanceType): Promise<ReponseType> {
-        let repoData: ReponseType = { status: 501, data: '' }
-        try {
-            const repo = getBuskerRepo()
-            const isBuskerExist: Busker = await repo.findOne({ memberId: memberId })
-            if (isBuskerExist) {
-                const d = { a: 123 }
-                await repo.save({ ...data })
-                repoData.status = 200
-                repoData.data = ''
-                return repoData
-            }
-            else {
-                repoData.data = 'failed to apply'
-                repoData.status = 401
-                return repoData
-
-            }
-        } catch (error) {
-            console.error('apply error:', error);
-        }
+    } catch (error) {
+        console.error('error enroll fail:', error);
         return repoData
     }
-
-
-    public async isBuskerByMemberId(id: number): Promise<boolean> {
-        try {
-            const repo = getBuskerRepo()
-            const busker = await repo.findOne({ id })
-            if (busker)
-                return true
-            else
-                return false
-        } catch (error) {
-            console.error('isBuskerByMemberId:', error);
+}
+export const createBusker = async (data: Busker): Promise<Busker> => {
+    try {
+        const buskerRepo = getBuskerRepo()
+        const busker: Busker = await buskerRepo.findOne({ memberId: data.memberId })
+        if (busker) {
+            return null
         }
-    }
-    public async getIdByMemberId(id: number): Promise<Busker> {
-        try {
-            const repo = getBuskerRepo()
-            const busker = await repo.findOne({ id })
-            if (busker)
-                return busker
-            else
-                return null
-        } catch (error) {
-            console.error('getIdByAccount:', error);
+        else {
+            return await buskerRepo.save(buskerRepo.create(data))
         }
+    } catch (error) {
+        console.error('createBusker:', error);
+        return null
     }
+}
 
-    /**
-     * name
-     */
-
-
-    // public generateLoginData(account: string, password: string): LoginType {
-    //     const data: LoginType = new LoginType(account, password)
-    //     return data
-    // }
-    // public generateFixedMemberMockData(): Member {
-    //     const mockData = { id: 0, account: `t${this.mockMemberCount}`, password: '123', male: true, email: `t${this.mockMemberCount}@gmail.com`, name: `${this.mockMemberCount}_name`, exp: this.mockMemberCount }
-    //     const mockMember = Object.assign(new Member(), mockData)
-    //     return mockMember
-    // }
-    // public generateDiffMemberMockData(): Member {
-    //     const mockData = { id: 0, account: `a${this.mockMemberCount}`, password: '123', male: true, email: `a${this.mockMemberCount}@gmail.com`, name: `${this.mockMemberCount}_name`, exp: this.mockMemberCount }
-    //     const mockMember = Object.assign(new Member(), mockData)
-    //     return mockMember
-    // }
-    public async clearAllData() {
-        // try {
-        //     const repo = getMemberRepos()
-        //     await repo.query(`DELETE FROM member;`);
-        //     return true
-        // } catch (error) {
-        //     console.error('error:clearAllData:', error);
+export const applyPerformance = async (data: BuskerPerformance): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const repo = getBuskerPerformanceRepo()
+        // const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
+        await repo.save(repo.create(data))
+        repoData.status = 200
+        repoData.data = ''
+        return repoData
+        // if (isPerformanceExist) {
+        //     await repo.save({ ...data })
+        //     repoData.status = 200
+        //     repoData.data = ''
+        //     return repoData
+        // }
+        // else {
+        //     repoData.data = 'failed to apply'
+        //     repoData.status = 401
+        //     return repoData
 
         // }
-        // return false
+    } catch (error) {
+        console.error('apply error:', error);
+        return repoData
     }
-    // public async enroll(member: Member): Promise<ReponseType> {
-    //     let repoData: ReponseType = { status: 501, data: '' }
-    //     try {
-    //         const repo = getBuskerRepo()
-    //         const isMemberExist: Member = await repo.findOne({ account: member.account })
-    //         if (isMemberExist) {
-    //             console.log(`enroll fail:${member.account} is exist`);
-    //             repoData.data = 'enroll fail:memberExist'
-    //             repoData.status = 401
-    //             return repoData
-    //         }
-    //         else {
-    //             await repo.save(member)
-    //             console.log('enroll suessful:', member.account);
-    //             repoData.status = 200
-    //             repoData.data = 'enroll suessful'
-    //             return repoData
-    //         }
-
-    //     } catch (error) {
-    //         console.error('error enroll fail:', error);
-    //     }
-    //     return repoData
-    // }
-
-
-
 }
-export const buskerRepo = new BuskerRepo()
+export const applyMockPerformance = async (buskerId: number, data: BuskerPerformance): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const repo = getBuskerPerformanceRepo()
+        const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: buskerId })
+        if (isPerformanceExist) {
+
+            await repo.save({ ...data })
+            repoData.status = 200
+            repoData.data = ''
+            return repoData
+        }
+        else {
+            await repo.save({ ...data })
+            repoData.status = 200
+            repoData.data = ''
+            return repoData
+
+        }
+    } catch (error) {
+        console.error('apply error:', error);
+        return repoData
+    }
+}
+export const isBuskerByMemberId = async (id: number): Promise<boolean> => {
+    try {
+        const repo = getBuskerRepo()
+        const busker = await repo.findOne({ id })
+        if (busker)
+            return true
+        else
+            return false
+    } catch (error) {
+        console.error('isBuskerByMemberId:', error);
+        return false
+    }
+}
 
 
+
+
+
+export const getIdByMemberId = async (id: number): Promise<number> => {
+    try {
+        const repo = getBuskerRepo()
+        const busker = await repo.findOne({ memberId: id })
+        if (busker)
+            return busker.id
+        else
+            return null
+    } catch (error) {
+        console.error('getIdByMemberId:', error);
+    }
+}
+
+export const clear = async () => {
+    const buskerRepo = getBuskerRepo()
+    const buskerPerformanceRepo = getBuskerPerformanceRepo()
+    const preformanceRepo = getBuskerPerformanceRepo()
+    const preformances = await preformanceRepo.find()
+    const buskers = await buskerRepo.find()
+    for (const p of preformances) {
+        await buskerPerformanceRepo.remove(p)
+    }
+    for (const b of buskers) {
+        await buskerRepo.remove(b)
+    }
+}

@@ -8,12 +8,16 @@ export const envSetup = () => {
     else if (commandLineMode == "dev") {
         envPath = './src/env/dev.env'
     }
-    else if (commandLineMode == "test") {
-        envPath = './src/env/test.env'
-    }
     else {
-        console.error("you don't choose mode");
+        envPath = './src/env/test.env'
+
     }
+    // else if (commandLineMode == "test") {
+    //     envPath = './src/env/test.env'
+    // }
+    // else {
+    //     console.error("you don't choose mode");
+    // }
     return envPath;
 }
 console.log(commandLineMode + ' mode ');

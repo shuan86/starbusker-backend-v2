@@ -1,5 +1,6 @@
 import { Application as ExpressApplication, Request, Response, Router } from 'express';
 import IRoute from './route.abstract';
+import { apiPath } from '../config/router';
 import * as memberController from "../controllers/memberController";
 import { authMember } from "../middlewares/auth";
 export class MemberRoutes extends IRoute {
@@ -12,17 +13,15 @@ export class MemberRoutes extends IRoute {
     this.router.get('/test', (req: Request, res: Response) => {
       res.status(200).send('you called user path test!')
     });
-    this.router.route('/init')
-      .get(memberController.init);
-    this.router.route('/member')
+    this.router.route(apiPath.enroll)
       .post(memberController.enroll);
-    this.router.route('/login')
+    this.router.route(apiPath.login)
       .post(memberController.login);
-    this.router.route('/logout')
+    this.router.route(apiPath.logout)
       .post(authMember, memberController.logout);
-    this.router.route('/memberInfo')
+    this.router.route(apiPath.memberInfo)
       .get(authMember, memberController.getMemberInfo);
-    this.router.route('/memberInfo')
+    this.router.route(apiPath.memberInfo)
       .put(authMember, memberController.updateMemberInfo);
   }
 }
