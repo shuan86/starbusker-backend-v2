@@ -104,7 +104,6 @@ globals_1.describe("busker repo test(getAllPerformanceTime)", () => {
     }));
     it("Test get all Performance time :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield buskerRepo.getAllPerformanceTime();
-        console.error('result:', result);
         globals_1.expect(result.status).toBe(200);
     }));
 });

@@ -61,19 +61,6 @@ afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mockDbTestConnection_1.mockConnection.close();
 }));
 describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll busker)`, () => {
-    // let cookies;
-    // let memberId;
-    // let enrollBuskerData;
-    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        // const mockMember = memberRepo.generateFixedMemberMockData()
-        // const enrollResult = await request(app).post(prefixApiPath + apiPath.member).send({ ...mockRequestData.generateEncryptPostData(mockMember) })
-        // expect(enrollResult.statusCode).toBe(200);
-        // const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password)
-        // const res = await request(app).post(prefixApiPath + apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) }).expect(200);
-        // cookies = res.headers["set-cookie"].pop().split(";")[0];
-        // memberId = await memberRepo.getIdByAccount(mockMember.account)
-        // enrollBuskerData = buskerRepo.generateEnrollBusker("description", 0)
-    }));
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
         expect(enrollResult.statusCode).toBe(200);
@@ -89,53 +76,50 @@ describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll b
         expect(enrollResult1.statusCode).toBe(400);
     }));
 });
-describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.performance}( Apply busker performance)`, () => {
-    // let cookies;
-    // let memberId;
-    // let enrollBuskerData;
+describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.performances}( Apply busker performance)`, () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        // const mockMember = memberRepo.generateFixedMemberMockData()
-        // const enrollResult = await request(app).post(prefixApiPath + apiPath.member).send({ ...mockRequestData.generateEncryptPostData(mockMember) })
-        // expect(enrollResult.statusCode).toBe(200);
-        // const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password)
-        // memberId = memberRepo.getIdByAccount(mockMember.account)
-        // const res = await request(app).post(prefixApiPath + apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) }).expect(200);
-        // cookies = res.headers["set-cookie"].pop().split(";")[0];
-        // enrollBuskerData = buskerRepo.generateEnrollBusker("description", 0)
         const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
         performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
     }));
     it(" it should return status 200 if correct apply", () => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performance).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, performanceData))));
+        const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, performanceData))));
         expect(result.statusCode).toBe(200);
     }));
-    // it(" it should return status 400 if incorrect apply", async () => {
-    //     const result = await request(app).post(prefixApiPath + apiPath.performance).set("Cookie", [cookies]).send({ ...mockRequestData.generatePostData({}) })
-    //     expect(result.statusCode).toBe(200);
-    // });
+    it(" it should return status 400 if incorrect apply", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData({})));
+        expect(result.statusCode).toBe(400);
+    }));
 });
-// describe(`test get ${prefixApiPath}${apiPath.performancesTime}(get all time of busker performance)`, () => {
-//     // let cookies;
-//     // let memberId;
-//     // let enrollBuskerData;
-//     beforeEach(async () => {
-//         // const mockMember = memberRepo.generateFixedMemberMockData()
-//         // const enrollResult = await request(app).post(prefixApiPath + apiPath.member).send({ ...mockRequestData.generateEncryptPostData(mockMember) })
-//         // expect(enrollResult.statusCode).toBe(200);
-//         // const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password)
-//         // memberId = memberRepo.getIdByAccount(mockMember.account)
-//         // const res = await request(app).post(prefixApiPath + apiPath.login).send({ ...mockRequestData.generateEncryptPostData(loginData) }).expect(200);
-//         // cookies = res.headers["set-cookie"].pop().split(";")[0];
-//         // enrollBuskerData = buskerRepo.generateEnrollBusker("description", 0)
-//         const enrollBuskerResult = await request(app).post(prefixApiPath + apiPath.enrollBusker).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptPostData({ ...enrollBuskerData }) })
-//         const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate())
-//         await request(app).post(prefixApiPath + apiPath.performance).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptPostData({ ...enrollBuskerData }) })
-//         buskerRepo.applyPerformance(performanceData)
-//     });
-//     it(" it should return status 200 if correct enroll", async () => {
-//         const enrollResult = await request(app).post(prefixApiPath + apiPath.enrollBusker).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptPostData({ ...enrollBuskerData }) })
-//         expect(enrollResult.statusCode).toBe(200);
-//     });
-// });
+describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performancesTime}(get all time of busker performance)`, () => {
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
+        const applyResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, performanceData))));
+    }));
+    it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.performancesTime).set("Cookie", [cookies]).send({});
+        // console.error('123:', result.text);
+        expect(result.statusCode).toBe(200);
+    }));
+});
+describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performances}(get all time of busker performance)`, () => {
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
+        const applyResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances)
+            .set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, performanceData))));
+    }));
+    it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
+        const getPerformancesData = {
+            page: 1,
+            time: `${performanceData.time.getUTCFullYear()}-${performanceData.time.getMonth() + 1}-${performanceData.time.getDate()}`
+        };
+        const result = yield supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.performances)
+            .set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, getPerformancesData))));
+        // console.error('123:', result.text);
+        expect(result.statusCode).toBe(200);
+    }));
+});
 //# sourceMappingURL=busker.api.test.js.map

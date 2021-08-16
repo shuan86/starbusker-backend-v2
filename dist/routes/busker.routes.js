@@ -25,7 +25,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BuskerRoutes = void 0;
 const route_abstract_1 = __importDefault(require("./route.abstract"));
 const buskerController = __importStar(require("../controllers/buskerController"));
-// import { BuskerController } from "../controllers/buskerController";
+const auth_1 = require("../middlewares/auth");
 const router_1 = require("../config/router");
 class BuskerRoutes extends route_abstract_1.default {
     // private buskerController: BuskerController = new BuskerController();
@@ -38,9 +38,13 @@ class BuskerRoutes extends route_abstract_1.default {
         //   res.status(200).send('you called user path test!')
         // });
         this.router.route(router_1.apiPath.enrollBusker)
-            .post(buskerController.enroll);
-        this.router.route(router_1.apiPath.performance)
-            .post(buskerController.applyPerformance);
+            .post(auth_1.authMember, buskerController.enroll);
+        this.router.route(router_1.apiPath.performances)
+            .post(auth_1.authMember, buskerController.applyPerformance);
+        this.router.route(router_1.apiPath.performances)
+            .get(auth_1.authMember, buskerController.getPerformances);
+        this.router.route(router_1.apiPath.performancesTime)
+            .get(auth_1.authMember, buskerController.getAllPerformanceTime);
     }
 }
 exports.BuskerRoutes = BuskerRoutes;

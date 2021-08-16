@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getIdByMemberId = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.applyPerformance = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.setCurrentData = exports.getCurrentTime = exports.getCurrentDate = exports.generateDiffMockData = exports.generateFixedMockData = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
+exports.clear = exports.getIdByMemberId = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.applyPerformance = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.setCurrentData = exports.dateToDbDate = exports.getCurrentTime = exports.getCurrentDate = exports.generateDiffMockData = exports.generateFixedMockData = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
 const Busker_1 = require("../entities/Busker");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 const databaseRepo_1 = require("./databaseRepo");
@@ -97,10 +97,11 @@ const dateToDbDate = (date) => {
         ('00' + date.getSeconds()).slice(-2);
     return data;
 };
+exports.dateToDbDate = dateToDbDate;
 const setCurrentData = (year, month, date, hour = 0, minute = 0, second = 0) => {
     const dateOBJ = new Date();
-    dateOBJ.setFullYear(year);
-    dateOBJ.setMonth(month);
+    dateOBJ.setUTCFullYear(year);
+    dateOBJ.setMonth(month - 1);
     dateOBJ.setDate(date);
     dateOBJ.setHours(hour);
     dateOBJ.setMinutes(minute);
@@ -172,10 +173,10 @@ const getPerformances = (time, page) => __awaiter(void 0, void 0, void 0, functi
         time.setHours(0);
         time.setMinutes(0);
         time.setSeconds(0);
-        const nextDate = exports.setCurrentData(time.getFullYear(), time.getMonth(), time.getDate() + 1, 23, 59);
+        const nextDate = exports.setCurrentData(time.getUTCFullYear(), time.getMonth() + 1, time.getDate() + 1, 23, 59);
         const dataArrr = yield buskerPerformanceRepo.createQueryBuilder('p')
             .select(['p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
-            .where("p.time BETWEEN '" + dateToDbDate(time) + "' AND '" + dateToDbDate(nextDate) + "'")
+            .where("p.time BETWEEN '" + exports.dateToDbDate(time) + "' AND '" + exports.dateToDbDate(nextDate) + "'")
             .skip((page - 1) * perItem).take(perItem)
             .getManyAndCount();
         repoData.status = 200;
@@ -219,7 +220,7 @@ const applyPerformance = (data) => __awaiter(void 0, void 0, void 0, function* (
         return repoData;
     }
     catch (error) {
-        console.error('apply error:', error);
+        console.error('applyPerformance error:', error);
         return repoData;
     }
 });
@@ -277,6 +278,18 @@ const getIdByMemberId = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getIdByMemberId = getIdByMemberId;
+// export const getIdByMemberId = async (id: number): Promise<number> => {
+//     try {
+//         const repo = getBuskerRepo()
+//         const busker = await repo.findOne({ memberId: id })
+//         if (busker)
+//             return busker.id
+//         else
+//             return null
+//     } catch (error) {
+//         console.error('getIdByMemberId:', error);
+//     }
+// }
 const clear = () => __awaiter(void 0, void 0, void 0, function* () {
     const buskerRepo = databaseRepo_1.getBuskerRepo();
     const buskerPerformanceRepo = databaseRepo_1.getBuskerPerformanceRepo();

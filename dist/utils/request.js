@@ -11,7 +11,7 @@ const generateEncryptPostData = (data) => {
 exports.generateEncryptPostData = generateEncryptPostData;
 const generatePostData = (data) => {
     const jsonStr = JSON.stringify(data);
-    const postData = { data };
+    const postData = { data: jsonStr };
     return postData;
 };
 exports.generatePostData = generatePostData;

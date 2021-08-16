@@ -28,7 +28,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.applyPerformance = exports.enroll = void 0;
+exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = void 0;
 const Busker_1 = require("../entities/Busker");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 // import { buskerRepo } from '../repositories/buskerRepo';
@@ -63,6 +63,44 @@ const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.enroll = enroll;
+const getPerformances = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.body.data;
+        const performance = class_transformer_1.plainToClass(BuskerPerformance_1.GetPerformancesType, JSON.parse(data));
+        const errors = yield class_validator_1.validate(performance, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        }
+        else {
+            const timeArr = performance.time.split('-');
+            if (timeArr.length < 3) {
+                res.status(400).send(`time parameter error`);
+                return;
+            }
+            const year = Number(timeArr[0]);
+            const month = Number(timeArr[1]);
+            const date = Number(timeArr[2]);
+            if (year == NaN || month == NaN || date == NaN) {
+                res.status(400).send(`time parameter error`);
+                return;
+            }
+            console.error('timeArr:', year, month, date);
+            const result = yield buskerRepo.getPerformances(buskerRepo.setCurrentData(year, month, date), performance.page);
+            if (result.status == 200 || result.status == 401) {
+                res.status(result.status).send(result.data);
+            }
+            else {
+                res.status(500).send('server is busying');
+            }
+        }
+    }
+    catch (error) {
+        console.error('api getPerformances error:', error);
+    }
+});
+exports.getPerformances = getPerformances;
 const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body.data;
@@ -87,10 +125,27 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
     }
     catch (error) {
-        console.error('api enroll error:', error);
+        console.error('api applyPerformance error:', error);
     }
 });
 exports.applyPerformance = applyPerformance;
+const getAllPerformanceTime = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const memberId = req.session.member;
+        const buskerId = yield buskerRepo.getIdByMemberId(memberId);
+        const result = yield buskerRepo.getAllPerformanceTime();
+        if (result.status == 200 || result.status == 401) {
+            res.status(result.status).send(result.data);
+        }
+        else {
+            res.status(500).send('server is busying');
+        }
+    }
+    catch (error) {
+        console.error('api getAllPerformanceTime error:', error);
+    }
+});
+exports.getAllPerformanceTime = getAllPerformanceTime;
 // export class BuskerController {
 //     /**
 //      * async name

@@ -250,8 +250,6 @@ export const isBuskerByMemberId = async (id: number): Promise<boolean> => {
 
 
 
-
-
 export const getIdByMemberId = async (id: number): Promise<number> => {
     try {
         const repo = getBuskerRepo()
@@ -264,6 +262,20 @@ export const getIdByMemberId = async (id: number): Promise<number> => {
         console.error('getIdByMemberId:', error);
     }
 }
+
+
+// export const getIdByMemberId = async (id: number): Promise<number> => {
+//     try {
+//         const repo = getBuskerRepo()
+//         const busker = await repo.findOne({ memberId: id })
+//         if (busker)
+//             return busker.id
+//         else
+//             return null
+//     } catch (error) {
+//         console.error('getIdByMemberId:', error);
+//     }
+// }
 
 export const clear = async () => {
     const buskerRepo = getBuskerRepo()

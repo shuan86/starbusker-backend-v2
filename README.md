@@ -127,7 +127,7 @@ npm run tsc-prod
 `you need to login first`
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
-| `descripton` | `string` | **Required** |member's account (maximum length:200,minimum length:1)|
+| `descripton` | `string` | **Required** |performance's descripton (maximum length:200,minimum length:1)|
 | `type` | `number` | **Required** |performance's type (0:other,1:singer,2:drawer,3:drummer)|
 ##### Response
 | Code     | Description |Result                |
@@ -137,23 +137,32 @@ npm run tsc-prod
 | `401` |failed to apply|`"failed to apply、you aren't member"`|
 | `500` |server is busying|`"server is busying"`|
 ******
+###  Get all time of busker performance
+##### Requset
+`get api/performancesTime`
+##### Response
+| Code     | Description    |Result                |
+| :------- | :------- | :------------------------- |
+| `200` |sucessful get data|`[{"time":"2021-08-16T09:26:00.000Z"}]`"|
+| `500` |server is busying|`"server is busying"`|
+******
 ###  Get buskers performances data
 ##### Requset
 `get api/performances`
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
-| `time` | `string` | **Required** |performances's time|
-| `page` | `number` | **Required** |member's password|
+| `time` | `string` | **Required** |performances's time(ex:2021-08-16)|
+| `page` | `number` | **Required** |performances's data (10 records per item)|
 ##### Response
-| Code     | Description |Result                |
+| Code     | Description    |Result                |
 | :------- | :------- | :------------------------- |
-| `200` |sucessful get data|`"{title: "",description: "",time: "",line money: 0,latitude:0,longitude: 0"}`"|
+| `200` |sucessful get data|`[[{"title":"title1","description":"description1","time":"2021-08-16T08:17:01.000Z","lineMoney":0,"latitude":121.56,"longitude":25.03}],1(data amount)]`"|
 | `400` |parameter error |`"parameter error"`|
 | `500` |server is busying|`"server is busying"`|
 ******
 ###  Apply busker performance 
 ##### Requset
-`Post api/performance`
+`post api/performance`
 `you need to login first`
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |

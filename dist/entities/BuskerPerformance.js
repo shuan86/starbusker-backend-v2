@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ApplyPerformanceType = exports.BuskerPerformance = void 0;
+exports.GetPerformancesType = exports.ApplyPerformanceType = exports.BuskerPerformance = void 0;
 const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -80,4 +80,11 @@ class ApplyPerformanceType {
     }
 }
 exports.ApplyPerformanceType = ApplyPerformanceType;
+class GetPerformancesType {
+    constructor(time, page) {
+        this.time = time;
+        this.page = page;
+    }
+}
+exports.GetPerformancesType = GetPerformancesType;
 //# sourceMappingURL=BuskerPerformance.js.map

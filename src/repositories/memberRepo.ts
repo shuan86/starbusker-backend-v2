@@ -50,6 +50,7 @@ export const enroll = async (data: Member): Promise<ReponseType> => {
             repoData.status = 200
             repoData.data = 'enroll suessful'
         }
+
         return repoData
     } catch (error) {
         console.error('error enroll fail:', error);

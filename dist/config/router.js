@@ -10,7 +10,7 @@ exports.apiPath = {
     login: '/login',
     memberInfo: '/memberInfo',
     enrollBusker: '/busker',
-    performance: 'performance',
-    performancesTime: 'performancesTime'
+    performances: '/performances',
+    performancesTime: '/performancesTime'
 };
 //# sourceMappingURL=router.js.map
