@@ -48,6 +48,7 @@ npm run tsc-prod
 ###  Enroll member
 ##### Requset
 `Post api/member`
+`The request needs to be encrypted `
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
 | `account` | `string` | **Required** |member's account (maximum length:20,minimum length:2)|
@@ -69,6 +70,7 @@ npm run tsc-prod
 ###  Login
 ##### Requset
 `Post api/login`
+`The request needs to be encrypted `
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
 | `account` | `string` | **Required** |member's account|
@@ -82,22 +84,18 @@ npm run tsc-prod
 | `500` |server is busying|`"server is busying"`|
 ******
 ###  Logout
-`you need to login first`
 ##### Requset
 `Post api/logout`
+`you need to login first`
 ##### Response
-
 | Code     | Description |Result                |
 | :------- | :------- | :------------------------- |
 | `200` |sucessful logout|`""`|
 | `401` |logout fail|`"logout fail"`|
 | `500` |server is busying|`"server is busying"`|
 ******
-
 ###  Get member info
 `Get api/memberInfo`
-`you need to login first`
-
 ##### Response
 | Code     | Description |Result                |
 | :------- | :--------------  | :------------------------- |
@@ -107,7 +105,7 @@ npm run tsc-prod
 ******
 ###  Update member info
 `Put api/memberInfo`
-`you need to login first`
+`you need to login first and the request needs to be encrypted`
 ##### Requset
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
@@ -124,7 +122,7 @@ npm run tsc-prod
 ###  Apply busker 
 ##### Requset
 `Post api/busker`
-`you need to login first`
+`you need to login first and the request needs to be encrypted` 
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
 | `descripton` | `string` | **Required** |performance's descripton (maximum length:200,minimum length:1)|

@@ -86,7 +86,6 @@ const getPerformances = (req, res) => __awaiter(void 0, void 0, void 0, function
                 res.status(400).send(`time parameter error`);
                 return;
             }
-            console.error('timeArr:', year, month, date);
             const result = yield buskerRepo.getPerformances(buskerRepo.setCurrentData(year, month, date), performance.page);
             if (result.status == 200 || result.status == 401) {
                 res.status(result.status).send(result.data);
