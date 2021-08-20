@@ -26,7 +26,6 @@ describe(`test post ${prefixApiPath}${apiPath.enroll}(enroll) `, () => {
     });
     it(" it should return status 400 if repeat enroll", async () => {
         //repeat enroll
-        // const repo = new MemberRepo()
         const response1 = await request(app).post(prefixApiPath + apiPath.enroll).send({ ...postData });
         expect(response1.statusCode).toBe(200);
         const response2 = await request(app).post(prefixApiPath + apiPath.enroll).send({ ...postData });

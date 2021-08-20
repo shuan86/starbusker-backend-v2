@@ -58,7 +58,6 @@ describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll) 
     }));
     it(" it should return status 400 if repeat enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         //repeat enroll
-        // const repo = new MemberRepo()
         const response1 = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enroll).send(Object.assign({}, postData));
         expect(response1.statusCode).toBe(200);
         const response2 = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enroll).send(Object.assign({}, postData));
