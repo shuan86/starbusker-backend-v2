@@ -14,7 +14,11 @@ const io = new socket_io_1.Server(server, {
 });
 io.on('connection', socket => {
     //經過連線後在 console 中印出訊息
+<<<<<<< HEAD
     console.log('success connect !');
+=======
+    console.log('success connect 1!');
+>>>>>>> 51f91318d0b992c40698dcf3a96e70b2d494a962
     socket.on("disconnect", () => {
         console.log("a user go out");
     });
