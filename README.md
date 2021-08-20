@@ -125,7 +125,7 @@ npm run tsc-prod
 `you need to login first and the request needs to be encrypted` 
 | Parameter | Type     | Require |Description                |
 | :-------- | :------- | :------- | :------------------------- |
-| `descripton` | `string` | **Required** |performance's descripton (maximum length:200,minimum length:1)|
+| `description` | `string` | **Required** |performance's description (maximum length:200,minimum length:1)|
 | `type` | `number` | **Required** |performance's type (0:other,1:singer,2:drawer,3:drummer)|
 ##### Response
 | Code     | Description |Result                |

@@ -133,6 +133,7 @@ const getAllPerformanceTime = (req, res) => __awaiter(void 0, void 0, void 0, fu
         const memberId = req.session.member;
         const buskerId = yield buskerRepo.getIdByMemberId(memberId);
         const result = yield buskerRepo.getAllPerformanceTime();
+        console.log('getAllPerformanceTime:', result);
         if (result.status == 200 || result.status == 401) {
             res.status(result.status).send(result.data);
         }

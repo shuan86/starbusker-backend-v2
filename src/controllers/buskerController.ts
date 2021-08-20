@@ -107,6 +107,8 @@ export const getAllPerformanceTime = async (req: Request, res: Response) => {
         const memberId = req.session.member
         const buskerId = await buskerRepo.getIdByMemberId(memberId)
         const result = await buskerRepo.getAllPerformanceTime()
+        console.log('getAllPerformanceTime:',result);
+        
         if (result.status == 200 || result.status == 401) {
             res.status(result.status).send(result.data)
         }
