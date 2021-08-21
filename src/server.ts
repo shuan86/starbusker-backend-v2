@@ -1,5 +1,8 @@
-import { app } from "./app";
+import { app,sessionMiddleware } from "./app";
 import { Server } from "socket.io";
+import sharedsession from "express-socket.io-session";
+import session from "express-session";
+
 const PORT = 8081;
 let server = app.listen(PORT, () => {
   console.log('Express server listening on Port ', PORT);
@@ -10,14 +13,19 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
-
-
-
-
+io.use(sharedsession(sessionMiddleware, {
+  autoSave:true
+})); 
+declare module "socket.io" {
+  interface Handshake {
+      session?: session.Session & Partial<session.SessionData> | undefined;
+      sessionID?: string | undefined;
+  }
+}
 
 io.on('connection', socket => {
   //經過連線後在 console 中印出訊息
-  console.log('success connect !')
+  // console.log('success connect !:',socket.handshake.session)
   socket.on("disconnect", () => {
     console.log("a user go out");
   });

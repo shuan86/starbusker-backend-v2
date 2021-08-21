@@ -49,7 +49,6 @@ export class App {
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
     this.app.use(sessionMiddleware)
-    
   }
   private routerSetup() {
     for (const route of router) {

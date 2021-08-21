@@ -66,7 +66,6 @@ exports.enroll = enroll;
 const getPerformances = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.query.data;
-        console.log(data);
         const performance = class_transformer_1.plainToClass(BuskerPerformance_1.GetPerformancesType, JSON.parse(data));
         const errors = yield class_validator_1.validate(performance, { skipMissingProperties: false });
         if (errors.length > 0) {
