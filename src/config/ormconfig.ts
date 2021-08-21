@@ -29,7 +29,7 @@ const config: ConnectionOptions = {
   ],
   synchronize: true,
   logging: false,
-  dropSchema: true
+  dropSchema: false
 }
 
 export default config;

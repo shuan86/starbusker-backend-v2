@@ -49,7 +49,7 @@ const config = {
     ],
     synchronize: true,
     logging: false,
-    dropSchema: true
+    dropSchema: false
 };
 exports.default = config;
 //# sourceMappingURL=ormconfig.js.map

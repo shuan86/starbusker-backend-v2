@@ -18,6 +18,19 @@ const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
+export const sessionMiddleware=session({
+  secret: 'mySecret',
+  name: 'member', // optional
+  saveUninitialized: false,
+  resave: true,
+})
+declare module 'express-session' {
+  interface SessionData {
+      member: number;
+  }
+}
+
+
 export class App {
   public app: express.Application;
   constructor() {
@@ -35,12 +48,8 @@ export class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
-    this.app.use(session({
-      secret: 'mySecret',
-      name: 'member', // optional
-      saveUninitialized: false,
-      resave: true,
-    }))
+    this.app.use(sessionMiddleware)
+    
   }
   private routerSetup() {
     for (const route of router) {

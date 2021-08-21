@@ -7,11 +7,7 @@ import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
 import { LoginType, UpdateMemberInfoType } from '../types/memberType'
-declare module 'express-session' {
-    interface SessionData {
-        member: number;
-    }
-}
+
 export const init = async (req: Request, res: Response) => {
     try {
         await memberRepo.enroll(memberRepo.generateFixedMemberMockData())

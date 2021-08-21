@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.App = void 0;
+exports.app = exports.App = exports.sessionMiddleware = void 0;
 require("reflect-metadata");
 const express_1 = __importDefault(require("express"));
 const router_1 = require("./routes/router");
@@ -51,6 +51,12 @@ const corsOptions = {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
+exports.sessionMiddleware = express_session_1.default({
+    secret: 'mySecret',
+    name: 'member',
+    saveUninitialized: false,
+    resave: true,
+});
 class App {
     constructor() {
         this.app = express_1.default();
@@ -66,12 +72,7 @@ class App {
         this.app.use(express_1.default.urlencoded({ extended: true }));
         this.app.use(express_1.default.json());
         this.app.use(cors_1.default(corsOptions));
-        this.app.use(express_session_1.default({
-            secret: 'mySecret',
-            name: 'member',
-            saveUninitialized: false,
-            resave: true,
-        }));
+        this.app.use(exports.sessionMiddleware);
     }
     routerSetup() {
         for (const route of router_1.router) {

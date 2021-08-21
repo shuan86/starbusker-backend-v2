@@ -41,9 +41,9 @@ export const enroll = async (req: Request, res: Response) => {
 
 export const getPerformances = async (req: Request, res: Response) => {
     try {
-        const data = req.body.data
-        const performance = plainToClass(GetPerformancesType, JSON.parse(data))
-        const errors = await validate(performance, { skipMissingProperties: true })
+        const data = req.query.data as string
+        const performance = plainToClass(GetPerformancesType,  JSON.parse(data))
+        const errors = await validate(performance, { skipMissingProperties: false })
         if (errors.length > 0) {
             // console.error(errors);
             res.status(400).send(`parameter error`);
