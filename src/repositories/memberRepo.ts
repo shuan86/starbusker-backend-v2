@@ -72,7 +72,28 @@ export const createMember = async (data: Member): Promise<Member> => {
         return null
     }
 }
-
+export const loginByAccountPasswd = async (account: string, password: string): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const repo = getMemberRepos()
+        const member: Member = await repo.findOne({ account, password })
+        if (member != undefined) {
+            console.log('login sucessful:', member);
+            const frontEndMemberData = await getMemberInfoDataById(member.id)
+            repoData.status = 200
+            repoData.data = JSON.stringify(frontEndMemberData)
+            return repoData
+        }
+        else {
+            repoData.status = 401
+            repoData.data = 'login fail'
+            return repoData
+        }
+    } catch (error) {
+        console.error('login fail:', error);
+        return repoData
+    }
+}
 export const login = async (data: LoginType): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {
@@ -91,7 +112,7 @@ export const login = async (data: LoginType): Promise<ReponseType> => {
             return repoData
         }
     } catch (error) {
-        console.error('error login fail:', error);
+        console.error('login fail:', error);
         return repoData
     }
 }

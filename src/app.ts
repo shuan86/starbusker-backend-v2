@@ -7,6 +7,7 @@ import cors from 'cors'
 import { envSetup } from "./envSetup";
 import * as dotenv from 'dotenv'
 import session from "express-session";
+import passport from "./config/passport";
 dotenv.config({ path: envSetup() })
 const corsOptions = {
   origin: [
@@ -18,7 +19,7 @@ const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-export const sessionMiddleware=session({
+export const sessionMiddleware = session({
   secret: 'mySecret',
   name: 'member', // optional
   saveUninitialized: false,
@@ -26,7 +27,7 @@ export const sessionMiddleware=session({
 })
 declare module 'express-session' {
   interface SessionData {
-      member: number;
+    member: number;
   }
 }
 
@@ -48,7 +49,20 @@ export class App {
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
+    //express-session -> passport.initialize -> passport.session
     this.app.use(sessionMiddleware)
+    // 初始化 Passport
+    this.app.use(passport.initialize())
+    // 如果要使用 login session 時需設定
+    this.app.use(passport.session())
+    passport.serializeUser((user: any, done) => {
+      // 只將用戶 id 序列化存到 session 中
+      // done(null, user.id)
+    })
+    passport.deserializeUser((id, done) => {
+      // 透過使用者 id 到 MongoDB 資料庫尋找用戶完整資訊
+
+    })
   }
   private routerSetup() {
     for (const route of router) {

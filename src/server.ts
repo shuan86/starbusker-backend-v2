@@ -1,6 +1,6 @@
-import { app,sessionMiddleware } from "./app";
+import { app, sessionMiddleware } from "./app";
 import { Server } from "socket.io";
-import sharedsession from "express-socket.io-session";
+// import sharedsession from "express-socket.io-session";
 import session from "express-session";
 
 const PORT = 8081;
@@ -13,13 +13,13 @@ const io = new Server(server, {
     methods: ["GET", "POST"]
   }
 });
-io.use(sharedsession(sessionMiddleware, {
-  autoSave:true
-})); 
+// io.use(sharedsession(sessionMiddleware, {
+//   autoSave:true
+// })); 
 declare module "socket.io" {
   interface Handshake {
-      session?: session.Session & Partial<session.SessionData> | undefined;
-      sessionID?: string | undefined;
+    session?: session.Session & Partial<session.SessionData> | undefined;
+    sessionID?: string | undefined;
   }
 }
 

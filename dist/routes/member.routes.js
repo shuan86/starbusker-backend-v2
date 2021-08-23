@@ -27,6 +27,7 @@ const route_abstract_1 = __importDefault(require("./route.abstract"));
 const router_1 = require("../config/router");
 const memberController = __importStar(require("../controllers/memberController"));
 const auth_1 = require("../middlewares/auth");
+const rsaDecrypt_1 = require("../middlewares/rsaDecrypt");
 class MemberRoutes extends route_abstract_1.default {
     // private memberController: MemberController = new MemberController();
     constructor() {
@@ -40,7 +41,7 @@ class MemberRoutes extends route_abstract_1.default {
         this.router.route(router_1.apiPath.enroll)
             .post(memberController.enroll);
         this.router.route(router_1.apiPath.login)
-            .post(memberController.login);
+            .post(rsaDecrypt_1.loginRsaDecrypt, memberController.login);
         this.router.route(router_1.apiPath.logout)
             .post(auth_1.authMember, memberController.logout);
         this.router.route(router_1.apiPath.memberInfo)

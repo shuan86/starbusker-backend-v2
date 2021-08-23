@@ -27,6 +27,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.login = exports.enroll = exports.init = void 0;
 const Member_1 = require("../entities/Member");
@@ -35,6 +38,7 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const rsa_1 = require("../moudles/rsa");
 const memberType_1 = require("../types/memberType");
+const passport_1 = __importDefault(require("../config/passport"));
 const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield memberRepo.enroll(memberRepo.generateFixedMemberMockData());
@@ -72,37 +76,22 @@ const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.enroll = enroll;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const encryptData = req.body.encryptData;
-        const data = rsa_1.decrypt(encryptData);
-        const member = class_transformer_1.plainToClass(memberType_1.LoginType, JSON.parse(data));
-        const errors = yield class_validator_1.validate(member, { skipMissingProperties: true });
-        if (errors.length > 0) {
-            res.status(400).send(`parameter error`);
-            return;
-        }
-        else {
-            const result = yield memberRepo.login(member);
-            if (result.status == 200) {
-                const memberId = yield memberRepo.getIdByAccount(member.account);
-                req.session.member = memberId;
-                res.status(result.status).send(result.data);
-            }
-            else if (result.status == 401) {
-                res.status(result.status).send(result.data);
-            }
-            else {
-                res.status(500).send('server is busying');
-            }
-        }
-    }
-    catch (error) {
-        console.error('api login error:', error);
-    }
+    passport_1.default.authenticate('login', function (err, user, info) {
+        console.log('err:', err);
+        console.log('user:', user);
+        console.log('info:', info);
+        //   res.status(result.status).send(result.data)
+        const result = user;
+        console.log('result:', result);
+        res.status(result.status).send(result.data);
+    })(req, res);
 });
 exports.login = login;
 const logout = (req, res) => {
     try {
+        if (req.isAuthenticated()) {
+            console.log('logout');
+        }
         req.session.destroy(() => {
             console.log('session destroyed');
         });

@@ -28,7 +28,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberInfoById = exports.login = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = void 0;
+exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = void 0;
 const databaseRepo_1 = require("./databaseRepo");
 const memberType_1 = require("../types/memberType");
 const buskerRepo = __importStar(require("./buskerRepo"));
@@ -105,6 +105,30 @@ const createMember = (data) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.createMember = createMember;
+const loginByAccountPasswd = (account, password) => __awaiter(void 0, void 0, void 0, function* () {
+    let repoData = { status: 501, data: '' };
+    try {
+        const repo = databaseRepo_1.getMemberRepos();
+        const member = yield repo.findOne({ account, password });
+        if (member != undefined) {
+            console.log('login sucessful:', member);
+            const frontEndMemberData = yield exports.getMemberInfoDataById(member.id);
+            repoData.status = 200;
+            repoData.data = JSON.stringify(frontEndMemberData);
+            return repoData;
+        }
+        else {
+            repoData.status = 401;
+            repoData.data = 'login fail';
+            return repoData;
+        }
+    }
+    catch (error) {
+        console.error('login fail:', error);
+        return repoData;
+    }
+});
+exports.loginByAccountPasswd = loginByAccountPasswd;
 const login = (data) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
     try {
@@ -124,7 +148,7 @@ const login = (data) => __awaiter(void 0, void 0, void 0, function* () {
         }
     }
     catch (error) {
-        console.error('error login fail:', error);
+        console.error('login fail:', error);
         return repoData;
     }
 });
