@@ -3,6 +3,9 @@ import IRoute from './route.abstract';
 import { apiPath } from '../config/router';
 import * as memberController from "../controllers/memberController";
 import { authMember } from "../middlewares/auth";
+import { loginRsaDecrypt } from "../middlewares/rsaDecrypt";
+import passport from "../moudles/passport";
+
 export class MemberRoutes extends IRoute {
   // private memberController: MemberController = new MemberController();
   constructor() {
@@ -16,7 +19,7 @@ export class MemberRoutes extends IRoute {
     this.router.route(apiPath.enroll)
       .post(memberController.enroll);
     this.router.route(apiPath.login)
-      .post(memberController.login);
+      .post(loginRsaDecrypt, memberController.login);
     this.router.route(apiPath.logout)
       .post(authMember, memberController.logout);
     this.router.route(apiPath.memberInfo)

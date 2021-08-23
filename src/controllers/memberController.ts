@@ -7,7 +7,8 @@ import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
 import { LoginType, UpdateMemberInfoType } from '../types/memberType'
-
+import passport from "../moudles/passport";
+import { ReponseType } from 'types/reponseType';
 export const init = async (req: Request, res: Response) => {
     try {
         await memberRepo.enroll(memberRepo.generateFixedMemberMockData())
@@ -16,9 +17,6 @@ export const init = async (req: Request, res: Response) => {
         console.error('api enroll error:', error);
     }
 }
-
-
-
 export const enroll = async (req: Request, res: Response) => {
     try {
         const encryptData = req.body.encryptData
@@ -43,36 +41,18 @@ export const enroll = async (req: Request, res: Response) => {
     }
 }
 export const login = async (req: Request, res: Response) => {
-    try {
-        const encryptData = req.body.encryptData
-        const data = decrypt(encryptData)
-        const member = plainToClass(LoginType, JSON.parse(data))
-        const errors = await validate(member, { skipMissingProperties: true })
-        if (errors.length > 0) {
-            res.status(400).send(`parameter error`);
-            return;
-        } else {
-            const result = await memberRepo.login(member)
-            if (result.status == 200) {
-                const memberId = await memberRepo.getIdByAccount(member.account)
-                req.session.member = memberId
-                res.status(result.status).send(result.data)
-            }
-            else if (result.status == 401) {
-                res.status(result.status).send(result.data)
-            }
-            else {
-                res.status(500).send('server is busying')
-            }
-        }
-    } catch (error) {
-        console.error('api login error:', error);
-    }
-
+    passport.authenticate('login', async (err, data, info)=> {
+        if(data==false)
+        res.status(401).send('login fail');
+        const result = data as ReponseType
+        res.status(result.status).send(result.data);
+        
+    })(req, res)
 }
 export const logout = (req: Request, res: Response) => {
     try {
-
+    //    console.log('logout:',req.isAuthenticated());
+        req.logOut()
         req.session.destroy(() => {
             console.log('session destroyed')
         })
@@ -84,7 +64,8 @@ export const logout = (req: Request, res: Response) => {
 
 export const getMemberInfo = async (req: Request, res: Response) => {
     try {
-        const result = await memberRepo.getMemberInfoById(req.session.member)
+        const memberId=req.user as number
+        const result = await memberRepo.getMemberInfoById(memberId)
         res.status(result.status).send(result.data)
     } catch (error) {
         console.error('api getMemberInfo error:', error);
@@ -102,7 +83,8 @@ export const updateMemberInfo = async (req: Request, res: Response) => {
             return;
         }
         else {
-            const result = await memberRepo.updateMemberInfoById(req.session.member, infoData)
+            const memberId=req.user as number
+            const result = await memberRepo.updateMemberInfoById(memberId, infoData)
             res.status(result.status).send(result.data)
         }
     } catch (error) {

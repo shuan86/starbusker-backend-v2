@@ -50,7 +50,7 @@ afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
 describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll) `, () => {
     let postData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        postData = mockRequestData.generateEncryptPostData(memberRepo.generateFixedMemberMockData());
+        postData = mockRequestData.generateEncryptSendData(memberRepo.generateFixedMemberMockData());
     }));
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         const response = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enroll).send(Object.assign({}, postData));
@@ -65,7 +65,7 @@ describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll) 
     }));
     it(" it should return status 400 if use error format", () => __awaiter(void 0, void 0, void 0, function* () {
         //error format
-        const wrongData = mockRequestData.generateEncryptPostData({ account: 'ss' });
+        const wrongData = mockRequestData.generateEncryptSendData({ account: 'ss' });
         const response = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enroll).send(Object.assign({}, wrongData));
         expect(response.statusCode).toBe(400);
     }));
@@ -74,21 +74,21 @@ describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.login}(login)`, 
     let mockMember;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         mockMember = memberRepo.generateFixedMemberMockData();
-        yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enroll).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember)));
+        yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enroll).send(Object.assign({}, mockRequestData.generateEncryptSendData(mockMember)));
     }));
     it(" it should return status 200 if use correct account and password", () => __awaiter(void 0, void 0, void 0, function* () {
         const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password);
-        const loginResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(loginData)));
+        const loginResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptSendData(loginData)));
         expect(loginResult.statusCode).toBe(200);
     }));
     it(" it should return status 401 if use wrong account ", () => __awaiter(void 0, void 0, void 0, function* () {
         const wrongAccountData = memberRepo.generateLoginData('mockAccount', mockMember.password);
-        const wrongAccountResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(wrongAccountData)));
+        const wrongAccountResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptSendData(wrongAccountData)));
         expect(wrongAccountResult.statusCode).toBe(401);
     }));
     it(" it should return status 401 if use wrong  password", () => __awaiter(void 0, void 0, void 0, function* () {
         const wrongPasswordData = memberRepo.generateLoginData(mockMember.account, 'mockPassword');
-        const wrongPasswordResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(wrongPasswordData)));
+        const wrongPasswordResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptSendData(wrongPasswordData)));
         expect(wrongPasswordResult.statusCode).toBe(401);
     }));
 });
@@ -97,10 +97,10 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.memberInfo} and p
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         try {
             const mockMember = memberRepo.generateFixedMemberMockData();
-            const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.member).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember)));
+            const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.member).send(Object.assign({}, mockRequestData.generateEncryptSendData(mockMember)));
             expect(enrollResult.statusCode).toBe(200);
             const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password);
-            const res = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(loginData))).expect(200);
+            const res = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptSendData(loginData))).expect(200);
             cookies = res.headers["set-cookie"].pop().split(";")[0];
         }
         catch (error) {
@@ -114,7 +114,7 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.memberInfo} and p
     it(" put /api/memberInfo:it should return status 200 if use correct login", () => __awaiter(void 0, void 0, void 0, function* () {
         const mockMemberData = memberRepo.generateFixedMemberMockData();
         mockMemberData.name = 'mock';
-        const memberInfoResult = yield supertest_1.default(app_1.app).put(router_1.prefixApiPath + router_1.apiPath.memberInfo).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMemberData)));
+        const memberInfoResult = yield supertest_1.default(app_1.app).put(router_1.prefixApiPath + router_1.apiPath.memberInfo).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(mockMemberData)));
         expect(memberInfoResult.statusCode).toBe(200);
     }));
 });

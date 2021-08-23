@@ -7,6 +7,8 @@ import cors from 'cors'
 import { envSetup } from "./envSetup";
 import * as dotenv from 'dotenv'
 import session from "express-session";
+import passport from "./moudles/passport";
+
 dotenv.config({ path: envSetup() })
 const corsOptions = {
   origin: [
@@ -18,19 +20,23 @@ const corsOptions = {
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
-export const sessionMiddleware=session({
+export const sessionMiddleware = session({
   secret: 'mySecret',
   name: 'member', // optional
-  saveUninitialized: false,
   resave: true,
+  saveUninitialized: true,
 })
 declare module 'express-session' {
   interface SessionData {
-      member: number;
+    member: number;
   }
 }
 
-
+// declare module 'express' {
+//   interface Request {
+//     id: number
+//   }
+// }
 export class App {
   public app: express.Application;
   constructor() {
@@ -45,10 +51,17 @@ export class App {
     }
   }
   private config(): void {
-    this.app.use(express.urlencoded({ extended: true }));
+    this.app.use(express.urlencoded({ extended: false  }));
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
+    //express-session -> passport.initialize -> passport.session
     this.app.use(sessionMiddleware)
+   
+    // 初始化 Passport
+    this.app.use(passport.initialize())
+    // 如果要使用 login session 時需設定
+    this.app.use(passport.session())
+  
   }
   private routerSetup() {
     for (const route of router) {
