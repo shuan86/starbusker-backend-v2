@@ -86,7 +86,7 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 exports.login = login;
 const logout = (req, res) => {
     try {
-        console.log('logout:', req.isAuthenticated());
+        //    console.log('logout:',req.isAuthenticated());
         req.logOut();
         req.session.destroy(() => {
             console.log('session destroyed');
