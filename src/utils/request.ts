@@ -1,19 +1,19 @@
 
 import { encrypt } from "../moudles/rsa";
-type EncryptPostType = {
+type EncryptSendDataType = {
     encryptData: string
 }
-type PostType = {
+type SendDataType = {
     data: string
 }
-export const generateEncryptPostData = (data): EncryptPostType => {
+export const generateEncryptSendData = (data): EncryptSendDataType => {
     const jsonStr = JSON.stringify(data)
     const encryptData = encrypt(jsonStr)
-    const postData: EncryptPostType = { encryptData }
+    const postData: EncryptSendDataType = { encryptData }
     return postData
 }
-export const generatePostData = (data): PostType => {
+export const generateSendData = (data): SendDataType => {
     const jsonStr = JSON.stringify(data)
-    const postData: PostType = { data: jsonStr }
+    const postData: SendDataType = { data: jsonStr }
     return postData
 }

@@ -10,6 +10,7 @@ import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
 import { LoginType, FrontEndMemberDataType } from '../types/memberType'
+import { error } from 'console';
 
 
 
@@ -25,7 +26,9 @@ export const enroll = async (req: Request, res: Response) => {
             res.status(400).send(`parameter error`);
             return;
         } else {
-            busker.memberId = req.session.member
+        const memberId=req.user as number
+
+            busker.memberId = memberId
             const result = await buskerRepo.enroll(busker)
             if (result.status == 200 || result.status == 401) {
                 res.status(result.status).send(result.data)
@@ -86,7 +89,7 @@ export const applyPerformance = async (req: Request, res: Response) => {
             res.status(400).send(`parameter error`);
             return;
         } else {
-            const memberId = req.session.member
+            const memberId=req.user as number
             const buskerId = await buskerRepo.getIdByMemberId(memberId)
             performance.buskerId = buskerId
             const result = await buskerRepo.applyPerformance(performance)
@@ -103,9 +106,8 @@ export const applyPerformance = async (req: Request, res: Response) => {
 }
 export const getAllPerformanceTime = async (req: Request, res: Response) => {
     try {
-
-        const memberId = req.session.member
-        const buskerId = await buskerRepo.getIdByMemberId(memberId)
+        const memberId=req.user as number
+        // const buskerId = await buskerRepo.getIdByMemberId(memberId)
         const result = await buskerRepo.getAllPerformanceTime()
         console.log('getAllPerformanceTime:',result);
         

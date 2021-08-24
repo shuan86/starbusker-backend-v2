@@ -41,7 +41,7 @@ const cors_1 = __importDefault(require("cors"));
 const envSetup_1 = require("./envSetup");
 const dotenv = __importStar(require("dotenv"));
 const express_session_1 = __importDefault(require("express-session"));
-const passport_1 = __importDefault(require("./config/passport"));
+const passport_1 = __importDefault(require("./moudles/passport"));
 dotenv.config({ path: envSetup_1.envSetup() });
 const corsOptions = {
     origin: [
@@ -55,9 +55,14 @@ const corsOptions = {
 exports.sessionMiddleware = express_session_1.default({
     secret: 'mySecret',
     name: 'member',
-    saveUninitialized: false,
     resave: true,
+    saveUninitialized: true,
 });
+// declare module 'express' {
+//   interface Request {
+//     id: number
+//   }
+// }
 class App {
     constructor() {
         this.app = express_1.default();
@@ -70,7 +75,7 @@ class App {
         }
     }
     config() {
-        this.app.use(express_1.default.urlencoded({ extended: true }));
+        this.app.use(express_1.default.urlencoded({ extended: false }));
         this.app.use(express_1.default.json());
         this.app.use(cors_1.default(corsOptions));
         //express-session -> passport.initialize -> passport.session
@@ -79,13 +84,6 @@ class App {
         this.app.use(passport_1.default.initialize());
         // 如果要使用 login session 時需設定
         this.app.use(passport_1.default.session());
-        passport_1.default.serializeUser((user, done) => {
-            // 只將用戶 id 序列化存到 session 中
-            // done(null, user.id)
-        });
-        passport_1.default.deserializeUser((id, done) => {
-            // 透過使用者 id 到 MongoDB 資料庫尋找用戶完整資訊
-        });
     }
     routerSetup() {
         for (const route of router_1.router) {

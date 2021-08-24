@@ -48,7 +48,8 @@ const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             return;
         }
         else {
-            busker.memberId = req.session.member;
+            const memberId = req.user;
+            busker.memberId = memberId;
             const result = yield buskerRepo.enroll(busker);
             if (result.status == 200 || result.status == 401) {
                 res.status(result.status).send(result.data);
@@ -111,7 +112,7 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         else {
-            const memberId = req.session.member;
+            const memberId = req.user;
             const buskerId = yield buskerRepo.getIdByMemberId(memberId);
             performance.buskerId = buskerId;
             const result = yield buskerRepo.applyPerformance(performance);
@@ -130,8 +131,8 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.applyPerformance = applyPerformance;
 const getAllPerformanceTime = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const memberId = req.session.member;
-        const buskerId = yield buskerRepo.getIdByMemberId(memberId);
+        const memberId = req.user;
+        // const buskerId = await buskerRepo.getIdByMemberId(memberId)
         const result = yield buskerRepo.getAllPerformanceTime();
         console.log('getAllPerformanceTime:', result);
         if (result.status == 200 || result.status == 401) {

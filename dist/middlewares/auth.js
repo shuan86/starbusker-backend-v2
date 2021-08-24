@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMember = void 0;
 const authMember = (req, res, next) => {
-    if (req.session.member) {
-        next();
+    // console.log('logout:',req.isAuthenticated());
+    if (req.isAuthenticated()) {
+        return next();
     }
     else {
-        res.status(401).send('logout fail');
+        res.status(401).send('you need to login first');
     }
 };
 exports.authMember = authMember;

@@ -48,10 +48,10 @@ let enrollBuskerData;
 beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mockDbTestConnection_1.mockConnection.clearAllRepo();
     const mockMember = memberRepo.generateFixedMemberMockData();
-    const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.member).send(Object.assign({}, mockRequestData.generateEncryptPostData(mockMember)));
+    const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.member).send(Object.assign({}, mockRequestData.generateEncryptSendData(mockMember)));
     expect(enrollResult.statusCode).toBe(200);
     const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password);
-    const res = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptPostData(loginData))).expect(200);
+    const res = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.login).send(Object.assign({}, mockRequestData.generateEncryptSendData(loginData))).expect(200);
     cookies = res.headers["set-cookie"].pop().split(";")[0];
     memberId = yield memberRepo.getIdByAccount(mockMember.account);
     enrollBuskerData = buskerRepo.generateEnrollBusker("description", 0);
@@ -62,40 +62,40 @@ afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
 }));
 describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll busker)`, () => {
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
-        const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(Object.assign({}, enrollBuskerData))));
         expect(enrollResult.statusCode).toBe(200);
     }));
     it(" it should return status 200 if  repeat enroll", () => __awaiter(void 0, void 0, void 0, function* () {
-        const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        const enrollResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(Object.assign({}, enrollBuskerData))));
         expect(enrollResult.statusCode).toBe(200);
-        const enrollResult1 = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        const enrollResult1 = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(Object.assign({}, enrollBuskerData))));
         expect(enrollResult1.statusCode).toBe(401);
     }));
     it(" it should return status 401 if use incorrect parameter", () => __awaiter(void 0, void 0, void 0, function* () {
-        const enrollResult1 = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData({})));
+        const enrollResult1 = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData({})));
         expect(enrollResult1.statusCode).toBe(400);
     }));
 });
 describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.performances}( Apply busker performance)`, () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(Object.assign({}, enrollBuskerData))));
         performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
     }));
     it(" it should return status 200 if correct apply", () => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, performanceData))));
+        const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, performanceData))));
         expect(result.statusCode).toBe(200);
     }));
     it(" it should return status 400 if incorrect apply", () => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData({})));
+        const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateSendData({})));
         expect(result.statusCode).toBe(400);
     }));
 });
 describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performancesTime}(get all time of busker performance)`, () => {
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(Object.assign({}, enrollBuskerData))));
         const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
-        const applyResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, performanceData))));
+        const applyResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, performanceData))));
     }));
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.performancesTime).set("Cookie", [cookies]).send({});
@@ -103,13 +103,13 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performancesTime}
         expect(result.statusCode).toBe(200);
     }));
 });
-describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performances}(get all time of busker performance)`, () => {
+describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performances}(get specific busker performance)`, () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptPostData(Object.assign({}, enrollBuskerData))));
+        const enrollBuskerResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.enrollBusker).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(Object.assign({}, enrollBuskerData))));
         performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
         const applyResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performances)
-            .set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, performanceData))));
+            .set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, performanceData))));
     }));
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         const getPerformancesData = {
@@ -117,7 +117,7 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performances}(get
             time: `${performanceData.time.getUTCFullYear()}-${performanceData.time.getMonth() + 1}-${performanceData.time.getDate()}`
         };
         const result = yield supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.performances)
-            .set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generatePostData(Object.assign({}, getPerformancesData))));
+            .set("Cookie", [cookies]).query(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, getPerformancesData))));
         // console.error('123:', result.text);
         expect(result.statusCode).toBe(200);
     }));

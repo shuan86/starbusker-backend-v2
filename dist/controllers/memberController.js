@@ -38,7 +38,7 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const rsa_1 = require("../moudles/rsa");
 const memberType_1 = require("../types/memberType");
-const passport_1 = __importDefault(require("../config/passport"));
+const passport_1 = __importDefault(require("../moudles/passport"));
 const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield memberRepo.enroll(memberRepo.generateFixedMemberMockData());
@@ -76,22 +76,18 @@ const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.enroll = enroll;
 const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    passport_1.default.authenticate('login', function (err, user, info) {
-        console.log('err:', err);
-        console.log('user:', user);
-        console.log('info:', info);
-        //   res.status(result.status).send(result.data)
-        const result = user;
-        console.log('result:', result);
+    passport_1.default.authenticate('login', (err, data, info) => __awaiter(void 0, void 0, void 0, function* () {
+        if (data == false)
+            res.status(401).send('login fail');
+        const result = data;
         res.status(result.status).send(result.data);
-    })(req, res);
+    }))(req, res);
 });
 exports.login = login;
 const logout = (req, res) => {
     try {
-        if (req.isAuthenticated()) {
-            console.log('logout');
-        }
+        //    console.log('logout:',req.isAuthenticated());
+        req.logOut();
         req.session.destroy(() => {
             console.log('session destroyed');
         });
@@ -104,7 +100,8 @@ const logout = (req, res) => {
 exports.logout = logout;
 const getMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const result = yield memberRepo.getMemberInfoById(req.session.member);
+        const memberId = req.user;
+        const result = yield memberRepo.getMemberInfoById(memberId);
         res.status(result.status).send(result.data);
     }
     catch (error) {
@@ -124,7 +121,8 @@ const updateMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, functio
             return;
         }
         else {
-            const result = yield memberRepo.updateMemberInfoById(req.session.member, infoData);
+            const memberId = req.user;
+            const result = yield memberRepo.updateMemberInfoById(memberId, infoData);
             res.status(result.status).send(result.data);
         }
     }

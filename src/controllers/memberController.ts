@@ -7,7 +7,7 @@ import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
 import { LoginType, UpdateMemberInfoType } from '../types/memberType'
-import passport from "../config/passport";
+import passport from "../moudles/passport";
 import { ReponseType } from 'types/reponseType';
 export const init = async (req: Request, res: Response) => {
     try {
@@ -17,9 +17,6 @@ export const init = async (req: Request, res: Response) => {
         console.error('api enroll error:', error);
     }
 }
-
-
-
 export const enroll = async (req: Request, res: Response) => {
     try {
         const encryptData = req.body.encryptData
@@ -44,20 +41,18 @@ export const enroll = async (req: Request, res: Response) => {
     }
 }
 export const login = async (req: Request, res: Response) => {
-    passport.authenticate('login', function (err, user, info) {
-        console.log('err:', err);
-        console.log('user:', user);
-        console.log('info:', info);
-
-        //   res.status(result.status).send(result.data)
-        const result = user as ReponseType
-        console.log('result:', result);
+    passport.authenticate('login', async (err, data, info)=> {
+        if(data==false)
+        res.status(401).send('login fail');
+        const result = data as ReponseType
         res.status(result.status).send(result.data);
+        
     })(req, res)
 }
 export const logout = (req: Request, res: Response) => {
     try {
-
+    //    console.log('logout:',req.isAuthenticated());
+        req.logOut()
         req.session.destroy(() => {
             console.log('session destroyed')
         })
@@ -69,7 +64,8 @@ export const logout = (req: Request, res: Response) => {
 
 export const getMemberInfo = async (req: Request, res: Response) => {
     try {
-        const result = await memberRepo.getMemberInfoById(req.session.member)
+        const memberId=req.user as number
+        const result = await memberRepo.getMemberInfoById(memberId)
         res.status(result.status).send(result.data)
     } catch (error) {
         console.error('api getMemberInfo error:', error);
@@ -87,7 +83,8 @@ export const updateMemberInfo = async (req: Request, res: Response) => {
             return;
         }
         else {
-            const result = await memberRepo.updateMemberInfoById(req.session.member, infoData)
+            const memberId=req.user as number
+            const result = await memberRepo.updateMemberInfoById(memberId, infoData)
             res.status(result.status).send(result.data)
         }
     } catch (error) {
