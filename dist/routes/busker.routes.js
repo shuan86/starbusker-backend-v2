@@ -39,7 +39,7 @@ class BuskerRoutes extends route_abstract_1.default {
         // }); 
         this.router.route(router_1.apiPath.enrollBusker)
             .post(auth_1.authMember, buskerController.enroll);
-        this.router.route(router_1.apiPath.performances)
+        this.router.route(router_1.apiPath.performance)
             .post(auth_1.authMember, buskerController.applyPerformance);
         this.router.route(router_1.apiPath.performances)
             .get(auth_1.authMember, buskerController.getPerformances);

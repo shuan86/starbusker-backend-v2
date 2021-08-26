@@ -10,6 +10,7 @@ exports.apiPath = {
     login: '/login',
     memberInfo: '/memberInfo',
     enrollBusker: '/busker',
+    performance: '/performance',
     performances: '/performances',
     performancesTime: '/performancesTime'
 };
