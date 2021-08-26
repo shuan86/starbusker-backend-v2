@@ -175,7 +175,7 @@ const getPerformances = (time, page) => __awaiter(void 0, void 0, void 0, functi
         time.setSeconds(0);
         const nextDate = exports.setCurrentData(time.getUTCFullYear(), time.getMonth() + 1, time.getDate() + 1, 23, 59);
         const dataArrr = yield buskerPerformanceRepo.createQueryBuilder('p')
-            .select(['p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
+            .select(['p.id', 'p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
             .where("p.time BETWEEN '" + exports.dateToDbDate(time) + "' AND '" + exports.dateToDbDate(nextDate) + "'")
             .skip((page - 1) * perItem).take(perItem)
             .getManyAndCount();
