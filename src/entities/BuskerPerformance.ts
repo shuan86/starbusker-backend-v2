@@ -22,12 +22,10 @@ export class BuskerPerformance {
   @Expose()
   @Column({ type: 'datetime', default: () => 'NOW()' })
   time: Date
-  @Column()
+  @Column({default: () => 0})
   lineMoney: number
   @Column({ type: "double" })
   latitude: number
-  @IsDefined()
-  @Expose()
   @Column({ type: "double" })
   longitude: number
   @IsDefined()

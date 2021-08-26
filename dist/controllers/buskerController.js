@@ -35,11 +35,9 @@ const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 const buskerRepo = __importStar(require("../repositories/buskerRepo"));
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
-const rsa_1 = require("../moudles/rsa");
 const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const encryptData = req.body.encryptData;
-        const data = rsa_1.decrypt(encryptData);
+        const data = req.body.data;
         const busker = class_transformer_1.plainToClass(Busker_1.Busker, JSON.parse(data));
         const errors = yield class_validator_1.validate(busker, { skipMissingProperties: true });
         if (errors.length > 0) {
@@ -51,6 +49,7 @@ const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const memberId = req.user;
             busker.memberId = memberId;
             const result = yield buskerRepo.enroll(busker);
+            console.log('busker enroll:', result);
             if (result.status == 200 || result.status == 401) {
                 res.status(result.status).send(result.data);
             }
@@ -115,13 +114,15 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
             const memberId = req.user;
             const buskerId = yield buskerRepo.getIdByMemberId(memberId);
             performance.buskerId = buskerId;
-            const result = yield buskerRepo.applyPerformance(performance);
-            if (result.status == 200 || result.status == 401) {
-                res.status(result.status).send(result.data);
+            if (buskerId) {
+                const result = yield buskerRepo.applyPerformance(performance);
+                if (result.status == 200 || result.status == 401) {
+                    res.status(result.status).send(result.data);
+                    console.log('applyPerformance result:', result);
+                }
             }
-            else {
-                res.status(500).send('server is busying');
-            }
+            else
+                res.status(401).send('server is busying');
         }
     }
     catch (error) {

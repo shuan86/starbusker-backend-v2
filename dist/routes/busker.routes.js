@@ -42,9 +42,9 @@ class BuskerRoutes extends route_abstract_1.default {
         this.router.route(router_1.apiPath.performance)
             .post(auth_1.authMember, buskerController.applyPerformance);
         this.router.route(router_1.apiPath.performances)
-            .get(auth_1.authMember, buskerController.getPerformances);
+            .get(buskerController.getPerformances);
         this.router.route(router_1.apiPath.performancesTime)
-            .get(auth_1.authMember, buskerController.getAllPerformanceTime);
+            .get(buskerController.getAllPerformanceTime);
     }
 }
 exports.BuskerRoutes = BuskerRoutes;

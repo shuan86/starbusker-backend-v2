@@ -227,7 +227,7 @@ npm run tsc-prod
 | :-------- | :------- | :------- | :------------------------- |
 | `title` | `string` | **Required** |performance's title|
 | `description` | `string` | **Required** |performance's description|
-| `time` | `string` | **Required** |performance's time|
+| `time` | `Date` | **Required** |performance's time|
 | `location` | `string` | **Required** |performance's location|
 
 ##### Response

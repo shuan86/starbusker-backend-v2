@@ -43,7 +43,7 @@ __decorate([
     __metadata("design:type", Date)
 ], BuskerPerformance.prototype, "time", void 0);
 __decorate([
-    typeorm_1.Column(),
+    typeorm_1.Column({ default: () => 0 }),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "lineMoney", void 0);
 __decorate([
@@ -51,8 +51,6 @@ __decorate([
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "latitude", void 0);
 __decorate([
-    class_validator_1.IsDefined(),
-    class_transformer_1.Expose(),
     typeorm_1.Column({ type: "double" }),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "longitude", void 0);
