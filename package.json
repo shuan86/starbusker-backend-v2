@@ -12,7 +12,7 @@
     "start": "set \"NODE_ENV=development\" && node app.js prod",
     "prod": " npm run tsc-build && npm run ts-start prod",
     "dev": " npm run tsc-build && npm run ts-start dev",
-    "test": " jest test",
+    "test": " jest test --detectOpenHandles",
     "test:path": " jest  --testPathPattern='busker.api.test' ",
     "test:watch": "jest --watch test"
   },
