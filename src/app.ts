@@ -6,26 +6,34 @@ import config from './config/ormconfig';
 import cors from 'cors'
 import { envSetup } from "./envSetup";
 import * as dotenv from 'dotenv'
-import session from "express-session";
 import passport from "./moudles/passport";
+// import session from "express-session";
+var session = require('express-session')
 
+const  cookieParser = require('cookie-parser');
+const redis = require('redis')
+let RedisStore = require('connect-redis')(session)
+let redisClient = redis.createClient()
 dotenv.config({ path: envSetup() })
 const corsOptions = {
   origin: [
     'http://www.example.com',
     'http://localhost:3000',
-
+    '127.0.0.1:3000'
   ],
   credentials: true,
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
+
 export const sessionMiddleware = session({
-  secret: 'mySecret',
+  key: 'connect.sid',
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SESSION_SECRET,
   name: 'member', // optional
-  resave: true,
-  saveUninitialized: true,
+ 
 })
+
 declare module 'express-session' {
   interface SessionData {
     member: number;

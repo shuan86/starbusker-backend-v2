@@ -15,7 +15,7 @@ export class BuskerRoutes extends IRoute {
     // }); 
     this.router.route(apiPath.enrollBusker)
       .post(authMember, buskerController.enroll);
-    this.router.route(apiPath.performances)
+    this.router.route(apiPath.performance)
       .post(authMember, buskerController.applyPerformance);
     this.router.route(apiPath.performances)
       .get(authMember, buskerController.getPerformances);

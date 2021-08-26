@@ -40,23 +40,29 @@ const ormconfig_1 = __importDefault(require("./config/ormconfig"));
 const cors_1 = __importDefault(require("cors"));
 const envSetup_1 = require("./envSetup");
 const dotenv = __importStar(require("dotenv"));
-const express_session_1 = __importDefault(require("express-session"));
 const passport_1 = __importDefault(require("./moudles/passport"));
+// import session from "express-session";
+var session = require('express-session');
+const cookieParser = require('cookie-parser');
+const redis = require('redis');
+let RedisStore = require('connect-redis')(session);
+let redisClient = redis.createClient();
 dotenv.config({ path: envSetup_1.envSetup() });
 const corsOptions = {
     origin: [
         'http://www.example.com',
         'http://localhost:3000',
+        '127.0.0.1:3000'
     ],
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
-exports.sessionMiddleware = express_session_1.default({
-    secret: 'mySecret',
+exports.sessionMiddleware = session({
+    key: 'connect.sid',
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET,
     name: 'member',
-    resave: true,
-    saveUninitialized: true,
 });
 // declare module 'express' {
 //   interface Request {

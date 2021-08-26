@@ -163,7 +163,7 @@ export const getPerformances = async (time: Date, page: number): Promise<Reponse
 
         const nextDate = setCurrentData(time.getUTCFullYear(), time.getMonth() + 1, time.getDate() + 1, 23, 59)
         const dataArrr = await buskerPerformanceRepo.createQueryBuilder('p')
-            .select(['p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
+            .select(['p.id','p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
             .where("p.time BETWEEN '" + dateToDbDate(time) + "' AND '" + dateToDbDate(nextDate) + "'")
             .skip((page - 1) * perItem).take(perItem)
             .getManyAndCount()
