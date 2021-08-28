@@ -8,34 +8,34 @@ let server = app.listen(PORT, () => {
 })
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000","http://127.0.0.1:3000"],
-    credentials:true
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    credentials: true
   }
 });
 io.use(sharedsession(sessionMiddleware, {
-  autoSave:true
-})); 
-io.use((socket:any, next) => {
-  if( socket.handshake.session.passport){
-    console.log(socket.handshake.session.passport.user);
+  autoSave: true
+}));
+io.use((socket: any, next) => {
+  if (socket.handshake.session.passport) {
+    console.log('socketio:', socket.handshake.session.passport.user);
     next();
   }
-  else{
+  else {
     console.log('socket.io:you are blocked');
   }
 });
-io.on('connection', (socket:any) => {
+io.on('connection', (socket: any) => {
   //經過連線後在 console 中印出訊息
   console.log('success connect !:')
- 
-  
+
+
   socket.on("disconnect", () => {
     console.log("a user go out");
   });
   //監聽透過 connection 傳進來的事件
   socket.on('sendMsg', message => {
     //回傳 message 給發送訊息的 Client
-    console.log("sendMsg:",message);
+    console.log("sendMsg:", message);
     socket.broadcast.emit('allMsg', message)
   })
 })

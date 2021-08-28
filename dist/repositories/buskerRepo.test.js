@@ -99,7 +99,7 @@ globals_1.describe("busker repo test(getAllPerformanceTime)", () => {
                 hour++;
             }
             minute = Math.random() * 60;
-            yield buskerRepo.applyMockPerformance(buskerArr[i].id, performanceData);
+            yield buskerRepo.applyMockPerformance(performanceData);
         }
     }));
     it("Test get all Performance time :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -132,7 +132,7 @@ globals_1.describe("busker repo test(getPerformances)", () => {
                 hour++;
             }
             minute = Math.random() * 60;
-            yield buskerRepo.applyMockPerformance(buskerArr[i].id, performanceData);
+            yield buskerRepo.applyMockPerformance(performanceData);
         }
     }));
     it("Test get Performances :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {

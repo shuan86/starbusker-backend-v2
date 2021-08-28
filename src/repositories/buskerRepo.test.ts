@@ -76,7 +76,7 @@ describe("busker repo test(getAllPerformanceTime)", () => {
                 hour++
             }
             minute = Math.random() * 60
-            await buskerRepo.applyMockPerformance(buskerArr[i].id, performanceData)
+            await buskerRepo.applyMockPerformance(performanceData)
         }
     });
     it("Test get all Performance time :it should be return 200 if use correct  format", async () => {
@@ -112,7 +112,7 @@ describe("busker repo test(getPerformances)", () => {
                 hour++
             }
             minute = Math.random() * 60
-            await buskerRepo.applyMockPerformance(buskerArr[i].id, performanceData)
+            await buskerRepo.applyMockPerformance(performanceData)
         }
     });
     it("Test get Performances :it should be return 200 if use correct  format", async () => {

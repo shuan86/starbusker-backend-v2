@@ -31,8 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.app = exports.App = exports.sessionMiddleware = void 0;
-require("reflect-metadata");
+exports.app = exports.App = exports.sessionMiddleware = exports.redisClient = void 0;
 const express_1 = __importDefault(require("express"));
 const router_1 = require("./routes/router");
 const typeorm_1 = require("typeorm");
@@ -41,12 +40,11 @@ const cors_1 = __importDefault(require("cors"));
 const envSetup_1 = require("./envSetup");
 const dotenv = __importStar(require("dotenv"));
 const passport_1 = __importDefault(require("./moudles/passport"));
-// import session from "express-session";
-var session = require('express-session');
-const cookieParser = require('cookie-parser');
-const redis = require('redis');
-let RedisStore = require('connect-redis')(session);
-let redisClient = redis.createClient();
+const express_session_1 = __importDefault(require("express-session"));
+const redis_1 = __importDefault(require("redis"));
+const connect_redis_1 = __importDefault(require("connect-redis"));
+const RedisStore = connect_redis_1.default(express_session_1.default);
+exports.redisClient = redis_1.default.createClient();
 dotenv.config({ path: envSetup_1.envSetup() });
 const corsOptions = {
     origin: [
@@ -58,17 +56,11 @@ const corsOptions = {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: ['Content-Type', 'Authorization'],
 };
-exports.sessionMiddleware = session({
-    key: 'connect.sid',
-    store: new RedisStore({ client: redisClient }),
+exports.sessionMiddleware = express_session_1.default({
+    store: new RedisStore({ client: exports.redisClient }),
     secret: process.env.SESSION_SECRET,
     name: 'member',
 });
-// declare module 'express' {
-//   interface Request {
-//     id: number
-//   }
-// }
 class App {
     constructor() {
         this.app = express_1.default();

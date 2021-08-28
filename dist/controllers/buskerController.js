@@ -67,13 +67,15 @@ const getPerformances = (req, res) => __awaiter(void 0, void 0, void 0, function
     try {
         const data = req.query.data;
         const performance = class_transformer_1.plainToClass(BuskerPerformance_1.GetPerformancesType, JSON.parse(data));
-        const errors = yield class_validator_1.validate(performance, { skipMissingProperties: false });
+        const errors = yield class_validator_1.validate(performance);
         if (errors.length > 0) {
             // console.error(errors);
             res.status(400).send(`parameter error`);
             return;
         }
         else {
+            // if (performance.time.includes('-') == false) {
+            // }
             const timeArr = performance.time.split('-');
             if (timeArr.length < 3) {
                 res.status(400).send(`time parameter error`);

@@ -22,7 +22,7 @@ export class BuskerPerformance {
   @Expose()
   @Column({ type: 'datetime', default: () => 'NOW()' })
   time: Date
-  @Column({default: () => 0})
+  @Column({ default: () => 0 })
   lineMoney: number
   @Column({ type: "double" })
   latitude: number
@@ -49,7 +49,11 @@ export class ApplyPerformanceType {
   }
 }
 export class GetPerformancesType {
+  @IsDefined()
+  @Expose()
   time: string
+  @IsDefined()
+  @Expose()
   page: number
   constructor(time: string, page: number) {
     this.time = time

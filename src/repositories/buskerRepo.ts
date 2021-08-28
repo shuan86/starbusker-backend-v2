@@ -105,7 +105,7 @@ export const generateDiffPerformanceData = (buskerId: number, time: Date): Buske
     }
 
     const mockData: BuskerPerformance = {
-        id: 0, buskerId, title: `title${mockCount}`
+        id: 0, buskerId: buskerId, title: `title${mockCount}`
         , description: `description${mockCount}`
         , time: time
         , lineMoney: 0
@@ -163,7 +163,7 @@ export const getPerformances = async (time: Date, page: number): Promise<Reponse
 
         const nextDate = setCurrentData(time.getUTCFullYear(), time.getMonth() + 1, time.getDate() + 1, 23, 59)
         const dataArrr = await buskerPerformanceRepo.createQueryBuilder('p')
-            .select(['p.id','p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
+            .select(['p.id', 'p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
             .where("p.time BETWEEN '" + dateToDbDate(time) + "' AND '" + dateToDbDate(nextDate) + "'")
             .skip((page - 1) * perItem).take(perItem)
             .getManyAndCount()
@@ -210,29 +210,47 @@ export const applyPerformance = async (data: BuskerPerformance): Promise<Reponse
         return repoData
     }
 }
-export const applyMockPerformance = async (buskerId: number, data: BuskerPerformance): Promise<ReponseType> => {
+export const applyMockPerformance = async (data: BuskerPerformance): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {
         const repo = getBuskerPerformanceRepo()
-        const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: buskerId })
-        if (isPerformanceExist) {
+        // const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
+        // const geocode = await geocoder.geocode(data.location)
 
-            await repo.save({ ...data })
-            repoData.status = 200
-            repoData.data = ''
-            return repoData
-        }
-        else {
-            await repo.save({ ...data })
-            repoData.status = 200
-            repoData.data = ''
-            return repoData
-
-        }
+        // data.latitude = geocode[0].latitude
+        // data.longitude = geocode[0].longitude
+        await repo.save(repo.create(data))
+        repoData.status = 200
+        repoData.data = ''
+        return repoData
     } catch (error) {
-        console.error('apply error:', error);
+        console.error('applyPerformance error:', error);
         return repoData
     }
+    // let repoData: ReponseType = { status: 501, data: '' }
+    // try {
+    //     const repo = getBuskerPerformanceRepo()
+
+    //     const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
+    //     console.log('data.buskerId:', data.buskerId, 'isPerformanceExist:', isPerformanceExist);
+    //     if (isPerformanceExist) {
+
+    //         await repo.save({ ...data })
+    //         repoData.status = 200
+    //         repoData.data = ''
+    //         return repoData
+    //     }
+    //     else {
+    //         await repo.save({ ...data })
+    //         repoData.status = 200
+    //         repoData.data = ''
+    //         return repoData
+
+    //     }
+    // } catch (error) {
+    //     console.error('applyMockPerformance error:', error);
+    //     return repoData
+    // }
 }
 export const isBuskerByMemberId = async (id: number): Promise<boolean> => {
     try {

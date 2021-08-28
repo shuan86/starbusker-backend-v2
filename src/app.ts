@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import express from "express";
 import { router } from "./routes/router";
 import { createConnection, getConnection } from 'typeorm';
@@ -7,13 +6,11 @@ import cors from 'cors'
 import { envSetup } from "./envSetup";
 import * as dotenv from 'dotenv'
 import passport from "./moudles/passport";
-// import session from "express-session";
-var session = require('express-session')
-
-const  cookieParser = require('cookie-parser');
-const redis = require('redis')
-let RedisStore = require('connect-redis')(session)
-let redisClient = redis.createClient()
+import session from 'express-session';
+import redis from 'redis';
+import connectRedis from 'connect-redis';
+const RedisStore = connectRedis(session);
+export const redisClient = redis.createClient()
 dotenv.config({ path: envSetup() })
 const corsOptions = {
   origin: [
@@ -27,11 +24,9 @@ const corsOptions = {
 };
 
 export const sessionMiddleware = session({
-  key: 'connect.sid',
   store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET,
   name: 'member', // optional
- 
 })
 
 declare module 'express-session' {
@@ -39,12 +34,6 @@ declare module 'express-session' {
     member: number;
   }
 }
-
-// declare module 'express' {
-//   interface Request {
-//     id: number
-//   }
-// }
 export class App {
   public app: express.Application;
   constructor() {
@@ -59,17 +48,17 @@ export class App {
     }
   }
   private config(): void {
-    this.app.use(express.urlencoded({ extended: false  }));
+    this.app.use(express.urlencoded({ extended: false }));
     this.app.use(express.json());
     this.app.use(cors(corsOptions));
     //express-session -> passport.initialize -> passport.session
     this.app.use(sessionMiddleware)
-   
+
     // 初始化 Passport
     this.app.use(passport.initialize())
     // 如果要使用 login session 時需設定
     this.app.use(passport.session())
-  
+
   }
   private routerSetup() {
     for (const route of router) {

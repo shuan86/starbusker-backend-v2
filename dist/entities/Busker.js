@@ -49,7 +49,7 @@ __decorate([
     __metadata("design:type", Member_1.Member)
 ], Busker.prototype, "member", void 0);
 __decorate([
-    typeorm_1.OneToMany(type => BuskerPerformance_1.BuskerPerformance, busker => busker.buskerId, { cascade: true }),
+    typeorm_1.OneToMany(type => BuskerPerformance_1.BuskerPerformance, performance => performance.buskerId, { cascade: true }),
     __metadata("design:type", Array)
 ], Busker.prototype, "performances", void 0);
 Busker = __decorate([

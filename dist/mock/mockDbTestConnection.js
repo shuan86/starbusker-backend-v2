@@ -17,6 +17,7 @@ const typeorm_1 = require("typeorm");
 const ormconfig_1 = __importDefault(require("../config/ormconfig"));
 const memberRepo_1 = require("../repositories/memberRepo");
 const buskerRepo_1 = require("../repositories/buskerRepo");
+const app_1 = require("../app");
 // import { clear as clearBuskerData } from '../repositories/per'
 exports.mockConnection = {
     create() {
@@ -28,6 +29,9 @@ exports.mockConnection = {
         return __awaiter(this, void 0, void 0, function* () {
             // await clearBuskerData()
             // await clearMemberData()
+            if (app_1.redisClient) {
+                app_1.redisClient.quit();
+            }
             yield typeorm_1.getConnection().close();
         });
     },

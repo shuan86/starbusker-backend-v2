@@ -27,7 +27,7 @@ export class Busker {
   description: string
   @ManyToOne(type => Member, member => member.buskers, { onDelete: 'CASCADE' })
   member: Member;
-  @OneToMany(type => BuskerPerformance, busker => busker.buskerId, { cascade: true })
+  @OneToMany(type => BuskerPerformance, performance => performance.buskerId, { cascade: true })
   performances: BuskerPerformance[]
 }
 //front-end request format

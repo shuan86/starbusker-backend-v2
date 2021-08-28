@@ -25,12 +25,12 @@ export const enroll = async (req: Request, res: Response) => {
             res.status(400).send(`parameter error`);
             return;
         } else {
-        const memberId=req.user as number
+            const memberId = req.user as number
 
             busker.memberId = memberId
             const result = await buskerRepo.enroll(busker)
-            console.log('busker enroll:',result);
-            
+            console.log('busker enroll:', result);
+
             if (result.status == 200 || result.status == 401) {
                 res.status(result.status).send(result.data)
             }
@@ -46,13 +46,16 @@ export const enroll = async (req: Request, res: Response) => {
 export const getPerformances = async (req: Request, res: Response) => {
     try {
         const data = req.query.data as string
-        const performance = plainToClass(GetPerformancesType,  JSON.parse(data))
-        const errors = await validate(performance, { skipMissingProperties: false })
+        const performance = plainToClass(GetPerformancesType, JSON.parse(data))
+        const errors = await validate(performance)
         if (errors.length > 0) {
             // console.error(errors);
             res.status(400).send(`parameter error`);
             return;
         } else {
+            // if (performance.time.includes('-') == false) {
+
+            // }
             const timeArr = performance.time.split('-')
 
             if (timeArr.length < 3) {
@@ -83,8 +86,8 @@ export const getPerformances = async (req: Request, res: Response) => {
 export const applyPerformance = async (req: Request, res: Response) => {
     try {
         const data = req.body.data
-        
-        
+
+
         const performance = plainToClass(BuskerPerformance, JSON.parse(data))
         const errors = await validate(performance, { skipMissingProperties: true })
         if (errors.length > 0) {
@@ -92,19 +95,19 @@ export const applyPerformance = async (req: Request, res: Response) => {
             res.status(400).send(`parameter error`);
             return;
         } else {
-            const memberId=req.user as number
+            const memberId = req.user as number
             const buskerId = await buskerRepo.getIdByMemberId(memberId)
             performance.buskerId = buskerId
-           
-            if(buskerId){
+
+            if (buskerId) {
                 const result = await buskerRepo.applyPerformance(performance)
                 if (result.status == 200 || result.status == 401) {
                     res.status(result.status).send(result.data)
-                    console.log('applyPerformance result:',result);
+                    console.log('applyPerformance result:', result);
                 }
             }
             else
-            res.status(401).send('server is busying')
+                res.status(401).send('server is busying')
         }
     } catch (error) {
         console.error('api applyPerformance error:', error);
@@ -112,11 +115,11 @@ export const applyPerformance = async (req: Request, res: Response) => {
 }
 export const getAllPerformanceTime = async (req: Request, res: Response) => {
     try {
-        const memberId=req.user as number
+        const memberId = req.user as number
         // const buskerId = await buskerRepo.getIdByMemberId(memberId)
         const result = await buskerRepo.getAllPerformanceTime()
-        console.log('getAllPerformanceTime:',result);
-        
+        console.log('getAllPerformanceTime:', result);
+
         if (result.status == 200 || result.status == 401) {
             res.status(result.status).send(result.data)
         }

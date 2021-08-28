@@ -11,6 +11,7 @@ export const init = async (req: Request, res: Response) => {
     await memberRepo.clear()
     let memberArr = []
     let buskerArr = []
+    console.log('start init');
 
     for (let i = 0; i < 100; i++) {
         let memberData = memberRepo.generateDiffMemberMockData()
@@ -26,6 +27,7 @@ export const init = async (req: Request, res: Response) => {
     let date = time.date
     let hour = time.hour
     let minute = time.minute
+
     for (let i = 0; i < buskerArr.length; i++) {
         const performanceData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id
             , buskerRepo.setCurrentData(year, month, date, hour, minute))
@@ -34,7 +36,7 @@ export const init = async (req: Request, res: Response) => {
             hour++
         }
         minute = Math.random() * 60
-        await buskerRepo.applyMockPerformance(buskerArr[i].id, performanceData)
+        await buskerRepo.applyMockPerformance(performanceData)
     }
 
 

@@ -115,7 +115,7 @@ const generateDiffPerformanceData = (buskerId, time) => {
         count = Math.floor(buskerPerformance_1.locationArr.length - 1 % count);
     }
     const mockData = {
-        id: 0, buskerId, title: `title${mockCount}`,
+        id: 0, buskerId: buskerId, title: `title${mockCount}`,
         description: `description${mockCount}`,
         time: time,
         lineMoney: 0,
@@ -225,28 +225,44 @@ const applyPerformance = (data) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.applyPerformance = applyPerformance;
-const applyMockPerformance = (buskerId, data) => __awaiter(void 0, void 0, void 0, function* () {
+const applyMockPerformance = (data) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
     try {
         const repo = databaseRepo_1.getBuskerPerformanceRepo();
-        const isPerformanceExist = yield repo.findOne({ id: buskerId });
-        if (isPerformanceExist) {
-            yield repo.save(Object.assign({}, data));
-            repoData.status = 200;
-            repoData.data = '';
-            return repoData;
-        }
-        else {
-            yield repo.save(Object.assign({}, data));
-            repoData.status = 200;
-            repoData.data = '';
-            return repoData;
-        }
-    }
-    catch (error) {
-        console.error('apply error:', error);
+        // const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
+        // const geocode = await geocoder.geocode(data.location)
+        // data.latitude = geocode[0].latitude
+        // data.longitude = geocode[0].longitude
+        yield repo.save(repo.create(data));
+        repoData.status = 200;
+        repoData.data = '';
         return repoData;
     }
+    catch (error) {
+        console.error('applyPerformance error:', error);
+        return repoData;
+    }
+    // let repoData: ReponseType = { status: 501, data: '' }
+    // try {
+    //     const repo = getBuskerPerformanceRepo()
+    //     const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
+    //     console.log('data.buskerId:', data.buskerId, 'isPerformanceExist:', isPerformanceExist);
+    //     if (isPerformanceExist) {
+    //         await repo.save({ ...data })
+    //         repoData.status = 200
+    //         repoData.data = ''
+    //         return repoData
+    //     }
+    //     else {
+    //         await repo.save({ ...data })
+    //         repoData.status = 200
+    //         repoData.data = ''
+    //         return repoData
+    //     }
+    // } catch (error) {
+    //     console.error('applyMockPerformance error:', error);
+    //     return repoData
+    // }
 });
 exports.applyMockPerformance = applyMockPerformance;
 const isBuskerByMemberId = (id) => __awaiter(void 0, void 0, void 0, function* () {

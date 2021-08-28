@@ -21,7 +21,7 @@ io.use(express_socket_io_session_1.default(app_1.sessionMiddleware, {
 }));
 io.use((socket, next) => {
     if (socket.handshake.session.passport) {
-        console.log(socket.handshake.session.passport.user);
+        console.log('socketio:', socket.handshake.session.passport.user);
         next();
     }
     else {

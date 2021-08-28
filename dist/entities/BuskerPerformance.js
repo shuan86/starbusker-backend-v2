@@ -84,5 +84,15 @@ class GetPerformancesType {
         this.page = page;
     }
 }
+__decorate([
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], GetPerformancesType.prototype, "time", void 0);
+__decorate([
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], GetPerformancesType.prototype, "page", void 0);
 exports.GetPerformancesType = GetPerformancesType;
 //# sourceMappingURL=BuskerPerformance.js.map

@@ -36,6 +36,7 @@ const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     yield memberRepo.clear();
     let memberArr = [];
     let buskerArr = [];
+    console.log('start init');
     for (let i = 0; i < 100; i++) {
         let memberData = memberRepo.generateDiffMemberMockData();
         memberData = yield memberRepo.createMember(memberData);
@@ -57,7 +58,7 @@ const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             hour++;
         }
         minute = Math.random() * 60;
-        yield buskerRepo.applyMockPerformance(buskerArr[i].id, performanceData);
+        yield buskerRepo.applyMockPerformance(performanceData);
     }
     res.status(200).send('sucessful init');
 });
