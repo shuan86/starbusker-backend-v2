@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 import { Expose } from "class-transformer";
 import { IsDefined } from "class-validator";
 import { Busker } from './Busker'
@@ -33,6 +33,7 @@ export class BuskerPerformance {
   @Column()
   location: string
   @ManyToOne(type => Busker, busker => busker.performances, { onDelete: 'CASCADE' })
+  @JoinColumn()
   busker: Busker
 }
 //front-end request format

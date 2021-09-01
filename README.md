@@ -131,7 +131,7 @@ npm run tsc-prod
 
 | Code  | Description               | Result                                             |
 | :---- | :------------------------ | :------------------------------------------------- |
-| `200` | sucessful get member info | `"{name:'',account:'',email:'','description:'',}"` |
+| `200` | sucessful get member info | `"{name:'',account:'',email:'','description:'',avatar:'',}"` |
 | `401` | failed to get member info | `"failed to get member info、you aren't member "`  |
 | `500` | server is busying         | `"server is busying"`                              |
 
@@ -149,6 +149,7 @@ npm run tsc-prod
 | `name`     | `string` | **Required** | member's name     |
 | `email`    | `string` | **Required** | member's email    |
 | `password` | `string` | **Required** | member's password |
+| `avatar`   | `File` | **Required** | member's file |
 
 ##### Response
 
@@ -181,7 +182,23 @@ npm run tsc-prod
 | `500` | server is busying | `"server is busying"`                  |
 
 ---
+### Get busker info
 
+##### Requset
+
+`Get api/busker`
+`you need to login first `
+| Parameter | Type | Require |Description |
+| :-------- | :------- | :------- | :------------------------- |
+| `id` | `number` | **Required** |busker id|
+##### Response
+| Code  | Description       | Result                                 |
+| :---- | :---------------- | :------------------------------------- |
+| `200` | sucessful get   | `[{"name":'a',"type":'singer'(buskerType),"description":'description1',"likeAmount":10,"avatar":'}']`" |
+| `400` | parameter error   | `"parameter error"`                    |
+| `401` | failed to get   | `"failed to apply、you aren't member"` |
+| `500` | server is busying | `"server is busying"`                  |
+---
 ### Get all time of busker performance
 
 ##### Requset
@@ -211,7 +228,7 @@ npm run tsc-prod
 
 | Code  | Description        | Result                                                                                                                                                           |
 | :---- | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `200` | sucessful get data | `[[{"id":1,"title":"title1","description":"description1","time":"2021-08-16T08:17:01.000Z","lineMoney":0,"latitude":121.56,"longitude":25.03}],1(data amount)]`" |
+| `200` | sucessful get data | `[[{"id":1(buskerId),"likeAmount":0,"title":"title1","description":"description1","time":"2021-08-16T08:17:01.000Z","lineMoney":0,"latitude":121.56,"longitude":25.03,avatar:''}],1(data amount)]`" |
 | `400` | parameter error    | `"parameter error"`                                                                                                                                              |
 | `500` | server is busying  | `"server is busying"`                                                                                                                                            |
 

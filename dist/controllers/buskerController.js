@@ -28,13 +28,38 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = void 0;
+exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = exports.getBusker = void 0;
 const Busker_1 = require("../entities/Busker");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 // import { buskerRepo } from '../repositories/buskerRepo';
 const buskerRepo = __importStar(require("../repositories/buskerRepo"));
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+const getBusker = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.query.data;
+        const buskerId = class_transformer_1.plainToClass(Busker_1.GetBuskerType, JSON.parse(data));
+        const errors = yield class_validator_1.validate(buskerId, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        }
+        else {
+            const result = yield buskerRepo.getBuskerInfoByBuskerId(buskerId.id);
+            if (result.status == 200 || result.status == 401) {
+                res.status(result.status).send(result.data);
+            }
+            else {
+                res.status(500).send('server is busying');
+            }
+        }
+    }
+    catch (error) {
+        console.error('api getBusker  error:', error);
+    }
+});
+exports.getBusker = getBusker;
 const enroll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body.data;
@@ -134,10 +159,7 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
 exports.applyPerformance = applyPerformance;
 const getAllPerformanceTime = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const memberId = req.user;
-        // const buskerId = await buskerRepo.getIdByMemberId(memberId)
         const result = yield buskerRepo.getAllPerformanceTime();
-        console.log('getAllPerformanceTime:', result);
         if (result.status == 200 || result.status == 401) {
             res.status(result.status).send(result.data);
         }

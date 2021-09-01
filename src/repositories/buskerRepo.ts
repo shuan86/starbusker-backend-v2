@@ -1,11 +1,13 @@
-import { Busker, BuskerKind, EnrollBuskerType } from "../entities/Busker";
+import { Busker, BuskerType, EnrollBuskerType } from "../entities/Busker";
+import { Member } from "../entities/Member";
 import { BuskerPerformance, ApplyPerformanceType } from "../entities/BuskerPerformance";
-import { getBuskerRepo, getBuskerPerformanceRepo } from './databaseRepo'
+import { getBuskerRepo, getBuskerPerformanceRepo, getMemberRepos } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
 import { locationArr } from "../mock/buskerPerformance";
 import { geocoder } from "../moudles/nodeGeocoder";
+import { createQueryBuilder } from 'typeorm'
 let mockCount = 0
-export const generateEnrollBusker = (description: string, type: BuskerKind): EnrollBuskerType => {
+export const generateEnrollBusker = (description: string, type: BuskerType): EnrollBuskerType => {
     const data = new EnrollBuskerType(description, type)
     return data
 }
@@ -28,8 +30,8 @@ export const generateFixedMockData = (memberId: number): Busker => {
     // const mockMember = Object.assign(new Busker(), mockData)
     // return mockMember
     const mockData: Busker = {
-        id: 0, memberId: memberId, type: BuskerKind.singer
-        , description: `description`, member: null, performances: []
+        id: 0, memberId: memberId, type: BuskerType.singer
+        , description: `description`, likeAmount: 0, member: null, performances: []
     }
 
     return { ...mockData }
@@ -38,8 +40,8 @@ export const generateDiffMockData = (memberId: number): Busker => {
     // const mockData = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description${mockCount}` }
     // const mockMember = Object.assign(new Busker(), mockData)
     const mockData: Busker = {
-        id: 0, memberId: memberId, type: BuskerKind.singer,
-        description: `description${mockCount}`, member: null, performances: []
+        id: 0, memberId: memberId, type: BuskerType.singer,
+        description: `description${mockCount}`, likeAmount: 0, member: null, performances: []
     }
 
     mockCount++
@@ -160,15 +162,30 @@ export const getPerformances = async (time: Date, page: number): Promise<Reponse
         time.setHours(0)
         time.setMinutes(0)
         time.setSeconds(0)
-
         const nextDate = setCurrentData(time.getUTCFullYear(), time.getMonth() + 1, time.getDate() + 1, 23, 59)
+        // const dataArrr = await buskerPerformanceRepo.createQueryBuilder('p')
+        //     .select(['p.id', 'p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
+        //     .where("p.time BETWEEN '" + dateToDbDate(time) + "' AND '" + dateToDbDate(nextDate) + "'")
+        //     .skip((page - 1) * perItem).take(perItem)
+        //     .getManyAndCount()
+
         const dataArrr = await buskerPerformanceRepo.createQueryBuilder('p')
-            .select(['p.id', 'p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
+            .select(['b.id id', 'p.title  title', 'p.description description', 'p.time time', 'p.lineMoney lineMoney', 'p.latitude latitude', 'p.longitude longitude', 'm.avatar avatar'])
             .where("p.time BETWEEN '" + dateToDbDate(time) + "' AND '" + dateToDbDate(nextDate) + "'")
+            .innerJoin(Busker, "b", "p.buskerId = b.id")
+            .innerJoin(Member, "m", "m.id = b.memberId")
+            .offset((page - 1) * perItem).limit(perItem)
+            .getRawMany()
+        for (let i = 0; i < dataArrr.length; i++) {
+            dataArrr[i].avatar = dataArrr[i].avatar == null ? '' : Buffer.from(dataArrr[i].avatar).toString('base64')
+        }
+        const count = await buskerPerformanceRepo.createQueryBuilder('p')
             .skip((page - 1) * perItem).take(perItem)
-            .getManyAndCount()
+            .where("p.time BETWEEN '" + dateToDbDate(time) + "' AND '" + dateToDbDate(nextDate) + "'")
+            .leftJoinAndSelect(Busker, "b", "p.buskerId = b.id")
+            .leftJoinAndSelect(Member, "m", "m.id = b.memberId").getCount()
         repoData.status = 200
-        repoData.data = JSON.stringify(dataArrr)
+        repoData.data = JSON.stringify([dataArrr, count])
         return repoData
     } catch (error) {
         console.error('apply error:', error);
@@ -252,10 +269,10 @@ export const applyMockPerformance = async (data: BuskerPerformance): Promise<Rep
     //     return repoData
     // }
 }
-export const isBuskerByMemberId = async (id: number): Promise<boolean> => {
+export const isBuskerByMemberId = async (memberId: number): Promise<boolean> => {
     try {
         const repo = getBuskerRepo()
-        const busker = await repo.findOne({ id })
+        const busker = await repo.findOne({ memberId })
         if (busker)
             return true
         else
@@ -265,8 +282,47 @@ export const isBuskerByMemberId = async (id: number): Promise<boolean> => {
         return false
     }
 }
+//not test
+export const isBuskerIdExist = async (id: number): Promise<boolean> => {
+    try {
+        const repo = getBuskerRepo()
+        const busker = await repo.findOne({ id })
+        if (busker)
+            return true
+        else
+            return false
+    } catch (error) {
+        console.error('isBuskerIdExist:', error);
+        return false
+    }
+}
+//not test
+export const getBuskerInfoByBuskerId = async (buskerId: number): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const buskerRepo = getBuskerRepo()
+        const data = await buskerRepo.createQueryBuilder('b')
+            .select(['b.description description', 'b.likeAmount  likeAmount', 'b.type type', 'm.name name', 'm.avatar avatar'])
+            .innerJoin(Member, "m", "m.id = b.memberId")
+            .where(`b.id=:buskerId`, { buskerId })
+            .getRawOne()
+        if (data) {
+            // repoData.data = {name}
+            console.log('data name:', data.name, buskerId);
 
-
+            data.avatar = data.avatar == null ? '' : Buffer.from(data.avatar).toString('base64')
+            repoData.status = 200
+            repoData.data = JSON.stringify(data)
+        }
+        else {
+            repoData.status = 401
+        }
+        return repoData
+    } catch (error) {
+        console.error('getBuskerInfoByBuskerId:', error);
+        return repoData
+    }
+}
 
 export const getIdByMemberId = async (id: number): Promise<number> => {
     try {

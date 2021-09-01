@@ -1,7 +1,7 @@
 
 import { Request, response, Response } from 'express';
-import { Busker } from "../entities/Busker";
-import { BuskerPerformance, GetPerformancesType } from "../entities/BuskerPerformance";
+import { Busker, GetBuskerType } from "../entities/Busker";
+import { BuskerPerformance, GetPerformancesType, } from "../entities/BuskerPerformance";
 
 // import { buskerRepo } from '../repositories/buskerRepo';
 import * as  buskerRepo from '../repositories/buskerRepo';
@@ -13,7 +13,28 @@ import { LoginType, FrontEndMemberDataType } from '../types/memberType'
 import { error } from 'console';
 
 
-
+export const getBusker = async (req: Request, res: Response) => {
+    try {
+        const data = req.query.data as string
+        const buskerId = plainToClass(GetBuskerType, JSON.parse(data))
+        const errors = await validate(buskerId, { skipMissingProperties: true })
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        } else {
+            const result = await buskerRepo.getBuskerInfoByBuskerId(buskerId.id)
+            if (result.status == 200 || result.status == 401) {
+                res.status(result.status).send(result.data)
+            }
+            else {
+                res.status(500).send('server is busying')
+            }
+        }
+    } catch (error) {
+        console.error('api getBusker  error:', error);
+    }
+}
 
 export const enroll = async (req: Request, res: Response) => {
     try {
@@ -115,11 +136,7 @@ export const applyPerformance = async (req: Request, res: Response) => {
 }
 export const getAllPerformanceTime = async (req: Request, res: Response) => {
     try {
-        const memberId = req.user as number
-        // const buskerId = await buskerRepo.getIdByMemberId(memberId)
         const result = await buskerRepo.getAllPerformanceTime()
-        console.log('getAllPerformanceTime:', result);
-
         if (result.status == 200 || result.status == 401) {
             res.status(result.status).send(result.data)
         }

@@ -79,7 +79,7 @@ globals_1.describe("busker repo test(getAllPerformanceTime)", () => {
     let buskerArr = [];
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         for (let i = 0; i < 3; i++) {
-            let memberData = memberRepo.generateDiffMemberMockData();
+            let memberData = yield memberRepo.generateDiffMemberMockData();
             memberData = yield memberRepo.createMember(memberData);
             memberArr.push(memberData);
             let buskerData = buskerRepo.generateDiffMockData(memberData.id);
@@ -112,7 +112,7 @@ globals_1.describe("busker repo test(getPerformances)", () => {
     let buskerArr = [];
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         for (let i = 0; i < 1; i++) {
-            let memberData = memberRepo.generateDiffMemberMockData();
+            let memberData = yield memberRepo.generateDiffMemberMockData();
             memberData = yield memberRepo.createMember(memberData);
             memberArr.push(memberData);
             let buskerData = buskerRepo.generateDiffMockData(memberData.id);

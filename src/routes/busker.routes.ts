@@ -13,6 +13,8 @@ export class BuskerRoutes extends IRoute {
     // this.router.get('/test', (req: Request, res: Response) => {
     //   res.status(200).send('you called user path test!')
     // }); 
+    this.router.route(apiPath.getBusker)
+      .get(authMember, buskerController.getBusker);
     this.router.route(apiPath.enrollBusker)
       .post(authMember, buskerController.enroll);
     this.router.route(apiPath.performance)

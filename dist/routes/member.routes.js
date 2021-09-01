@@ -28,6 +28,7 @@ const router_1 = require("../config/router");
 const memberController = __importStar(require("../controllers/memberController"));
 const auth_1 = require("../middlewares/auth");
 const rsaDecrypt_1 = require("../middlewares/rsaDecrypt");
+const auth_2 = require("../middlewares/auth");
 class MemberRoutes extends route_abstract_1.default {
     // private memberController: MemberController = new MemberController();
     constructor() {
@@ -47,7 +48,7 @@ class MemberRoutes extends route_abstract_1.default {
         this.router.route(router_1.apiPath.memberInfo)
             .get(auth_1.authMember, memberController.getMemberInfo);
         this.router.route(router_1.apiPath.memberInfo)
-            .put(auth_1.authMember, memberController.updateMemberInfo);
+            .put(auth_1.authMember, auth_2.upload.single('avatar'), memberController.updateMemberInfo);
     }
 }
 exports.MemberRoutes = MemberRoutes;

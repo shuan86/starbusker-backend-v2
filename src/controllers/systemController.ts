@@ -7,14 +7,15 @@ import { plainToClass, Expose } from "class-transformer";
 
 
 export const init = async (req: Request, res: Response) => {
+
     await buskerRepo.clear()
     await memberRepo.clear()
     let memberArr = []
     let buskerArr = []
     console.log('start init');
 
-    for (let i = 0; i < 100; i++) {
-        let memberData = memberRepo.generateDiffMemberMockData()
+    for (let i = 0; i < 50; i++) {
+        let memberData = await memberRepo.generateDiffMemberMockData()
         memberData = await memberRepo.createMember(memberData)
         memberArr.push(memberData)
         let buskerData = buskerRepo.generateDiffMockData(memberData.id)

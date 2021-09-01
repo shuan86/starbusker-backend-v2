@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getIdByMemberId = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.applyPerformance = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.setCurrentData = exports.dateToDbDate = exports.getCurrentTime = exports.getCurrentDate = exports.generateDiffMockData = exports.generateFixedMockData = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
+exports.clear = exports.getIdByMemberId = exports.getBuskerInfoByBuskerId = exports.isBuskerIdExist = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.applyPerformance = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.setCurrentData = exports.dateToDbDate = exports.getCurrentTime = exports.getCurrentDate = exports.generateDiffMockData = exports.generateFixedMockData = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
 const Busker_1 = require("../entities/Busker");
+const Member_1 = require("../entities/Member");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 const databaseRepo_1 = require("./databaseRepo");
 const buskerPerformance_1 = require("../mock/buskerPerformance");
@@ -40,8 +41,8 @@ const generateFixedMockData = (memberId) => {
     // const mockMember = Object.assign(new Busker(), mockData)
     // return mockMember
     const mockData = {
-        id: 0, memberId: memberId, type: Busker_1.BuskerKind.singer,
-        description: `description`, member: null, performances: []
+        id: 0, memberId: memberId, type: Busker_1.BuskerType.singer,
+        description: `description`, likeAmount: 0, member: null, performances: []
     };
     return Object.assign({}, mockData);
 };
@@ -50,8 +51,8 @@ const generateDiffMockData = (memberId) => {
     // const mockData = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description${mockCount}` }
     // const mockMember = Object.assign(new Busker(), mockData)
     const mockData = {
-        id: 0, memberId: memberId, type: Busker_1.BuskerKind.singer,
-        description: `description${mockCount}`, member: null, performances: []
+        id: 0, memberId: memberId, type: Busker_1.BuskerType.singer,
+        description: `description${mockCount}`, likeAmount: 0, member: null, performances: []
     };
     mockCount++;
     return mockData;
@@ -174,13 +175,28 @@ const getPerformances = (time, page) => __awaiter(void 0, void 0, void 0, functi
         time.setMinutes(0);
         time.setSeconds(0);
         const nextDate = exports.setCurrentData(time.getUTCFullYear(), time.getMonth() + 1, time.getDate() + 1, 23, 59);
+        // const dataArrr = await buskerPerformanceRepo.createQueryBuilder('p')
+        //     .select(['p.id', 'p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
+        //     .where("p.time BETWEEN '" + dateToDbDate(time) + "' AND '" + dateToDbDate(nextDate) + "'")
+        //     .skip((page - 1) * perItem).take(perItem)
+        //     .getManyAndCount()
         const dataArrr = yield buskerPerformanceRepo.createQueryBuilder('p')
-            .select(['p.id', 'p.title', 'p.description', 'p.time', 'p.lineMoney', 'p.latitude', 'p.longitude'])
+            .select(['b.id id', 'p.title  title', 'p.description description', 'p.time time', 'p.lineMoney lineMoney', 'p.latitude latitude', 'p.longitude longitude', 'm.avatar avatar'])
             .where("p.time BETWEEN '" + exports.dateToDbDate(time) + "' AND '" + exports.dateToDbDate(nextDate) + "'")
+            .innerJoin(Busker_1.Busker, "b", "p.buskerId = b.id")
+            .innerJoin(Member_1.Member, "m", "m.id = b.memberId")
+            .offset((page - 1) * perItem).limit(perItem)
+            .getRawMany();
+        for (let i = 0; i < dataArrr.length; i++) {
+            dataArrr[i].avatar = dataArrr[i].avatar == null ? '' : Buffer.from(dataArrr[i].avatar).toString('base64');
+        }
+        const count = yield buskerPerformanceRepo.createQueryBuilder('p')
             .skip((page - 1) * perItem).take(perItem)
-            .getManyAndCount();
+            .where("p.time BETWEEN '" + exports.dateToDbDate(time) + "' AND '" + exports.dateToDbDate(nextDate) + "'")
+            .leftJoinAndSelect(Busker_1.Busker, "b", "p.buskerId = b.id")
+            .leftJoinAndSelect(Member_1.Member, "m", "m.id = b.memberId").getCount();
         repoData.status = 200;
-        repoData.data = JSON.stringify(dataArrr);
+        repoData.data = JSON.stringify([dataArrr, count]);
         return repoData;
     }
     catch (error) {
@@ -265,10 +281,10 @@ const applyMockPerformance = (data) => __awaiter(void 0, void 0, void 0, functio
     // }
 });
 exports.applyMockPerformance = applyMockPerformance;
-const isBuskerByMemberId = (id) => __awaiter(void 0, void 0, void 0, function* () {
+const isBuskerByMemberId = (memberId) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const repo = databaseRepo_1.getBuskerRepo();
-        const busker = yield repo.findOne({ id });
+        const busker = yield repo.findOne({ memberId });
         if (busker)
             return true;
         else
@@ -280,6 +296,50 @@ const isBuskerByMemberId = (id) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.isBuskerByMemberId = isBuskerByMemberId;
+//not test
+const isBuskerIdExist = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const repo = databaseRepo_1.getBuskerRepo();
+        const busker = yield repo.findOne({ id });
+        if (busker)
+            return true;
+        else
+            return false;
+    }
+    catch (error) {
+        console.error('isBuskerIdExist:', error);
+        return false;
+    }
+});
+exports.isBuskerIdExist = isBuskerIdExist;
+//not test
+const getBuskerInfoByBuskerId = (buskerId) => __awaiter(void 0, void 0, void 0, function* () {
+    let repoData = { status: 501, data: '' };
+    try {
+        const buskerRepo = databaseRepo_1.getBuskerRepo();
+        const data = yield buskerRepo.createQueryBuilder('b')
+            .select(['b.description description', 'b.likeAmount  likeAmount', 'b.type type', 'm.name name', 'm.avatar avatar'])
+            .innerJoin(Member_1.Member, "m", "m.id = b.memberId")
+            .where(`b.id=:buskerId`, { buskerId })
+            .getRawOne();
+        if (data) {
+            // repoData.data = {name}
+            console.log('data name:', data.name, buskerId);
+            data.avatar = data.avatar == null ? '' : Buffer.from(data.avatar).toString('base64');
+            repoData.status = 200;
+            repoData.data = JSON.stringify(data);
+        }
+        else {
+            repoData.status = 401;
+        }
+        return repoData;
+    }
+    catch (error) {
+        console.error('getBuskerInfoByBuskerId:', error);
+        return repoData;
+    }
+});
+exports.getBuskerInfoByBuskerId = getBuskerInfoByBuskerId;
 const getIdByMemberId = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const repo = databaseRepo_1.getBuskerRepo();

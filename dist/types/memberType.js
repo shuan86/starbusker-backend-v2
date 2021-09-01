@@ -9,10 +9,11 @@ class LoginType {
 }
 exports.LoginType = LoginType;
 class UpdateMemberInfoType {
-    constructor(name, email, password) {
+    constructor(name, email, password, avatar = null) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.avatar = avatar;
     }
 }
 exports.UpdateMemberInfoType = UpdateMemberInfoType;

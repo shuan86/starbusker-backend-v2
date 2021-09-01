@@ -29,9 +29,11 @@ export class Member {
   name: string;
   @Column({ default: 0, nullable: true })
   exp: number;
-  @Column({ default: '', nullable: true })
-  avatar: string;
-  @OneToMany(type => Busker, busker => busker.memberId, { cascade: true })
+  @Column("longblob", { default: null, nullable: true })
+  avatar: Buffer;
+  // @OneToMany(type => Busker, busker => busker.memberId, { cascade: true })
+  @OneToMany(type => Busker, busker => busker.memberId)
+
   buskers: Busker[];
 
 }

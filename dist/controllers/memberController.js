@@ -111,12 +111,15 @@ const getMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* 
 exports.getMemberInfo = getMemberInfo;
 const updateMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const encryptData = req.body.encryptData;
-        const data = rsa_1.decrypt(encryptData);
-        const infoData = class_transformer_1.plainToClass(memberType_1.UpdateMemberInfoType, JSON.parse(data));
+        const data = {
+            name: req.body.name,
+            email: req.body.email,
+            password: rsa_1.decrypt(req.body.password),
+            avatar: req.file ? req.file.buffer : null
+        };
+        const infoData = class_transformer_1.plainToClass(memberType_1.UpdateMemberInfoType, data);
         const errors = yield class_validator_1.validate(infoData, { skipMissingProperties: true });
         if (errors.length > 0) {
-            // console.error(errors);
             res.status(400).send(`parameter error`);
             return;
         }
@@ -127,7 +130,7 @@ const updateMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, functio
         }
     }
     catch (error) {
-        console.error('api updateMemberInfoById error:', error);
+        console.error('api updateMemberInfo error:', error);
     }
 });
 exports.updateMemberInfo = updateMemberInfo;

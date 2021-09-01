@@ -9,19 +9,19 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.EnrollBuskerType = exports.Busker = exports.BuskerKind = void 0;
+exports.GetBuskerType = exports.EnrollBuskerType = exports.Busker = exports.BuskerType = void 0;
 const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const Member_1 = require("./Member");
 const BuskerPerformance_1 = require("./BuskerPerformance");
-var BuskerKind;
-(function (BuskerKind) {
-    BuskerKind[BuskerKind["other"] = 0] = "other";
-    BuskerKind[BuskerKind["singer"] = 1] = "singer";
-    BuskerKind[BuskerKind["drawer"] = 2] = "drawer";
-    BuskerKind[BuskerKind["drummer"] = 3] = "drummer";
-})(BuskerKind = exports.BuskerKind || (exports.BuskerKind = {}));
+var BuskerType;
+(function (BuskerType) {
+    BuskerType[BuskerType["other"] = 0] = "other";
+    BuskerType[BuskerType["singer"] = 1] = "singer";
+    BuskerType[BuskerType["drawer"] = 2] = "drawer";
+    BuskerType[BuskerType["drummer"] = 3] = "drummer";
+})(BuskerType = exports.BuskerType || (exports.BuskerType = {}));
 let Busker = class Busker {
 };
 __decorate([
@@ -45,7 +45,12 @@ __decorate([
     __metadata("design:type", String)
 ], Busker.prototype, "description", void 0);
 __decorate([
-    typeorm_1.ManyToOne(type => Member_1.Member, member => member.buskers, { onDelete: 'CASCADE' }),
+    typeorm_1.Column({ default: 0, nullable: true }),
+    __metadata("design:type", Number)
+], Busker.prototype, "likeAmount", void 0);
+__decorate([
+    typeorm_1.ManyToOne(type => Member_1.Member, member => member.buskers),
+    typeorm_1.JoinColumn(),
     __metadata("design:type", Member_1.Member)
 ], Busker.prototype, "member", void 0);
 __decorate([
@@ -64,4 +69,10 @@ class EnrollBuskerType {
     }
 }
 exports.EnrollBuskerType = EnrollBuskerType;
+class GetBuskerType {
+    constructor(id) {
+        this.id = id;
+    }
+}
+exports.GetBuskerType = GetBuskerType;
 //# sourceMappingURL=Busker.js.map

@@ -9,6 +9,7 @@ exports.apiPath = {
     logout: '/logout',
     login: '/login',
     memberInfo: '/memberInfo',
+    getBusker: '/busker',
     enrollBusker: '/busker',
     performance: '/performance',
     performances: '/performances',

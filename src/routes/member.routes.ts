@@ -4,8 +4,7 @@ import { apiPath } from '../config/router';
 import * as memberController from "../controllers/memberController";
 import { authMember } from "../middlewares/auth";
 import { loginRsaDecrypt } from "../middlewares/rsaDecrypt";
-import passport from "../moudles/passport";
-
+import { upload } from "../middlewares/auth";
 export class MemberRoutes extends IRoute {
   // private memberController: MemberController = new MemberController();
   constructor() {
@@ -25,6 +24,6 @@ export class MemberRoutes extends IRoute {
     this.router.route(apiPath.memberInfo)
       .get(authMember, memberController.getMemberInfo);
     this.router.route(apiPath.memberInfo)
-      .put(authMember, memberController.updateMemberInfo);
+      .put(authMember, upload.single('avatar'), memberController.updateMemberInfo);
   }
 }

@@ -55,7 +55,7 @@ describe("busker repo test(getAllPerformanceTime)", () => {
     let buskerArr = []
     beforeEach(async () => {
         for (let i = 0; i < 3; i++) {
-            let memberData = memberRepo.generateDiffMemberMockData()
+            let memberData = await memberRepo.generateDiffMemberMockData()
             memberData = await memberRepo.createMember(memberData)
             memberArr.push(memberData)
             let buskerData = buskerRepo.generateDiffMockData(memberData.id)
@@ -91,7 +91,7 @@ describe("busker repo test(getPerformances)", () => {
     let buskerArr = []
     beforeEach(async () => {
         for (let i = 0; i < 1; i++) {
-            let memberData = memberRepo.generateDiffMemberMockData()
+            let memberData = await memberRepo.generateDiffMemberMockData()
             memberData = await memberRepo.createMember(memberData)
             memberArr.push(memberData)
             let buskerData = buskerRepo.generateDiffMockData(memberData.id)

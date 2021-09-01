@@ -19,9 +19,11 @@ export class UpdateMemberInfoType {
     name: string
     email: string
     password: string
-    constructor(name: string, email: string, password: string) {
+    avatar: Buffer
+    constructor(name: string, email: string, password: string, avatar: Buffer = null) {
         this.name = name
         this.email = email
         this.password = password
+        this.avatar = avatar
     }
 }

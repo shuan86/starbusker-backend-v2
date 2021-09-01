@@ -37,6 +37,8 @@ class BuskerRoutes extends route_abstract_1.default {
         // this.router.get('/test', (req: Request, res: Response) => {
         //   res.status(200).send('you called user path test!')
         // }); 
+        this.router.route(router_1.apiPath.getBusker)
+            .get(auth_1.authMember, buskerController.getBusker);
         this.router.route(router_1.apiPath.enrollBusker)
             .post(auth_1.authMember, buskerController.enroll);
         this.router.route(router_1.apiPath.performance)

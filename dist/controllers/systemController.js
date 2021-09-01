@@ -37,8 +37,8 @@ const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     let memberArr = [];
     let buskerArr = [];
     console.log('start init');
-    for (let i = 0; i < 100; i++) {
-        let memberData = memberRepo.generateDiffMemberMockData();
+    for (let i = 0; i < 50; i++) {
+        let memberData = yield memberRepo.generateDiffMemberMockData();
         memberData = yield memberRepo.createMember(memberData);
         memberArr.push(memberData);
         let buskerData = buskerRepo.generateDiffMockData(memberData.id);

@@ -27,11 +27,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = void 0;
+exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = void 0;
 const databaseRepo_1 = require("./databaseRepo");
 const memberType_1 = require("../types/memberType");
 const buskerRepo = __importStar(require("./buskerRepo"));
+const fs_1 = __importDefault(require("fs"));
 let mockMemberCount = 0;
 const generateLoginData = (account, password) => {
     const data = new memberType_1.LoginType(account, password);
@@ -47,24 +51,31 @@ const generateFixedMemberMockData = () => {
     const mockData = {
         id: 0, account: `t${mockMemberCount}`, password: '123', male: true,
         email: `t${mockMemberCount}@gmail.com`,
-        name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: '', buskers: []
+        name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: []
     };
     // const mockMember = Object.assign(new Member(), mockData)
     return mockData;
 };
 exports.generateFixedMemberMockData = generateFixedMemberMockData;
-const generateDiffMemberMockData = () => {
-    // const mockData = { id: 0, account: `a${mockMemberCount}`, password: '123', male: true, email: `a${mockMemberCount}@gmail.com`, name: `${mockMemberCount}_name`, exp: mockMemberCount }
-    // const mockMember = Object.assign(new Member(), mockData)
-    // mockMemberCount++
-    const mockData = {
-        id: 0, account: `a${mockMemberCount}`, password: '123',
-        male: true, email: `a${mockMemberCount}@gmail.com`,
-        name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: '', buskers: []
-    };
-    mockMemberCount++;
-    return mockData;
-};
+const generateDiffMemberMockData = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const r = Math.floor(Math.random() * 4) + 1;
+        let imageData = null;
+        if (r < 4) {
+            imageData = fs_1.default.readFileSync(`${__dirname}/../public/img/busker0${r}.png`);
+        }
+        const mockData = {
+            id: 0, account: `a${mockMemberCount}`, password: '123',
+            male: true, email: `a${mockMemberCount}@gmail.com`,
+            name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: []
+        };
+        mockMemberCount++;
+        return mockData;
+    }
+    catch (error) {
+        console.error('generateDiffMemberMockData error:', error);
+    }
+});
 exports.generateDiffMemberMockData = generateDiffMemberMockData;
 const enroll = (data) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
@@ -176,6 +187,22 @@ const getMemberInfoById = (id) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getMemberInfoById = getMemberInfoById;
+const getMemberAvatarByAccount = (account) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const repo = databaseRepo_1.getMemberRepos();
+        const member = yield repo.findOne({ account });
+        if (member) {
+            return member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64');
+        }
+        else
+            return '';
+    }
+    catch (error) {
+        console.error('getMemberAvatarByAccount error:', error);
+        return '';
+    }
+});
+exports.getMemberAvatarByAccount = getMemberAvatarByAccount;
 const getMemberInfoDataById = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const repo = databaseRepo_1.getMemberRepos();
@@ -188,7 +215,7 @@ const getMemberInfoDataById = (id) => __awaiter(void 0, void 0, void 0, function
                 email: member.email,
                 name: member.name,
                 exp: member.exp,
-                avatar: member.avatar,
+                avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),
                 isBusker: isBusker
             };
             return frontEndMemberData;
@@ -211,6 +238,7 @@ const updateMemberInfoById = (id, infoData) => __awaiter(void 0, void 0, void 0,
             member.name = infoData.name;
             member.email = infoData.email;
             member.password = infoData.password;
+            member.avatar = infoData.avatar;
             yield repo.save(Object.assign({}, member));
             repoData.status = 200;
             repoData.data = '';

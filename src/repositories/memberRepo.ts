@@ -4,6 +4,7 @@ import { getMemberRepos } from './databaseRepo'
 import { LoginType, FrontEndMemberDataType, UpdateMemberInfoType } from "../types/memberType";
 import { ReponseType } from "../types/reponseType";
 import * as buskerRepo from "./buskerRepo";
+import fs from "fs";
 let mockMemberCount = 0
 export const generateLoginData = (account: string, password: string): LoginType => {
     const data: LoginType = new LoginType(account, password)
@@ -18,23 +19,32 @@ export const generateFixedMemberMockData = (): Member => {
     const mockData: Member = {
         id: 0, account: `t${mockMemberCount}`, password: '123', male: true
         , email: `t${mockMemberCount}@gmail.com`
-        , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: '', buskers: []
+        , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: []
     }
     // const mockMember = Object.assign(new Member(), mockData)
     return mockData
 }
 
-export const generateDiffMemberMockData = (): Member => {
-    // const mockData = { id: 0, account: `a${mockMemberCount}`, password: '123', male: true, email: `a${mockMemberCount}@gmail.com`, name: `${mockMemberCount}_name`, exp: mockMemberCount }
-    // const mockMember = Object.assign(new Member(), mockData)
-    // mockMemberCount++
-    const mockData: Member = {
-        id: 0, account: `a${mockMemberCount}`, password: '123'
-        , male: true, email: `a${mockMemberCount}@gmail.com`
-        , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: '', buskers: []
+export const generateDiffMemberMockData = async (): Promise<Member> => {
+
+    try {
+        const r = Math.floor(Math.random() * 4) + 1;
+        let imageData = null
+        if (r < 4) {
+            imageData = fs.readFileSync(`${__dirname}/../public/img/busker0${r}.png`)
+        }
+        const mockData: Member = {
+            id: 0, account: `a${mockMemberCount}`, password: '123'
+            , male: true, email: `a${mockMemberCount}@gmail.com`
+            , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: []
+        }
+        mockMemberCount++
+        return mockData
+    } catch (error) {
+        console.error('generateDiffMemberMockData error:', error);
+
     }
-    mockMemberCount++
-    return mockData
+
 }
 export const enroll = async (data: Member): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
@@ -140,7 +150,21 @@ export const getMemberInfoById = async (id: number): Promise<ReponseType> => {
         return repoData
     }
 }
-
+export const getMemberAvatarByAccount = async (account: string): Promise<string> => {
+    try {
+        const repo = getMemberRepos()
+        const member = await repo.findOne({ account })
+        if (member) {
+            return member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64')
+        }
+        else
+            return ''
+    }
+    catch (error) {
+        console.error('getMemberAvatarByAccount error:', error);
+        return ''
+    }
+}
 export const getMemberInfoDataById = async (id: number): Promise<FrontEndMemberDataType> => {
     try {
         const repo = getMemberRepos()
@@ -153,7 +177,7 @@ export const getMemberInfoDataById = async (id: number): Promise<FrontEndMemberD
                 email: member.email,
                 name: member.name,
                 exp: member.exp,
-                avatar: member.avatar,
+                avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),//member.avatar(blob) if you want to send image data ,you need to convert blob object into base64 string
                 isBusker: isBusker
             }
             return frontEndMemberData
@@ -176,6 +200,7 @@ export const updateMemberInfoById = async (id: number, infoData: UpdateMemberInf
             member.name = infoData.name
             member.email = infoData.email
             member.password = infoData.password
+            member.avatar = infoData.avatar
             await repo.save({ ...member })
             repoData.status = 200
             repoData.data = ''

@@ -41,17 +41,17 @@ export const enroll = async (req: Request, res: Response) => {
     }
 }
 export const login = async (req: Request, res: Response) => {
-    passport.authenticate('login', async (err, data, info)=> {
-        if(data==false)
-        res.status(401).send('login fail');
+    passport.authenticate('login', async (err, data, info) => {
+        if (data == false)
+            res.status(401).send('login fail');
         const result = data as ReponseType
         res.status(result.status).send(result.data);
-        
+
     })(req, res)
 }
 export const logout = (req: Request, res: Response) => {
     try {
-    //    console.log('logout:',req.isAuthenticated());
+        //    console.log('logout:',req.isAuthenticated());
         req.logOut()
         req.session.destroy(() => {
             console.log('session destroyed')
@@ -64,7 +64,7 @@ export const logout = (req: Request, res: Response) => {
 
 export const getMemberInfo = async (req: Request, res: Response) => {
     try {
-        const memberId=req.user as number
+        const memberId = req.user as number
         const result = await memberRepo.getMemberInfoById(memberId)
         res.status(result.status).send(result.data)
     } catch (error) {
@@ -73,21 +73,25 @@ export const getMemberInfo = async (req: Request, res: Response) => {
 }
 export const updateMemberInfo = async (req: Request, res: Response) => {
     try {
-        const encryptData = req.body.encryptData
-        const data = decrypt(encryptData)
-        const infoData = plainToClass(UpdateMemberInfoType, JSON.parse(data))
+        const data: UpdateMemberInfoType = {
+            name: req.body.name,
+            email: req.body.email,
+            password: decrypt(req.body.password),
+            avatar: req.file ? req.file.buffer : null
+        }
+        const infoData = plainToClass(UpdateMemberInfoType, data)
         const errors = await validate(infoData, { skipMissingProperties: true })
         if (errors.length > 0) {
-            // console.error(errors);
             res.status(400).send(`parameter error`);
             return;
         }
         else {
-            const memberId=req.user as number
+            const memberId = req.user as number
             const result = await memberRepo.updateMemberInfoById(memberId, infoData)
             res.status(result.status).send(result.data)
         }
+
     } catch (error) {
-        console.error('api updateMemberInfoById error:', error);
+        console.error('api updateMemberInfo error:', error);
     }
 }

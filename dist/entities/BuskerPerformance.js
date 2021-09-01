@@ -62,6 +62,7 @@ __decorate([
 ], BuskerPerformance.prototype, "location", void 0);
 __decorate([
     typeorm_1.ManyToOne(type => Busker_1.Busker, busker => busker.performances, { onDelete: 'CASCADE' }),
+    typeorm_1.JoinColumn(),
     __metadata("design:type", Busker_1.Busker)
 ], BuskerPerformance.prototype, "busker", void 0);
 BuskerPerformance = __decorate([
