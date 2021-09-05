@@ -28,7 +28,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = exports.getBusker = void 0;
+exports.deletePerformance = exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = exports.getBusker = void 0;
 const Busker_1 = require("../entities/Busker");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 // import { buskerRepo } from '../repositories/buskerRepo';
@@ -133,7 +133,7 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
         const performance = class_transformer_1.plainToClass(BuskerPerformance_1.BuskerPerformance, JSON.parse(data));
         const errors = yield class_validator_1.validate(performance, { skipMissingProperties: true });
         if (errors.length > 0) {
-            // console.error(errors);
+            console.log('applyPerformance error:', errors);
             res.status(400).send(`parameter error`);
             return;
         }
@@ -145,11 +145,10 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
                 const result = yield buskerRepo.applyPerformance(performance);
                 if (result.status == 200 || result.status == 401) {
                     res.status(result.status).send(result.data);
-                    console.log('applyPerformance result:', result);
                 }
             }
             else
-                res.status(401).send('server is busying');
+                res.status(501).send('server is busying');
         }
     }
     catch (error) {
@@ -172,6 +171,26 @@ const getAllPerformanceTime = (req, res) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.getAllPerformanceTime = getAllPerformanceTime;
+const deletePerformance = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.body.data;
+        const performance = class_transformer_1.plainToClass(BuskerPerformance_1.GetPerformanceType, JSON.parse(data));
+        const errors = yield class_validator_1.validate(performance);
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        }
+        else {
+            const result = yield buskerRepo.deletePerformance(performance.id);
+            res.status(result.status).send(result.data);
+        }
+    }
+    catch (error) {
+        console.error('api deletePerformance error:', error);
+    }
+});
+exports.deletePerformance = deletePerformance;
 // export class BuskerController {
 //     /**
 //      * async name

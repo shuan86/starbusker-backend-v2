@@ -37,7 +37,7 @@ const memberRepo = __importStar(require("../repositories/memberRepo"));
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const rsa_1 = require("../moudles/rsa");
-const memberType_1 = require("../types/memberType");
+const Member_2 = require("../entities/Member");
 const passport_1 = __importDefault(require("../moudles/passport"));
 const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -117,7 +117,7 @@ const updateMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, functio
             password: rsa_1.decrypt(req.body.password),
             avatar: req.file ? req.file.buffer : null
         };
-        const infoData = class_transformer_1.plainToClass(memberType_1.UpdateMemberInfoType, data);
+        const infoData = class_transformer_1.plainToClass(Member_2.UpdateMemberInfoType, data);
         const errors = yield class_validator_1.validate(infoData, { skipMissingProperties: true });
         if (errors.length > 0) {
             res.status(400).send(`parameter error`);

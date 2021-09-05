@@ -68,6 +68,10 @@ const requestApplyPerformance = (data = null) => __awaiter(void 0, void 0, void 
     const result = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performance).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, data))));
     return result;
 });
+const requestDeletePerformance = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield supertest_1.default(app_1.app).delete(router_1.prefixApiPath + router_1.apiPath.performance).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, data))));
+    return result;
+});
 const requestGetPerformance = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
     const result = supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.performances)
         .set("Cookie", [cookies]).query(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, data))));
@@ -102,6 +106,25 @@ describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.performance}( Ap
     it(" it should return status 400 if incorrect apply", () => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield requestApplyPerformance();
         expect(result.statusCode).toBe(400);
+    }));
+});
+describe(`test delete ${router_1.prefixApiPath}${router_1.apiPath.performance}( Delete busker performance)`, () => {
+    let applyData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield requestEnrollBusker(enrollBuskerData);
+        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
+        const applyResult = yield requestApplyPerformance(performanceData);
+        applyData = JSON.parse(applyResult.text);
+    }));
+    it(" it should return status 200 if use correct perofrmance id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const performanceData = { id: applyData.id };
+        const result = yield requestDeletePerformance(performanceData);
+        expect(result.statusCode).toBe(200);
+    }));
+    it(" it should return status 200 if use correct perofrmance id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const performanceData = { id: applyData.id };
+        const result = yield requestDeletePerformance(performanceData);
+        expect(result.statusCode).toBe(200);
     }));
 });
 describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performancesTime}(get all time of busker performance)`, () => {

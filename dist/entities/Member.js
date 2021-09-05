@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Member = void 0;
+exports.UpdateMemberInfoType = exports.LoginType = exports.Member = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const typeorm_1 = require("typeorm");
@@ -66,4 +66,20 @@ Member = __decorate([
     typeorm_1.Entity()
 ], Member);
 exports.Member = Member;
+class LoginType {
+    constructor(account, password) {
+        this.account = account;
+        this.password = password;
+    }
+}
+exports.LoginType = LoginType;
+class UpdateMemberInfoType {
+    constructor(name, email, password, avatar = null) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.avatar = avatar;
+    }
+}
+exports.UpdateMemberInfoType = UpdateMemberInfoType;
 //# sourceMappingURL=Member.js.map

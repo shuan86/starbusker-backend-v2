@@ -1,6 +1,6 @@
-import { Busker, BuskerType, EnrollBuskerType } from "../entities/Busker";
+import { Busker, BuskerType, EnrollBuskerType, } from "../entities/Busker";
 import { Member } from "../entities/Member";
-import { BuskerPerformance, ApplyPerformanceType } from "../entities/BuskerPerformance";
+import { BuskerPerformance, ApplyPerformanceType, FrontEndPerformanceType } from "../entities/BuskerPerformance";
 import { getBuskerRepo, getBuskerPerformanceRepo, getMemberRepos } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
 import { locationArr } from "../mock/buskerPerformance";
@@ -50,12 +50,12 @@ export const generateDiffMockData = (memberId: number): Busker => {
 export const getCurrentDate = () => {
     const dateOBJ = new Date();
     const currDateOBJ = new Date();
-    currDateOBJ.setFullYear(dateOBJ.getUTCFullYear())
-    currDateOBJ.setMonth(dateOBJ.getUTCMonth())
-    currDateOBJ.setDate(dateOBJ.getUTCDate())
-    currDateOBJ.setHours(dateOBJ.getUTCHours())
-    currDateOBJ.setMinutes(dateOBJ.getUTCMinutes())
-    currDateOBJ.setSeconds(dateOBJ.getUTCSeconds())
+    currDateOBJ.setFullYear(dateOBJ.getFullYear())
+    currDateOBJ.setMonth(dateOBJ.getMonth())
+    currDateOBJ.setDate(dateOBJ.getDate())
+    currDateOBJ.setHours(dateOBJ.getHours())
+    currDateOBJ.setMinutes(dateOBJ.getMinutes())
+    currDateOBJ.setSeconds(dateOBJ.getSeconds())
 
     return currDateOBJ
 }
@@ -63,18 +63,18 @@ export const getCurrentTime = () => {
     const dateOBJ = new Date();
 
     const data = dateOBJ.getUTCFullYear() + '-' +
-        ('00' + (dateOBJ.getUTCMonth() + 1)).slice(-2) + '-' +
-        ('00' + dateOBJ.getUTCDate()).slice(-2) + ' ' +
-        ('00' + dateOBJ.getUTCHours()).slice(-2) + ':' +
-        ('00' + dateOBJ.getUTCMinutes()).slice(-2) + ':' +
-        ('00' + dateOBJ.getUTCSeconds()).slice(-2);
+        ('00' + (dateOBJ.getMonth() + 1)).slice(-2) + '-' +
+        ('00' + dateOBJ.getDate()).slice(-2) + ' ' +
+        ('00' + dateOBJ.getHours()).slice(-2) + ':' +
+        ('00' + dateOBJ.getMinutes()).slice(-2) + ':' +
+        ('00' + dateOBJ.getSeconds()).slice(-2);
     return {
         year: dateOBJ.getUTCFullYear(),
-        month: dateOBJ.getUTCMonth(),
-        date: dateOBJ.getUTCDate(),
-        hour: dateOBJ.getUTCHours(),
-        minute: dateOBJ.getUTCMinutes(),
-        second: dateOBJ.getUTCMinutes(),
+        month: dateOBJ.getMonth(),
+        date: dateOBJ.getDate(),
+        hour: dateOBJ.getHours(),
+        minute: dateOBJ.getMinutes(),
+        second: dateOBJ.getSeconds(),
         allStr: data
     }
 
@@ -197,8 +197,8 @@ export const getAllPerformanceTime = async (): Promise<ReponseType> => {
     try {
         const buskerPerformanceRepo = getBuskerPerformanceRepo()
         const dataArr = await buskerPerformanceRepo.createQueryBuilder("p")
-            .select(['p.time'])
-            .groupBy("Day(p.time)").getMany()
+            .select(['date(p.time) time'])
+            .groupBy("date(p.time)").orderBy("p.time").getRawMany()
         repoData.status = 200
         repoData.data = JSON.stringify(dataArr)
         return repoData
@@ -207,35 +207,78 @@ export const getAllPerformanceTime = async (): Promise<ReponseType> => {
         return repoData
     }
 }
+export const isPerformanceExist = async (id: number): Promise<boolean> => {
+    try {
+        const repo = getBuskerPerformanceRepo()
+        const result = await repo.findOne({ id })
+        if (result)
+            return true
+        return false
+    } catch (error) {
+        console.error('isPerformanceExist error', error);
+    }
+}
 
 
 export const applyPerformance = async (data: BuskerPerformance): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
-    try {
-        const repo = getBuskerPerformanceRepo()
-        // const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
-        const geocode = await geocoder.geocode(data.location)
 
-        data.latitude = geocode[0].latitude
-        data.longitude = geocode[0].longitude
-        await repo.save(repo.create(data))
-        repoData.status = 200
-        repoData.data = ''
+    try {
+        const buskerRepo = getBuskerPerformanceRepo()
+        // const geocode = await geocoder.geocode(data.location)
+        // data.latitude = geocode[0].latitude
+        // data.longitude = geocode[0].longitude
+
+        const performanceResult = await buskerRepo.save(buskerRepo.create(data))
+        if (performanceResult) {
+            repoData.status = 200
+            const reponseData: FrontEndPerformanceType = await buskerRepo.createQueryBuilder('p')
+                .select(['p.id id ', 'm.name name', 'm.email email'
+                    , 'p.location location', 'p.description description', 'p.title title', 'p.latitude latitude', 'p.longitude longitude', 'p.time time'])
+                .innerJoin(Busker, 'b', `b.id=${performanceResult.buskerId}`)
+                .innerJoin(Member, 'm', 'm.id=b.memberId')
+                .where(`p.id=${performanceResult.id}`)
+                .getRawOne()
+            repoData.data = JSON.stringify(reponseData)
+
+        }
+        else {
+            repoData.status = 401
+            repoData.data = ''
+        }
         return repoData
     } catch (error) {
         console.error('applyPerformance error:', error);
         return repoData
     }
 }
+
+export const deletePerformance = async (id: number): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const repo = getBuskerPerformanceRepo()
+        const performance = await repo.findOne({ id })
+        if (performance) {
+            const result = await repo.remove(performance)
+            if (result) {
+                repoData.status = 200
+                return repoData
+            }
+        }
+        repoData.status = 401
+        return repoData
+    } catch (error) {
+        console.error('deletePerformance error:', error);
+        return repoData
+    }
+}
+
+
 export const applyMockPerformance = async (data: BuskerPerformance): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {
         const repo = getBuskerPerformanceRepo()
-        // const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
-        // const geocode = await geocoder.geocode(data.location)
 
-        // data.latitude = geocode[0].latitude
-        // data.longitude = geocode[0].longitude
         await repo.save(repo.create(data))
         repoData.status = 200
         repoData.data = ''
@@ -244,30 +287,6 @@ export const applyMockPerformance = async (data: BuskerPerformance): Promise<Rep
         console.error('applyPerformance error:', error);
         return repoData
     }
-    // let repoData: ReponseType = { status: 501, data: '' }
-    // try {
-    //     const repo = getBuskerPerformanceRepo()
-
-    //     const isPerformanceExist: BuskerPerformance = await repo.findOne({ id: data.buskerId })
-    //     console.log('data.buskerId:', data.buskerId, 'isPerformanceExist:', isPerformanceExist);
-    //     if (isPerformanceExist) {
-
-    //         await repo.save({ ...data })
-    //         repoData.status = 200
-    //         repoData.data = ''
-    //         return repoData
-    //     }
-    //     else {
-    //         await repo.save({ ...data })
-    //         repoData.status = 200
-    //         repoData.data = ''
-    //         return repoData
-
-    //     }
-    // } catch (error) {
-    //     console.error('applyMockPerformance error:', error);
-    //     return repoData
-    // }
 }
 export const isBuskerByMemberId = async (memberId: number): Promise<boolean> => {
     try {

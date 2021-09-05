@@ -1,6 +1,6 @@
 import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
 import { Expose } from "class-transformer";
-import { IsDefined } from "class-validator";
+import { IsDefined, Matches, IsDate } from "class-validator";
 import { Busker } from './Busker'
 
 
@@ -20,13 +20,17 @@ export class BuskerPerformance {
   description: string
   @IsDefined()
   @Expose()
-  @Column({ type: 'datetime', default: () => 'NOW()' })
+  @Column({ type: 'timestamp', default: () => 'NOW()' })
   time: Date
   @Column({ default: () => 0 })
   lineMoney: number
   @Column({ type: "double" })
+  @IsDefined()
+  @Expose()
   latitude: number
   @Column({ type: "double" })
+  @IsDefined()
+  @Expose()
   longitude: number
   @IsDefined()
   @Expose()
@@ -60,4 +64,23 @@ export class GetPerformancesType {
     this.time = time
     this.page = page
   }
+}
+export class GetPerformanceType {
+  @IsDefined()
+  @Expose()
+  id: number
+  constructor(id: number) {
+    this.id = id
+  }
+}
+export type FrontEndPerformanceType = {
+  id: number
+  name: string,
+  email: string,
+  location: string,
+  description: string,
+  title: string,
+  time: string,
+  longitude: number,
+  latitude: number
 }

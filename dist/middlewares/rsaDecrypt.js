@@ -13,11 +13,11 @@ exports.loginRsaDecrypt = void 0;
 const rsa_1 = require("../moudles/rsa");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
-const memberType_1 = require("../types/memberType");
+const Member_1 = require("../entities/Member");
 const loginRsaDecrypt = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const encryptData = req.body.encryptData;
     const data = rsa_1.decrypt(encryptData);
-    const member = class_transformer_1.plainToClass(memberType_1.LoginType, JSON.parse(data));
+    const member = class_transformer_1.plainToClass(Member_1.LoginType, JSON.parse(data));
     const errors = yield class_validator_1.validate(member, { skipMissingProperties: true });
     // if (errors.length == 0) {
     //     req.body.account = member.account

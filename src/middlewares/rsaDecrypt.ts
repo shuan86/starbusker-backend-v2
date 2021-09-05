@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { decrypt } from "../moudles/rsa"
 import { plainToClass } from "class-transformer";
 import { validate } from "class-validator";
-import { LoginType } from '../types/memberType'
+import { LoginType } from '../entities/Member'
 
 export const loginRsaDecrypt = async (req: Request, res: Response, next: NextFunction) => {
     const encryptData = req.body.encryptData

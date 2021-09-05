@@ -2,7 +2,10 @@
 import { mockConnection } from "../mock/mockDbTestConnection";
 import * as memberRepo from "./memberRepo";
 import * as buskerRepo from "./buskerRepo";
+import { FrontEndPerformanceType } from "../entities/BuskerPerformance";
+
 import { describe, expect, test } from '@jest/globals'
+import { ReponseType } from "types/reponseType";
 beforeAll(async () => {
     const connection = await mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
@@ -22,34 +25,63 @@ afterAll(async () => {
     await mockConnection.close();
 });
 describe("busker repo test(enroll)", () => {
-
-    test("Test enroll:it should be return 200 if use correct member id", async () => {
+    test("Test enroll and isBuskerByMemberId:it should be return 200 if use correct member id", async () => {
         const result = await buskerRepo.enroll({ ...buskerData })
         expect(result.status).toBe(200)
     })
     test("Test enroll:it should be return 200 if repeat enroll", async () => {
         const result1 = await buskerRepo.enroll({ ...buskerData })
         expect(result1.status).toBe(200)
-        const result2 = await buskerRepo.enroll({ ...buskerData })
-        expect(result2.status).toBe(401)
     })
 })
 describe("busker repo test(applyPerformance)", () => {
-    // let memberData
-    // let buskerData
     beforeEach(async () => {
-        //enroll busker
         buskerData = await buskerRepo.createBusker({ ...buskerData })
     });
     it("Test apply:it should be return 200 if use correct  format", async () => {
-        // const time = buskerRepo.getCurrentTime()
         const result = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
             , buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'))
         expect(result.status).toBe(200)
     })
-
+})
+describe("busker repo test(isPerformanceExist)", () => {
+    let performanceData: FrontEndPerformanceType
+    beforeEach(async () => {
+        buskerData = await buskerRepo.createBusker({ ...buskerData })
+        const reponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+            , buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'))
+        performanceData = JSON.parse(reponse.data)
+    });
+    it("Test isPerformanceExist:it should be return true if use correct perforance id", async () => {
+        const result = await buskerRepo.isPerformanceExist(performanceData.id)
+        expect(result).toBe(true)
+    })
+    it("Test isPerformanceExist:it should be return false if use incorrect perforance id", async () => {
+        const result = await buskerRepo.isPerformanceExist(-1)
+        expect(result).toBe(false)
+    })
+})
+describe("busker repo test(deletePerformance)", () => {
+    let performanceData: FrontEndPerformanceType
+    beforeEach(async () => {
+        buskerData = await buskerRepo.createBusker({ ...buskerData })
+        const reponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+            , buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'))
+        performanceData = JSON.parse(reponse.data)
+    });
+    it("Test delete:it should be return 200 if use correct perforance id", async () => {
+        const result = await buskerRepo.deletePerformance(performanceData.id)
+        expect(result.status).toBe(200)
+        const isPerformanceExist = await buskerRepo.isPerformanceExist(performanceData.id)
+        expect(isPerformanceExist).toBe(false)
+    })
+    it("Test delete:it should be return 401 if use incorrect perforance id", async () => {
+        const result = await buskerRepo.deletePerformance(-1)
+        expect(result.status).toBe(401)
+    })
 
 })
+
 describe("busker repo test(getAllPerformanceTime)", () => {
     let memberArr = []
     let buskerArr = []

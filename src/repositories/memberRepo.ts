@@ -1,7 +1,6 @@
-import { Member } from "../entities/Member";
+import { Member, LoginType, FrontEndMemberDataType, UpdateMemberInfoType } from "../entities/Member";
 import { IMember } from "../interfaces/IMember";
 import { getMemberRepos } from './databaseRepo'
-import { LoginType, FrontEndMemberDataType, UpdateMemberInfoType } from "../types/memberType";
 import { ReponseType } from "../types/reponseType";
 import * as buskerRepo from "./buskerRepo";
 import fs from "fs";

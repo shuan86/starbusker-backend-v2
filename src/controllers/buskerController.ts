@@ -1,7 +1,7 @@
 
 import { Request, response, Response } from 'express';
 import { Busker, GetBuskerType } from "../entities/Busker";
-import { BuskerPerformance, GetPerformancesType, } from "../entities/BuskerPerformance";
+import { BuskerPerformance, GetPerformancesType, GetPerformanceType } from "../entities/BuskerPerformance";
 
 // import { buskerRepo } from '../repositories/buskerRepo';
 import * as  buskerRepo from '../repositories/buskerRepo';
@@ -9,7 +9,7 @@ import * as  buskerRepo from '../repositories/buskerRepo';
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
-import { LoginType, FrontEndMemberDataType } from '../types/memberType'
+import { LoginType, FrontEndMemberDataType } from '../entities/Member'
 import { error } from 'console';
 
 
@@ -107,33 +107,33 @@ export const getPerformances = async (req: Request, res: Response) => {
 export const applyPerformance = async (req: Request, res: Response) => {
     try {
         const data = req.body.data
-
-
         const performance = plainToClass(BuskerPerformance, JSON.parse(data))
         const errors = await validate(performance, { skipMissingProperties: true })
         if (errors.length > 0) {
-            // console.error(errors);
+            console.log('applyPerformance error:', errors);
+
             res.status(400).send(`parameter error`);
             return;
         } else {
             const memberId = req.user as number
             const buskerId = await buskerRepo.getIdByMemberId(memberId)
             performance.buskerId = buskerId
-
             if (buskerId) {
                 const result = await buskerRepo.applyPerformance(performance)
                 if (result.status == 200 || result.status == 401) {
                     res.status(result.status).send(result.data)
-                    console.log('applyPerformance result:', result);
                 }
             }
             else
-                res.status(401).send('server is busying')
+                res.status(501).send('server is busying')
         }
     } catch (error) {
         console.error('api applyPerformance error:', error);
     }
 }
+
+
+
 export const getAllPerformanceTime = async (req: Request, res: Response) => {
     try {
         const result = await buskerRepo.getAllPerformanceTime()
@@ -148,7 +148,23 @@ export const getAllPerformanceTime = async (req: Request, res: Response) => {
         console.error('api getAllPerformanceTime error:', error);
     }
 }
-
+export const deletePerformance = async (req: Request, res: Response) => {
+    try {
+        const data = req.body.data as string
+        const performance = plainToClass(GetPerformanceType, JSON.parse(data))
+        const errors = await validate(performance)
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        } else {
+            const result = await buskerRepo.deletePerformance(performance.id)
+            res.status(result.status).send(result.data)
+        }
+    } catch (error) {
+        console.error('api deletePerformance error:', error);
+    }
+}
 
 
 // export class BuskerController {

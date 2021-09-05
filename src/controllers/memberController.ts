@@ -6,7 +6,7 @@ import * as memberRepo from '../repositories/memberRepo';
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
-import { LoginType, UpdateMemberInfoType } from '../types/memberType'
+import { LoginType, UpdateMemberInfoType } from '../entities/Member'
 import passport from "../moudles/passport";
 import { ReponseType } from 'types/reponseType';
 export const init = async (req: Request, res: Response) => {

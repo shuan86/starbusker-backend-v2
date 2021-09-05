@@ -23,5 +23,7 @@ export class BuskerRoutes extends IRoute {
       .get(buskerController.getPerformances);
     this.router.route(apiPath.performancesTime)
       .get(buskerController.getAllPerformanceTime);
+    this.router.route(apiPath.performance)
+      .delete(buskerController.deletePerformance);
   }
 }

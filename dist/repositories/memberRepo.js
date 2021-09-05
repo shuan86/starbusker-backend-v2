@@ -32,18 +32,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = void 0;
+const Member_1 = require("../entities/Member");
 const databaseRepo_1 = require("./databaseRepo");
-const memberType_1 = require("../types/memberType");
 const buskerRepo = __importStar(require("./buskerRepo"));
 const fs_1 = __importDefault(require("fs"));
 let mockMemberCount = 0;
 const generateLoginData = (account, password) => {
-    const data = new memberType_1.LoginType(account, password);
+    const data = new Member_1.LoginType(account, password);
     return data;
 };
 exports.generateLoginData = generateLoginData;
 const generateMemberInfoData = (account, password, email) => {
-    const data = new memberType_1.UpdateMemberInfoType(account, password, email);
+    const data = new Member_1.UpdateMemberInfoType(account, password, email);
     return data;
 };
 exports.generateMemberInfoData = generateMemberInfoData;

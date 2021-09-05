@@ -3,7 +3,7 @@ import passportLocal from "passport-local";
 import { login, loginByAccountPasswd } from "../repositories/memberRepo";
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
-import { LoginType } from '../types/memberType'
+import { LoginType } from '../entities/Member'
 
 const LocalStrategy = passportLocal.Strategy;
 // passport.use('login', new LocalStrategy({

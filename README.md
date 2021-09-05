@@ -131,8 +131,8 @@ npm run tsc-prod
 
 | Code  | Description               | Result                                             |
 | :---- | :------------------------ | :------------------------------------------------- |
-| `200` | sucessful get member info | `"{name:'',account:'',email:'','description:'',avatar:'',}"` |
-| `401` | failed to get member info | `"failed to get member info、you aren't member "`  |
+| `200` | sucessful get member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}"` |
+| `400` | failed to get member info | `"failed to get member info、you aren't member "`  |
 | `500` | server is busying         | `"server is busying"`                              |
 
 ---
@@ -251,7 +251,7 @@ npm run tsc-prod
 
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
-| `200` | sucessful add performance | `""`                                             |
+| `200` | sucessful add performance | `{"id":4200,"name":"busker","email":"account01@email.com","location":"台灣台北港","description":"Description1","title":"唱歌","latitude":25.0329636,"longitude":121.5654268,"time":"2021-09-23 05:48:00"}`                                             |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to apply           | `"failed to apply、you aren't member or busker"` |
 | `500` | server is busying         | `"server is busying"`                            |

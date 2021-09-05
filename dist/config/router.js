@@ -13,6 +13,6 @@ exports.apiPath = {
     enrollBusker: '/busker',
     performance: '/performance',
     performances: '/performances',
-    performancesTime: '/performancesTime'
+    performancesTime: '/performancesTime',
 };
 //# sourceMappingURL=router.js.map

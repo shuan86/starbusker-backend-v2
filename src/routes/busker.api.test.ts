@@ -2,11 +2,11 @@ import request from "supertest"
 import { app } from '../app'
 import * as memberRepo from "../repositories/memberRepo";
 import * as buskerRepo from "../repositories/buskerRepo";
-import { GetPerformancesType, BuskerPerformance } from "../entities/BuskerPerformance";
-
+import { GetPerformancesType, BuskerPerformance, FrontEndPerformanceType, GetPerformanceType } from "../entities/BuskerPerformance";
 import { mockConnection } from "../mock/mockDbTestConnection";
 import { prefixApiPath, apiPath } from "../config/router";
 import * as mockRequestData from "../utils/request";
+import { ReponseType } from "types/reponseType";
 beforeAll(async () => {
     const connection = await mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
@@ -35,6 +35,10 @@ const requestEnrollBusker = async (data = null) => {
 }
 const requestApplyPerformance = async (data = null) => {
     const result = await request(app).post(prefixApiPath + apiPath.performance).set("Cookie", [cookies]).send({ ...mockRequestData.generateSendData({ ...data }) })
+    return result
+}
+const requestDeletePerformance = async (data = null) => {
+    const result = await request(app).delete(prefixApiPath + apiPath.performance).set("Cookie", [cookies]).send({ ...mockRequestData.generateSendData({ ...data }) })
     return result
 }
 const requestGetPerformance = async (data = null) => {
@@ -76,7 +80,25 @@ describe(`test post ${prefixApiPath}${apiPath.performance}( Apply busker perform
         expect(result.statusCode).toBe(400);
     });
 });
-
+describe(`test delete ${prefixApiPath}${apiPath.performance}( Delete busker performance)`, () => {
+    let applyData: FrontEndPerformanceType
+    beforeEach(async () => {
+        await requestEnrollBusker(enrollBuskerData)
+        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate())
+        const applyResult = await requestApplyPerformance(performanceData)
+        applyData = JSON.parse(applyResult.text)
+    });
+    it(" it should return status 200 if use correct perofrmance id", async () => {
+        const performanceData: GetPerformanceType = { id: applyData.id }
+        const result = await requestDeletePerformance(performanceData)
+        expect(result.statusCode).toBe(200);
+    });
+    it(" it should return status 200 if use correct perofrmance id", async () => {
+        const performanceData: GetPerformanceType = { id: applyData.id }
+        const result = await requestDeletePerformance(performanceData)
+        expect(result.statusCode).toBe(200);
+    });
+});
 describe(`test get ${prefixApiPath}${apiPath.performancesTime}(get all time of busker performance)`, () => {
     beforeEach(async () => {
         await requestEnrollBusker(enrollBuskerData)

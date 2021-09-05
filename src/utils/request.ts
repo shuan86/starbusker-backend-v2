@@ -9,11 +9,11 @@ type SendDataType = {
 export const generateEncryptSendData = (data): EncryptSendDataType => {
     const jsonStr = JSON.stringify(data)
     const encryptData = encrypt(jsonStr)
-    const postData: EncryptSendDataType = { encryptData }
-    return postData
+    const sendData: EncryptSendDataType = { encryptData }
+    return sendData
 }
 export const generateSendData = (data): SendDataType => {
     const jsonStr = JSON.stringify(data)
-    const postData: SendDataType = { data: jsonStr }
-    return postData
+    const sendData: SendDataType = { data: jsonStr }
+    return sendData
 }

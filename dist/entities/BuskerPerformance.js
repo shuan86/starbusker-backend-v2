@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetPerformancesType = exports.ApplyPerformanceType = exports.BuskerPerformance = void 0;
+exports.GetPerformanceType = exports.GetPerformancesType = exports.ApplyPerformanceType = exports.BuskerPerformance = void 0;
 const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -39,7 +39,7 @@ __decorate([
 __decorate([
     class_validator_1.IsDefined(),
     class_transformer_1.Expose(),
-    typeorm_1.Column({ type: 'datetime', default: () => 'NOW()' }),
+    typeorm_1.Column({ type: 'timestamp', default: () => 'NOW()' }),
     __metadata("design:type", Date)
 ], BuskerPerformance.prototype, "time", void 0);
 __decorate([
@@ -48,10 +48,14 @@ __decorate([
 ], BuskerPerformance.prototype, "lineMoney", void 0);
 __decorate([
     typeorm_1.Column({ type: "double" }),
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "latitude", void 0);
 __decorate([
     typeorm_1.Column({ type: "double" }),
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "longitude", void 0);
 __decorate([
@@ -96,4 +100,15 @@ __decorate([
     __metadata("design:type", Number)
 ], GetPerformancesType.prototype, "page", void 0);
 exports.GetPerformancesType = GetPerformancesType;
+class GetPerformanceType {
+    constructor(id) {
+        this.id = id;
+    }
+}
+__decorate([
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", Number)
+], GetPerformanceType.prototype, "id", void 0);
+exports.GetPerformanceType = GetPerformanceType;
 //# sourceMappingURL=BuskerPerformance.js.map

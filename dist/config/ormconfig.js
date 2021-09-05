@@ -49,7 +49,9 @@ const config = {
     ],
     synchronize: true,
     logging: false,
-    dropSchema: false
+    dropSchema: false,
+    timezone: '+08:00',
+    dateStrings: true
 };
 exports.default = config;
 //# sourceMappingURL=ormconfig.js.map

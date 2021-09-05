@@ -50,28 +50,56 @@ afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield mockDbTestConnection_1.mockConnection.close();
 }));
 globals_1.describe("busker repo test(enroll)", () => {
-    globals_1.test("Test enroll:it should be return 200 if use correct member id", () => __awaiter(void 0, void 0, void 0, function* () {
+    globals_1.test("Test enroll and isBuskerByMemberId:it should be return 200 if use correct member id", () => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield buskerRepo.enroll(Object.assign({}, buskerData));
         globals_1.expect(result.status).toBe(200);
     }));
     globals_1.test("Test enroll:it should be return 200 if repeat enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         const result1 = yield buskerRepo.enroll(Object.assign({}, buskerData));
         globals_1.expect(result1.status).toBe(200);
-        const result2 = yield buskerRepo.enroll(Object.assign({}, buskerData));
-        globals_1.expect(result2.status).toBe(401);
     }));
 });
 globals_1.describe("busker repo test(applyPerformance)", () => {
-    // let memberData
-    // let buskerData
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        //enroll busker
         buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
     }));
     it("Test apply:it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
-        // const time = buskerRepo.getCurrentTime()
         const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'));
         globals_1.expect(result.status).toBe(200);
+    }));
+});
+globals_1.describe("busker repo test(isPerformanceExist)", () => {
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
+        const reponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'));
+        performanceData = JSON.parse(reponse.data);
+    }));
+    it("Test isPerformanceExist:it should be return true if use correct perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.isPerformanceExist(performanceData.id);
+        globals_1.expect(result).toBe(true);
+    }));
+    it("Test isPerformanceExist:it should be return false if use incorrect perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.isPerformanceExist(-1);
+        globals_1.expect(result).toBe(false);
+    }));
+});
+globals_1.describe("busker repo test(deletePerformance)", () => {
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
+        const reponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'));
+        performanceData = JSON.parse(reponse.data);
+    }));
+    it("Test delete:it should be return 200 if use correct perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.deletePerformance(performanceData.id);
+        globals_1.expect(result.status).toBe(200);
+        const isPerformanceExist = yield buskerRepo.isPerformanceExist(performanceData.id);
+        globals_1.expect(isPerformanceExist).toBe(false);
+    }));
+    it("Test delete:it should be return 401 if use incorrect perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.deletePerformance(-1);
+        globals_1.expect(result.status).toBe(401);
     }));
 });
 globals_1.describe("busker repo test(getAllPerformanceTime)", () => {
