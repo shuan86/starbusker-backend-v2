@@ -32,6 +32,7 @@ const mockDbTestConnection_1 = require("../mock/mockDbTestConnection");
 const memberRepo = __importStar(require("./memberRepo"));
 const buskerRepo = __importStar(require("./buskerRepo"));
 const globals_1 = require("@jest/globals");
+const time_1 = require("../moudles/time");
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     const connection = yield mockDbTestConnection_1.mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
@@ -41,7 +42,7 @@ let buskerData;
 beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
     //create member
     yield mockDbTestConnection_1.mockConnection.clearAllRepo();
-    memberData = memberRepo.generateFixedMemberMockData();
+    memberData = yield memberRepo.generateDiffMemberMockData();
     memberData = yield memberRepo.createMember(Object.assign({}, memberData));
     buskerData = buskerRepo.generateFixedMockData(memberData.id);
     // buskerData = await buskerRepo.createBusker({ ...buskerData })
@@ -64,7 +65,7 @@ globals_1.describe("busker repo test(applyPerformance)", () => {
         buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
     }));
     it("Test apply:it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'));
+        const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
         globals_1.expect(result.status).toBe(200);
     }));
 });
@@ -72,11 +73,11 @@ globals_1.describe("busker repo test(isPerformanceExist)", () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
-        const reponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'));
-        performanceData = JSON.parse(reponse.data);
+        const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
+        performanceData = JSON.parse(result.data);
     }));
     it("Test isPerformanceExist:it should be return true if use correct perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield buskerRepo.isPerformanceExist(performanceData.id);
+        const result = yield buskerRepo.isPerformanceExist(performanceData.performanceId);
         globals_1.expect(result).toBe(true);
     }));
     it("Test isPerformanceExist:it should be return false if use incorrect perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -88,13 +89,13 @@ globals_1.describe("busker repo test(deletePerformance)", () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
-        const reponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', buskerRepo.getCurrentDate(), '110台北市信義區市府路1號'));
+        const reponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
         performanceData = JSON.parse(reponse.data);
     }));
     it("Test delete:it should be return 200 if use correct perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield buskerRepo.deletePerformance(performanceData.id);
+        const result = yield buskerRepo.deletePerformance(performanceData.performanceId);
         globals_1.expect(result.status).toBe(200);
-        const isPerformanceExist = yield buskerRepo.isPerformanceExist(performanceData.id);
+        const isPerformanceExist = yield buskerRepo.isPerformanceExist(performanceData.performanceId);
         globals_1.expect(isPerformanceExist).toBe(false);
     }));
     it("Test delete:it should be return 401 if use incorrect perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -107,26 +108,16 @@ globals_1.describe("busker repo test(getAllPerformanceTime)", () => {
     let buskerArr = [];
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         for (let i = 0; i < 3; i++) {
-            let memberData = yield memberRepo.generateDiffMemberMockData();
+            memberData = yield memberRepo.generateDiffMemberMockData();
             memberData = yield memberRepo.createMember(memberData);
             memberArr.push(memberData);
             let buskerData = buskerRepo.generateDiffMockData(memberData.id);
             buskerData = yield buskerRepo.createBusker(buskerData);
             buskerArr.push(buskerData);
         }
-        const time = buskerRepo.getCurrentTime();
-        let year = time.year;
-        let month = time.month;
-        let date = time.date;
-        let hour = time.hour;
-        let minute = time.minute;
+        const timeStr = time_1.getCurrentFullTimeStr();
         for (let i = 0; i < buskerArr.length; i++) {
-            const performanceData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, buskerRepo.setCurrentData(year, month, date, hour, minute));
-            if (i >= 1) {
-                date++;
-                hour++;
-            }
-            minute = Math.random() * 60;
+            const performanceData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, time_1.addTime(timeStr, 0, i, i));
             yield buskerRepo.applyMockPerformance(performanceData);
         }
     }));
@@ -140,21 +131,19 @@ globals_1.describe("busker repo test(getPerformances)", () => {
     let buskerArr = [];
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         for (let i = 0; i < 1; i++) {
-            let memberData = yield memberRepo.generateDiffMemberMockData();
+            memberData = yield memberRepo.generateDiffMemberMockData();
             memberData = yield memberRepo.createMember(memberData);
             memberArr.push(memberData);
             let buskerData = buskerRepo.generateDiffMockData(memberData.id);
             buskerData = yield buskerRepo.createBusker(buskerData);
             buskerArr.push(buskerData);
         }
-        const time = buskerRepo.getCurrentTime();
-        let year = time.year;
-        let month = time.month;
-        let date = time.date;
-        let hour = time.hour;
-        let minute = time.minute;
+        const timeStr = time_1.getCurrentFullTimeStr();
+        let date = 0;
+        let hour = 0;
+        let minute = 0;
         for (let i = 0; i < buskerArr.length; i++) {
-            const performanceData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, buskerRepo.setCurrentData(year, month, date, hour, minute));
+            const performanceData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, time_1.addTime(timeStr, 0, date, hour, minute));
             if (i >= 10 && i % 10 == 0) {
                 date++;
                 hour++;
@@ -164,9 +153,74 @@ globals_1.describe("busker repo test(getPerformances)", () => {
         }
     }));
     it("Test get Performances :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
-        const time = buskerRepo.getCurrentTime();
-        let dateData = buskerRepo.setCurrentData(time.year, time.month, time.date, time.hour, time.minute);
-        const result = yield buskerRepo.getPerformances(dateData, 1);
+        const timeStr = time_1.getCurrentFullTimeStr();
+        const result = yield buskerRepo.getPerformances(timeStr, 1);
+        globals_1.expect(result.status).toBe(200);
+    }));
+});
+globals_1.describe("busker repo test(createPerformanceComment)", () => {
+    const testStr = 'testStr';
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
+        const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
+        performanceData = JSON.parse(result.data);
+    }));
+    it("Test createPerformanceComment :it should be return true if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
+        yield buskerRepo.createPerformanceComment({
+            id: 0, buskerId: buskerData.id, performanceId: performanceData.performanceId, memberId: buskerData.memberId,
+            comment: testStr, time: undefined, buskerPerformance: undefined, busker: undefined, member: undefined
+        });
+        const result = yield buskerRepo.getPerformanceCommentsByBuskerId(buskerData.id);
+        globals_1.expect(result.status).toBe(200);
+        const dataArr = JSON.parse(result.data);
+        let isFindComment = false;
+        for (const data of dataArr) {
+            if (data.comment == testStr)
+                isFindComment = true;
+        }
+        globals_1.expect(isFindComment).toBe(true);
+    }));
+});
+globals_1.describe("busker repo test(getTop5MaxOnlineAmount,getTop5NewestMaxCommentAmount,getWeekCommentAmount and getFuturePerformancesData)", () => {
+    const testStr = 'testStr';
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
+        const curTimeStr = time_1.getCurrentFullTimeStr();
+        for (let i = 0; i < 1; i++) {
+            for (let j = 0; j < 7; j++) {
+                const futurePerformanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, j), `110台北市信義區市府路${i}號`));
+                const performanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, -(j)), `110台北市信義區市府路${i}號`));
+                const performanceData = JSON.parse(performanceResponse.data);
+                const memberId = yield buskerRepo.getMemberIdByBuskerId(buskerData.id);
+                yield buskerRepo.createPerformanceComment({
+                    id: 0, buskerId: buskerData.id, performanceId: performanceData.performanceId,
+                    comment: `${j}`, time: time_1.addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined,
+                    member: undefined
+                });
+                yield buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, i);
+            }
+        }
+    }));
+    it("Test getTop5MaxOnlineAmount :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.getTop5NewestHighestOnlineAmount(buskerData.id);
+        const data = JSON.parse(result.data);
+        globals_1.expect(result.status).toBe(200);
+    }));
+    it("Test getTop5NewestMaxCommentAmount :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.getTop5HighestCommentAmount(buskerData.id);
+        const data = JSON.parse(result.data);
+        globals_1.expect(result.status).toBe(200);
+    }));
+    it("Test getWeekCommentAmount :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.getWeekCommentAmount(buskerData.id);
+        const data = JSON.parse(result.data);
+        globals_1.expect(result.status).toBe(200);
+    }));
+    it("Test getFuturePerformancesData :it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.getFuturePerformancesData(buskerData.id);
+        const data = JSON.parse(result.data);
         globals_1.expect(result.status).toBe(200);
     }));
 });

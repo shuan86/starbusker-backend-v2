@@ -28,13 +28,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deletePerformance = exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = exports.getBusker = void 0;
+exports.getFuturePerformancesData = exports.getWeekCommentAmount = exports.getCommentAmount = exports.getOnlineAmount = exports.deletePerformance = exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = exports.getBusker = void 0;
 const Busker_1 = require("../entities/Busker");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
-// import { buskerRepo } from '../repositories/buskerRepo';
 const buskerRepo = __importStar(require("../repositories/buskerRepo"));
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
+const time_1 = require("../moudles/time");
 const getBusker = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.query.data;
@@ -113,7 +113,7 @@ const getPerformances = (req, res) => __awaiter(void 0, void 0, void 0, function
                 res.status(400).send(`time parameter error`);
                 return;
             }
-            const result = yield buskerRepo.getPerformances(buskerRepo.setCurrentData(year, month, date), performance.page);
+            const result = yield buskerRepo.getPerformances(time_1.setDate(year, month, date), performance.page);
             if (result.status == 200 || result.status == 401) {
                 res.status(result.status).send(result.data);
             }
@@ -182,7 +182,7 @@ const deletePerformance = (req, res) => __awaiter(void 0, void 0, void 0, functi
             return;
         }
         else {
-            const result = yield buskerRepo.deletePerformance(performance.id);
+            const result = yield buskerRepo.deletePerformance(performance.performanceId);
             res.status(result.status).send(result.data);
         }
     }
@@ -191,6 +191,68 @@ const deletePerformance = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.deletePerformance = deletePerformance;
+const getOnlineAmount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const memberId = req.user;
+        const buskerId = yield buskerRepo.getIdByMemberId(memberId);
+        if (buskerId) {
+            const result = yield buskerRepo.getTop5NewestHighestOnlineAmount(buskerId);
+            res.status(result.status).send(result.data);
+        }
+        else {
+            res.status(401).send(`failed to get data`);
+            return;
+        }
+    }
+    catch (error) {
+        console.error('api getOnlineAmount error:', error);
+    }
+});
+exports.getOnlineAmount = getOnlineAmount;
+const getCommentAmount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const memberId = req.user;
+        const buskerId = yield buskerRepo.getIdByMemberId(memberId);
+        if (buskerId) {
+            const result = yield buskerRepo.getTop5HighestCommentAmount(buskerId);
+            res.status(result.status).send(result.data);
+        }
+        else {
+            res.status(401).send(`failed to get data`);
+            return;
+        }
+    }
+    catch (error) {
+        console.error('api getOnlineAmount error:', error);
+    }
+});
+exports.getCommentAmount = getCommentAmount;
+const getWeekCommentAmount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const memberId = req.user;
+    const buskerId = yield buskerRepo.getIdByMemberId(memberId);
+    if (buskerId) {
+        const result = yield buskerRepo.getWeekCommentAmount(buskerId);
+        res.status(result.status).send(result.data);
+    }
+    else {
+        res.status(401).send(`failed to get data`);
+        return;
+    }
+});
+exports.getWeekCommentAmount = getWeekCommentAmount;
+const getFuturePerformancesData = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const memberId = req.user;
+    const buskerId = yield buskerRepo.getIdByMemberId(memberId);
+    if (buskerId) {
+        const result = yield buskerRepo.getFuturePerformancesData(buskerId);
+        res.status(result.status).send(result.data);
+    }
+    else {
+        res.status(401).send(`failed to get data`);
+        return;
+    }
+});
+exports.getFuturePerformancesData = getFuturePerformancesData;
 // export class BuskerController {
 //     /**
 //      * async name

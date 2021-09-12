@@ -2,6 +2,7 @@ import { Expose } from "class-transformer";
 import { IsDefined } from "class-validator";
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Busker } from './Busker'
+import { BuskerPerformanceComment } from './BuskerPerformanceComment'
 
 @Entity()
 export class Member {
@@ -33,9 +34,9 @@ export class Member {
   avatar: Buffer;
   // @OneToMany(type => Busker, busker => busker.memberId, { cascade: true })
   @OneToMany(type => Busker, busker => busker.memberId)
-
   buskers: Busker[];
-
+  @OneToMany(type => BuskerPerformanceComment, comment => comment)
+  buskerPerformanceComments: BuskerPerformanceComment[];
 }
 
 export class LoginType {

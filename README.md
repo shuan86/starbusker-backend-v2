@@ -228,16 +228,13 @@ npm run tsc-prod
 
 | Code  | Description        | Result                                                                                                                                                           |
 | :---- | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `200` | sucessful get data | `[[{"id":1(buskerId),"likeAmount":0,"title":"title1","description":"description1","time":"2021-08-16T08:17:01.000Z","lineMoney":0,"latitude":121.56,"longitude":25.03,avatar:''}],1(data amount)]`" |
+| `200` | sucessful get data | `{dataArr:[{"name":'a',id":1(buskerId),"likeAmount":0,"title":"title1","description":"description1","time":"2021-08-16T08:17:01.000Z",'location':'taipei',"lineMoney":0,"latitude":121.56,"longitude":25.03,avatar:''}],dataAmount:1}"` |
 | `400` | parameter error    | `"parameter error"`                                                                                                                                              |
 | `500` | server is busying  | `"server is busying"`                                                                                                                                            |
 
 ---
-
 ### Apply busker performance
-
 ##### Requset
-
 `post api/performance`
 `you need to login first`
 | Parameter | Type | Require |Description |
@@ -248,14 +245,51 @@ npm run tsc-prod
 | `location` | `string` | **Required** |performance's location|
 
 ##### Response
-
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
 | `200` | sucessful add performance | `{"id":4200,"name":"busker","email":"account01@email.com","location":"台灣台北港","description":"Description1","title":"唱歌","latitude":25.0329636,"longitude":121.5654268,"time":"2021-09-23 05:48:00"}`                                             |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to apply           | `"failed to apply、you aren't member or busker"` |
 | `500` | server is busying         | `"server is busying"`                            |
+---
+### Get  your newest amount  of online people in the chat room (only top 5 new)
+##### Requset
+`get api/onlineAmount`
+`you need to login first`
+##### Response
 
+| Code  | Description               | Result                                           |
+| :---- | :------------------------ | :----------------------------------------------- |
+| `200` | sucessful get data | `"[{ highestOnlineAmount: 9, time: '2021-10-09 00:00:01' }]"` |
+| `400` | parameter error           | `"parameter error"`                              |
+| `401` | failed to get           | `"failed to get data"` |
+| `500` | server is busying         | `"server is busying"`                            |
+---
+### Get  your highest amount of comments (only top 5 high)
+##### Requset
+`get api/commentAmount`
+`you need to login first`
+##### Response
+
+| Code  | Description               | Result                                           |
+| :---- | :------------------------ | :----------------------------------------------- |
+| `200` | sucessful get data | `" [{"count":"1","time":"2021-10-09 "}]"` |
+| `400` | parameter error           | `"parameter error"`                              |
+| `401` | failed to get             | `"failed to get data"` |
+| `500` | server is busying         | `"server is busying"`                            |
+---
+### Get one week comments 
+##### Requset
+`get api/weekComments `
+`you need to login first`
+##### Response
+
+| Code  | Description               | Result                                           |
+| :---- | :------------------------ | :----------------------------------------------- |
+| `200` | sucessful get data | `" [{"count":"1","time":"2021/09/11"}]"` |
+| `400` | parameter error           | `"parameter error"`                              |
+| `401` | failed to get             | `"failed to get data"` |
+| `500` | server is busying         | `"server is busying"`                            |
 ## License
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)

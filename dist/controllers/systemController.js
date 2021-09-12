@@ -31,36 +31,58 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.logout = exports.init = void 0;
 const memberRepo = __importStar(require("../repositories/memberRepo"));
 const buskerRepo = __importStar(require("../repositories/buskerRepo"));
+const time_1 = require("../moudles/time");
 const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield buskerRepo.clear();
-    yield memberRepo.clear();
-    let memberArr = [];
-    let buskerArr = [];
-    console.log('start init');
-    for (let i = 0; i < 50; i++) {
-        let memberData = yield memberRepo.generateDiffMemberMockData();
-        memberData = yield memberRepo.createMember(memberData);
-        memberArr.push(memberData);
-        let buskerData = buskerRepo.generateDiffMockData(memberData.id);
-        buskerData = yield buskerRepo.createBusker(buskerData);
-        buskerArr.push(buskerData);
-    }
-    const time = buskerRepo.getCurrentTime();
-    let year = time.year;
-    let month = time.month;
-    let date = time.date;
-    let hour = time.hour;
-    let minute = time.minute;
-    for (let i = 0; i < buskerArr.length; i++) {
-        const performanceData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, buskerRepo.setCurrentData(year, month, date, hour, minute));
-        if (i >= 10 && i % 10 == 0) {
-            date++;
-            hour++;
+    try {
+        yield buskerRepo.clear();
+        yield memberRepo.clear();
+        let memberArr = [];
+        let buskerArr = [];
+        console.log('start init');
+        memberRepo.setMockMemberCount(0);
+        for (let i = 0; i < 2; i++) {
+            let memberData = yield memberRepo.generateDiffMemberMockData();
+            memberData = yield memberRepo.createMember(memberData);
+            memberArr.push(memberData);
+            let buskerData = buskerRepo.generateDiffMockData(memberData.id);
+            buskerData = yield buskerRepo.createBusker(buskerData);
+            buskerArr.push(buskerData);
         }
-        minute = Math.random() * 60;
-        yield buskerRepo.applyMockPerformance(performanceData);
+        const curTimeStr = time_1.getCurrentFullTimeStr();
+        let month = 0;
+        let date = 0;
+        let hour = 0;
+        let minute = 0;
+        for (let i = 0; i < buskerArr.length; i++) {
+            for (let j = 0; j < 10; j++) {
+                const futurePerformanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, time_1.addDay(curTimeStr, date + j));
+                const futurePerformanceResponse = yield buskerRepo.applyPerformance(futurePerformanceMockData);
+                const performanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, time_1.addDay(curTimeStr, date - j));
+                if (j >= 10 && j % 10 == 0) {
+                    date++;
+                    hour++;
+                }
+                minute = Math.random() * 60;
+                const performanceResponse = yield buskerRepo.applyPerformance(performanceMockData);
+                const performanceData = JSON.parse(performanceResponse.data);
+                const memberId = yield buskerRepo.getMemberIdByBuskerId(buskerArr[i].id);
+                yield buskerRepo.createPerformanceComment({
+                    id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId,
+                    comment: `comment${j}`, time: time_1.addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined,
+                    member: undefined
+                });
+                yield buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, 1 + j);
+            }
+        }
+        console.log('init done');
+        res.status(200).send('sucessful init');
+        return;
     }
-    res.status(200).send('sucessful init');
+    catch (error) {
+        console.error('error:', error);
+    }
+    res.status(501).send('fail init');
+    res.status(200).send('fail init');
 });
 exports.init = init;
 // export const apply = async (req: Request, res: Response) => {

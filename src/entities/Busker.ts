@@ -3,6 +3,8 @@ import { Expose } from "class-transformer";
 import { IsDefined } from "class-validator";
 import { Member } from './Member'
 import { BuskerPerformance } from "./BuskerPerformance";
+import { BuskerPerformanceComment } from "./BuskerPerformanceComment";
+
 export enum BuskerType {
   other,
   singer,
@@ -33,6 +35,8 @@ export class Busker {
   member: Member;
   @OneToMany(type => BuskerPerformance, performance => performance.buskerId, { cascade: true })
   performances: BuskerPerformance[]
+  @OneToMany(type => BuskerPerformanceComment, comment => comment.buskerId, { cascade: true })
+  buskerPerformanceComments: BuskerPerformanceComment[]
 }
 //front-end request format
 export class EnrollBuskerType {

@@ -14,6 +14,7 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const typeorm_1 = require("typeorm");
 const Busker_1 = require("./Busker");
+const BuskerPerformanceComment_1 = require("./BuskerPerformanceComment");
 let Member = class Member {
 };
 __decorate([
@@ -62,6 +63,10 @@ __decorate([
     typeorm_1.OneToMany(type => Busker_1.Busker, busker => busker.memberId),
     __metadata("design:type", Array)
 ], Member.prototype, "buskers", void 0);
+__decorate([
+    typeorm_1.OneToMany(type => BuskerPerformanceComment_1.BuskerPerformanceComment, comment => comment),
+    __metadata("design:type", Array)
+], Member.prototype, "buskerPerformanceComments", void 0);
 Member = __decorate([
     typeorm_1.Entity()
 ], Member);

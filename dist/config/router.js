@@ -14,5 +14,9 @@ exports.apiPath = {
     performance: '/performance',
     performances: '/performances',
     performancesTime: '/performancesTime',
+    onlineAmount: '/onlineAmount',
+    commentAmount: '/commentAmount',
+    weekCommentAmount: '/weekCommentAmount',
+    futurePerformancesData: '/futurePerformancesData',
 };
 //# sourceMappingURL=router.js.map

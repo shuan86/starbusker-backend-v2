@@ -5,6 +5,10 @@ import { ReponseType } from "../types/reponseType";
 import * as buskerRepo from "./buskerRepo";
 import fs from "fs";
 let mockMemberCount = 0
+export const setMockMemberCount = (count: number) => {
+    mockMemberCount = 0;
+}
+
 export const generateLoginData = (account: string, password: string): LoginType => {
     const data: LoginType = new LoginType(account, password)
 
@@ -18,7 +22,7 @@ export const generateFixedMemberMockData = (): Member => {
     const mockData: Member = {
         id: 0, account: `t${mockMemberCount}`, password: '123', male: true
         , email: `t${mockMemberCount}@gmail.com`
-        , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: []
+        , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: undefined, buskerPerformanceComments: undefined
     }
     // const mockMember = Object.assign(new Member(), mockData)
     return mockData
@@ -33,9 +37,9 @@ export const generateDiffMemberMockData = async (): Promise<Member> => {
             imageData = fs.readFileSync(`${__dirname}/../public/img/busker0${r}.png`)
         }
         const mockData: Member = {
-            id: 0, account: `a${mockMemberCount}`, password: '123'
-            , male: true, email: `a${mockMemberCount}@gmail.com`
-            , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: []
+            id: 0, account: `t${mockMemberCount}`, password: '123'
+            , male: true, email: `t${mockMemberCount}@gmail.com`
+            , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: undefined, buskerPerformanceComments: undefined
         }
         mockMemberCount++
         return mockData

@@ -31,12 +31,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = void 0;
+exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
 const Member_1 = require("../entities/Member");
 const databaseRepo_1 = require("./databaseRepo");
 const buskerRepo = __importStar(require("./buskerRepo"));
 const fs_1 = __importDefault(require("fs"));
 let mockMemberCount = 0;
+const setMockMemberCount = (count) => {
+    mockMemberCount = 0;
+};
+exports.setMockMemberCount = setMockMemberCount;
 const generateLoginData = (account, password) => {
     const data = new Member_1.LoginType(account, password);
     return data;
@@ -51,7 +55,7 @@ const generateFixedMemberMockData = () => {
     const mockData = {
         id: 0, account: `t${mockMemberCount}`, password: '123', male: true,
         email: `t${mockMemberCount}@gmail.com`,
-        name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: []
+        name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: undefined, buskerPerformanceComments: undefined
     };
     // const mockMember = Object.assign(new Member(), mockData)
     return mockData;
@@ -65,9 +69,9 @@ const generateDiffMemberMockData = () => __awaiter(void 0, void 0, void 0, funct
             imageData = fs_1.default.readFileSync(`${__dirname}/../public/img/busker0${r}.png`);
         }
         const mockData = {
-            id: 0, account: `a${mockMemberCount}`, password: '123',
-            male: true, email: `a${mockMemberCount}@gmail.com`,
-            name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: []
+            id: 0, account: `t${mockMemberCount}`, password: '123',
+            male: true, email: `t${mockMemberCount}@gmail.com`,
+            name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: undefined, buskerPerformanceComments: undefined
         };
         mockMemberCount++;
         return mockData;

@@ -15,6 +15,7 @@ const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const Member_1 = require("./Member");
 const BuskerPerformance_1 = require("./BuskerPerformance");
+const BuskerPerformanceComment_1 = require("./BuskerPerformanceComment");
 var BuskerType;
 (function (BuskerType) {
     BuskerType[BuskerType["other"] = 0] = "other";
@@ -57,6 +58,10 @@ __decorate([
     typeorm_1.OneToMany(type => BuskerPerformance_1.BuskerPerformance, performance => performance.buskerId, { cascade: true }),
     __metadata("design:type", Array)
 ], Busker.prototype, "performances", void 0);
+__decorate([
+    typeorm_1.OneToMany(type => BuskerPerformanceComment_1.BuskerPerformanceComment, comment => comment.buskerId, { cascade: true }),
+    __metadata("design:type", Array)
+], Busker.prototype, "buskerPerformanceComments", void 0);
 Busker = __decorate([
     typeorm_1.Entity()
 ], Busker);

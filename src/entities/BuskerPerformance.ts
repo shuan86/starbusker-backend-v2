@@ -1,7 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { Expose } from "class-transformer";
 import { IsDefined, Matches, IsDate } from "class-validator";
 import { Busker } from './Busker'
+import { BuskerPerformanceComment } from "./BuskerPerformanceComment";
 
 
 @Entity()
@@ -13,7 +14,7 @@ export class BuskerPerformance {
   @IsDefined()
   @Expose()
   @Column()
-  title: string;//街頭藝人種類
+  title: string;
   @IsDefined()
   @Expose()
   @Column()
@@ -21,9 +22,11 @@ export class BuskerPerformance {
   @IsDefined()
   @Expose()
   @Column({ type: 'timestamp', default: () => 'NOW()' })
-  time: Date
+  time: string
   @Column({ default: () => 0 })
   lineMoney: number
+  @Column({ default: () => 0 })
+  highestOnlineAmount: number
   @Column({ type: "double" })
   @IsDefined()
   @Expose()
@@ -39,6 +42,8 @@ export class BuskerPerformance {
   @ManyToOne(type => Busker, busker => busker.performances, { onDelete: 'CASCADE' })
   @JoinColumn()
   busker: Busker
+  @OneToMany(type => BuskerPerformanceComment, comment => comment.performanceId, { cascade: true })
+  buskerPerformanceComments: BuskerPerformanceComment[]
 }
 //front-end request format
 export class ApplyPerformanceType {
@@ -68,13 +73,28 @@ export class GetPerformancesType {
 export class GetPerformanceType {
   @IsDefined()
   @Expose()
-  id: number
+  performanceId: number
   constructor(id: number) {
-    this.id = id
+    this.performanceId = id
   }
 }
 export type FrontEndPerformanceType = {
-  id: number
+  performanceId: number
+  name: string,
+  email: string,
+  location: string,
+  description: string,
+  title: string,
+  time: string,
+  longitude: number,
+  latitude: number
+}
+export type FrontEndHighestOnlineAmountType = {
+  highestOnlineAmount: number,
+  time: string
+}
+export type FrontEndFuturePerformanceDataType = {
+  performanceId: number
   name: string,
   email: string,
   location: string,

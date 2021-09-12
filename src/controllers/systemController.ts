@@ -3,46 +3,73 @@ import { Request, response, Response } from 'express';
 import { Busker } from "../entities/Busker";
 import * as memberRepo from '../repositories/memberRepo';
 import * as buskerRepo from '../repositories/buskerRepo';
+import { FrontEndPerformanceType } from '../entities/BuskerPerformance';
+import { addDay, addTime, getCurrentFullTimeStr } from '../moudles/time';
+
 import { plainToClass, Expose } from "class-transformer";
 
 
 export const init = async (req: Request, res: Response) => {
-
-    await buskerRepo.clear()
-    await memberRepo.clear()
-    let memberArr = []
-    let buskerArr = []
-    console.log('start init');
-
-    for (let i = 0; i < 50; i++) {
-        let memberData = await memberRepo.generateDiffMemberMockData()
-        memberData = await memberRepo.createMember(memberData)
-        memberArr.push(memberData)
-        let buskerData = buskerRepo.generateDiffMockData(memberData.id)
-        buskerData = await buskerRepo.createBusker(buskerData)
-        buskerArr.push(buskerData)
-    }
-    const time = buskerRepo.getCurrentTime()
-    let year = time.year
-    let month = time.month
-    let date = time.date
-    let hour = time.hour
-    let minute = time.minute
-
-    for (let i = 0; i < buskerArr.length; i++) {
-        const performanceData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id
-            , buskerRepo.setCurrentData(year, month, date, hour, minute))
-        if (i >= 10 && i % 10 == 0) {
-            date++
-            hour++
+    try {
+        await buskerRepo.clear()
+        await memberRepo.clear()
+        let memberArr = []
+        let buskerArr = []
+        console.log('start init');
+        memberRepo.setMockMemberCount(0)
+        for (let i = 0; i < 2; i++) {
+            let memberData = await memberRepo.generateDiffMemberMockData()
+            memberData = await memberRepo.createMember(memberData)
+            memberArr.push(memberData)
+            let buskerData = buskerRepo.generateDiffMockData(memberData.id)
+            buskerData = await buskerRepo.createBusker(buskerData)
+            buskerArr.push(buskerData)
         }
-        minute = Math.random() * 60
-        await buskerRepo.applyMockPerformance(performanceData)
+        const curTimeStr = getCurrentFullTimeStr()
+        let month = 0
+        let date = 0
+        let hour = 0
+        let minute = 0
+
+        for (let i = 0; i < buskerArr.length; i++) {
+
+            for (let j = 0; j < 10; j++) {
+                const futurePerformanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id
+                    , addDay(curTimeStr, date + j))
+                const futurePerformanceResponse = await buskerRepo.applyPerformance(
+                    futurePerformanceMockData)
+                const performanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id
+                    , addDay(curTimeStr, date - j))
+
+                if (j >= 10 && j % 10 == 0) {
+                    date++
+                    hour++
+                }
+                minute = Math.random() * 60
+                const performanceResponse = await buskerRepo.applyPerformance(performanceMockData)
+                const performanceData: FrontEndPerformanceType = JSON.parse(performanceResponse.data)
+                const memberId = await buskerRepo.getMemberIdByBuskerId(buskerArr[i].id)
+                await buskerRepo.createPerformanceComment({
+                    id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId
+                    , comment: `comment${j}`, time: addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined
+                    , member: undefined
+                })
+                await buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, 1 + j)
+            }
+        }
+        console.log('init done');
+        res.status(200).send('sucessful init')
+        return
+    } catch (error) {
+        console.error('error:', error);
+
     }
 
+    res.status(501).send('fail init')
+    res.status(200).send('fail init')
 
 
-    res.status(200).send('sucessful init')
+
 }
 
 

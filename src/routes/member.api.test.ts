@@ -27,10 +27,7 @@ const requestGetMemberInfo = async (data = null) => {
     const result = await request(app).get(prefixApiPath + apiPath.memberInfo).set("Cookie", [cookies])
     return result
 }
-const requestPutMemberInfo = async (data = null) => {
-    const result = await request(app).put(prefixApiPath + apiPath.memberInfo).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptSendData(data) })
-    return result
-}
+
 describe(`test post ${prefixApiPath}${apiPath.enroll}(enroll member) `, () => {
     let postData
     beforeEach(async () => {
@@ -93,11 +90,4 @@ describe(`test get ${prefixApiPath}${apiPath.memberInfo} and put ${prefixApiPath
         const memberInfoResult = await requestGetMemberInfo()
         expect(memberInfoResult.statusCode).toBe(200);
     });
-    it(" put /api/memberInfo:it should return status 200 if use correct login", async () => {
-        const mockMemberData = memberRepo.generateFixedMemberMockData()
-        mockMemberData.name = 'mock'
-        const memberInfoResult = await requestPutMemberInfo(mockMemberData)
-        expect(memberInfoResult.statusCode).toBe(200);
-    });
-
 });

@@ -1,16 +1,11 @@
-
 import { Request, response, Response } from 'express';
 import { Busker, GetBuskerType } from "../entities/Busker";
 import { BuskerPerformance, GetPerformancesType, GetPerformanceType } from "../entities/BuskerPerformance";
-
-// import { buskerRepo } from '../repositories/buskerRepo';
 import * as  buskerRepo from '../repositories/buskerRepo';
-
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
-import { decrypt } from "../moudles/rsa";
-import { LoginType, FrontEndMemberDataType } from '../entities/Member'
-import { error } from 'console';
+import { setDate } from '../moudles/time';
+
 
 
 export const getBusker = async (req: Request, res: Response) => {
@@ -90,7 +85,7 @@ export const getPerformances = async (req: Request, res: Response) => {
                 res.status(400).send(`time parameter error`);
                 return;
             }
-            const result = await buskerRepo.getPerformances(buskerRepo.setCurrentData(year, month, date), performance.page)
+            const result = await buskerRepo.getPerformances(setDate(year, month, date), performance.page)
             if (result.status == 200 || result.status == 401) {
                 res.status(result.status).send(result.data)
             }
@@ -151,6 +146,7 @@ export const getAllPerformanceTime = async (req: Request, res: Response) => {
 export const deletePerformance = async (req: Request, res: Response) => {
     try {
         const data = req.body.data as string
+
         const performance = plainToClass(GetPerformanceType, JSON.parse(data))
         const errors = await validate(performance)
         if (errors.length > 0) {
@@ -158,14 +154,65 @@ export const deletePerformance = async (req: Request, res: Response) => {
             res.status(400).send(`parameter error`);
             return;
         } else {
-            const result = await buskerRepo.deletePerformance(performance.id)
+            const result = await buskerRepo.deletePerformance(performance.performanceId)
             res.status(result.status).send(result.data)
         }
     } catch (error) {
         console.error('api deletePerformance error:', error);
     }
 }
-
+export const getOnlineAmount = async (req: Request, res: Response) => {
+    try {
+        const memberId = req.user as number
+        const buskerId = await buskerRepo.getIdByMemberId(memberId)
+        if (buskerId) {
+            const result = await buskerRepo.getTop5NewestHighestOnlineAmount(buskerId)
+            res.status(result.status).send(result.data)
+        } else {
+            res.status(401).send(`failed to get data`);
+            return;
+        }
+    } catch (error) {
+        console.error('api getOnlineAmount error:', error);
+    }
+}
+export const getCommentAmount = async (req: Request, res: Response) => {
+    try {
+        const memberId = req.user as number
+        const buskerId = await buskerRepo.getIdByMemberId(memberId)
+        if (buskerId) {
+            const result = await buskerRepo.getTop5HighestCommentAmount(buskerId)
+            res.status(result.status).send(result.data)
+        } else {
+            res.status(401).send(`failed to get data`);
+            return;
+        }
+    } catch (error) {
+        console.error('api getOnlineAmount error:', error);
+    }
+}
+export const getWeekCommentAmount = async (req: Request, res: Response) => {
+    const memberId = req.user as number
+    const buskerId = await buskerRepo.getIdByMemberId(memberId)
+    if (buskerId) {
+        const result = await buskerRepo.getWeekCommentAmount(buskerId)
+        res.status(result.status).send(result.data)
+    } else {
+        res.status(401).send(`failed to get data`);
+        return;
+    }
+}
+export const getFuturePerformancesData = async (req: Request, res: Response) => {
+    const memberId = req.user as number
+    const buskerId = await buskerRepo.getIdByMemberId(memberId)
+    if (buskerId) {
+        const result = await buskerRepo.getFuturePerformancesData(buskerId)
+        res.status(result.status).send(result.data)
+    } else {
+        res.status(401).send(`failed to get data`);
+        return;
+    }
+}
 
 // export class BuskerController {
 //     /**

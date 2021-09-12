@@ -2,11 +2,16 @@ import request from "supertest"
 import { app } from '../app'
 import * as memberRepo from "../repositories/memberRepo";
 import * as buskerRepo from "../repositories/buskerRepo";
-import { GetPerformancesType, BuskerPerformance, FrontEndPerformanceType, GetPerformanceType } from "../entities/BuskerPerformance";
+import {
+    GetPerformancesType, BuskerPerformance, FrontEndPerformanceType
+    , GetPerformanceType, FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType
+} from "../entities/BuskerPerformance";
 import { mockConnection } from "../mock/mockDbTestConnection";
 import { prefixApiPath, apiPath } from "../config/router";
 import * as mockRequestData from "../utils/request";
-import { ReponseType } from "types/reponseType";
+import { FrontEndHighestComentAmountType, FrontEndWeekCommentAmountType } from "entities/BuskerPerformanceComment";
+import { getCurrentFullTimeStr, addDay } from '../moudles/time';
+
 beforeAll(async () => {
     const connection = await mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
@@ -46,6 +51,27 @@ const requestGetPerformance = async (data = null) => {
         .set("Cookie", [cookies]).query({ ...mockRequestData.generateSendData({ ...data }) })
     return result
 }
+const requestGetHighestOnlineAmount = async (data = null) => {
+    const result = request(app).get(prefixApiPath + apiPath.onlineAmount)
+        .set("Cookie", [cookies])
+    return result
+}
+const requestGetHighestCommentAmount = async (data = null) => {
+    const result = request(app).get(prefixApiPath + apiPath.commentAmount)
+        .set("Cookie", [cookies])
+    return result
+}
+const requestWeekCommentAmount = async (data = null) => {
+    const result = request(app).get(prefixApiPath + apiPath.weekCommentAmount)
+        .set("Cookie", [cookies])
+    return result
+}
+const requestFuturePerformancesData = async (data = null) => {
+    const result = request(app).get(prefixApiPath + apiPath.futurePerformancesData)
+        .set("Cookie", [cookies])
+    return result
+}
+
 describe(`test post ${prefixApiPath}${apiPath.enroll}(enroll busker)`, () => {
     it(" it should return status 200 if correct enroll", async () => {
         const enrollResult = await requestEnrollBusker(enrollBuskerData)
@@ -68,7 +94,7 @@ describe(`test post ${prefixApiPath}${apiPath.performance}( Apply busker perform
     let performanceData
     beforeEach(async () => {
         await requestEnrollBusker(enrollBuskerData)
-        performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate())
+        performanceData = buskerRepo.generateDiffPerformanceData(memberId, getCurrentFullTimeStr())
     });
 
     it(" it should return status 200 if correct apply", async () => {
@@ -84,17 +110,17 @@ describe(`test delete ${prefixApiPath}${apiPath.performance}( Delete busker perf
     let applyData: FrontEndPerformanceType
     beforeEach(async () => {
         await requestEnrollBusker(enrollBuskerData)
-        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate())
+        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, getCurrentFullTimeStr())
         const applyResult = await requestApplyPerformance(performanceData)
         applyData = JSON.parse(applyResult.text)
     });
     it(" it should return status 200 if use correct perofrmance id", async () => {
-        const performanceData: GetPerformanceType = { id: applyData.id }
+        const performanceData: GetPerformanceType = { performanceId: applyData.performanceId }
         const result = await requestDeletePerformance(performanceData)
         expect(result.statusCode).toBe(200);
     });
     it(" it should return status 200 if use correct perofrmance id", async () => {
-        const performanceData: GetPerformanceType = { id: applyData.id }
+        const performanceData: GetPerformanceType = { performanceId: applyData.performanceId }
         const result = await requestDeletePerformance(performanceData)
         expect(result.statusCode).toBe(200);
     });
@@ -102,7 +128,7 @@ describe(`test delete ${prefixApiPath}${apiPath.performance}( Delete busker perf
 describe(`test get ${prefixApiPath}${apiPath.performancesTime}(get all time of busker performance)`, () => {
     beforeEach(async () => {
         await requestEnrollBusker(enrollBuskerData)
-        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate())
+        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, getCurrentFullTimeStr())
         const applyResult = await request(app).post(prefixApiPath + apiPath.performance).set("Cookie", [cookies]).send({ ...mockRequestData.generateSendData({ ...performanceData }) })
     });
 
@@ -116,23 +142,74 @@ describe(`test get ${prefixApiPath}${apiPath.performance}(get specific busker pe
     let performanceData: BuskerPerformance
     beforeEach(async () => {
         const enrollBuskerResult = await requestEnrollBusker(enrollBuskerData)
-        performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate())
+        performanceData = buskerRepo.generateDiffPerformanceData(memberId, getCurrentFullTimeStr())
         const applyResult = await requestApplyPerformance(performanceData)
     });
-    it(" it should return status 200 if correct enroll", async () => {
+    it(" it should return status 200 if use correct format", async () => {
         const getPerformancesData: GetPerformancesType = {
             page: 1,
-            time: `${performanceData.time.getUTCFullYear()}-${performanceData.time.getMonth() + 1}-${performanceData.time.getDate()}`
+            time: performanceData.time
         }
         const result = await requestGetPerformance(getPerformancesData)
         expect(result.statusCode).toBe(200);
     });
-    it(" it should return status 400 if use incorrect enroll", async () => {
+    it(" it should return status 400 if use incorrect format", async () => {
         const getPerformancesData: GetPerformancesType = {
             page: 1,
-            time: `${performanceData.time.getUTCFullYear()}-${performanceData.time.getMonth() + 1}-${performanceData.time.getDate()}`
+            time: performanceData.time
         }
         const result = await requestGetPerformance()
         expect(result.statusCode).toBe(400);
     });
+});
+describe(`test get ${prefixApiPath}${apiPath.onlineAmount} ${prefixApiPath}${apiPath.commentAmount} ${prefixApiPath}${apiPath.weekCommentAmount}(
+    getTop5NewestHighestOnlineAmount :get  your Newest number of people in the chat room (only top 5 new)
+    getTop5HighestCommentAmount:get  your highest amount of comments (only top 5 high)
+    getWeekCommentAmount:Get one week comments
+    getFuturePerformancesData:get Future performances data
+    )`, () => {
+    let performanceData: BuskerPerformance
+    beforeEach(async () => {
+        const enrollBuskerResult = await requestEnrollBusker(enrollBuskerData)
+        const curTimeStr = getCurrentFullTimeStr()
+
+        for (let i = 1; i < 2; i++) {
+            const buskerId = await buskerRepo.getIdByMemberId(memberId)
+            const futurePerformanceResponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription'
+                , addDay(curTimeStr, i), `110台北市信義區市府路${i}號`))
+            for (let j = 0; j < 2; j++) {
+                performanceData = buskerRepo.generateDiffPerformanceData(buskerId, addDay(curTimeStr, -(j)))
+                const applyResult = await requestApplyPerformance(performanceData)
+                const performanceReponseData: FrontEndPerformanceType = JSON.parse(applyResult.text)
+                await buskerRepo.createPerformanceComment({
+                    id: 0, buskerId: buskerId, performanceId: performanceData.id
+                    , comment: `${i}`, time: addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined
+                    , member: undefined
+                })
+                await buskerRepo.updateMaxChatroomOnlineAmount(performanceReponseData.performanceId, i)
+            }
+        }
+
+    });
+    it(" getTop5NewestHighestOnlineAmount:it should return status 200 if use correct  member id", async () => {
+        const result = await requestGetHighestOnlineAmount()
+        const data: FrontEndHighestOnlineAmountType = JSON.parse(result.text)
+        expect(result.status).toBe(200)
+    });
+    it(" getTop5HighestCommentAmount:it should return status 200 if use correct  member id", async () => {
+        const result = await requestGetHighestCommentAmount()
+        const data: FrontEndHighestComentAmountType = JSON.parse(result.text)
+        expect(result.status).toBe(200)
+    });
+    it(" getWeekCommentAmount:it should return status 200 if use correct  member id", async () => {
+        const result = await requestWeekCommentAmount()
+        const data: FrontEndWeekCommentAmountType = JSON.parse(result.text)
+        expect(result.status).toBe(200)
+    });
+    it(" getFuturePerformancesData:it should return status 200 if use correct  member id", async () => {
+        const result = await requestFuturePerformancesData()
+        const data: FrontEndFuturePerformanceDataType = JSON.parse(result.text)
+        expect(result.status).toBe(200)
+    });
+
 });

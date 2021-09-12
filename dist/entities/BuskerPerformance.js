@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const Busker_1 = require("./Busker");
+const BuskerPerformanceComment_1 = require("./BuskerPerformanceComment");
 let BuskerPerformance = class BuskerPerformance {
 };
 __decorate([
@@ -40,12 +41,16 @@ __decorate([
     class_validator_1.IsDefined(),
     class_transformer_1.Expose(),
     typeorm_1.Column({ type: 'timestamp', default: () => 'NOW()' }),
-    __metadata("design:type", Date)
+    __metadata("design:type", String)
 ], BuskerPerformance.prototype, "time", void 0);
 __decorate([
     typeorm_1.Column({ default: () => 0 }),
     __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "lineMoney", void 0);
+__decorate([
+    typeorm_1.Column({ default: () => 0 }),
+    __metadata("design:type", Number)
+], BuskerPerformance.prototype, "highestOnlineAmount", void 0);
 __decorate([
     typeorm_1.Column({ type: "double" }),
     class_validator_1.IsDefined(),
@@ -69,6 +74,10 @@ __decorate([
     typeorm_1.JoinColumn(),
     __metadata("design:type", Busker_1.Busker)
 ], BuskerPerformance.prototype, "busker", void 0);
+__decorate([
+    typeorm_1.OneToMany(type => BuskerPerformanceComment_1.BuskerPerformanceComment, comment => comment.performanceId, { cascade: true }),
+    __metadata("design:type", Array)
+], BuskerPerformance.prototype, "buskerPerformanceComments", void 0);
 BuskerPerformance = __decorate([
     typeorm_1.Entity()
 ], BuskerPerformance);
@@ -102,13 +111,13 @@ __decorate([
 exports.GetPerformancesType = GetPerformancesType;
 class GetPerformanceType {
     constructor(id) {
-        this.id = id;
+        this.performanceId = id;
     }
 }
 __decorate([
     class_validator_1.IsDefined(),
     class_transformer_1.Expose(),
     __metadata("design:type", Number)
-], GetPerformanceType.prototype, "id", void 0);
+], GetPerformanceType.prototype, "performanceId", void 0);
 exports.GetPerformanceType = GetPerformanceType;
 //# sourceMappingURL=BuskerPerformance.js.map

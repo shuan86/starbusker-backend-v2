@@ -38,6 +38,7 @@ const buskerRepo = __importStar(require("../repositories/buskerRepo"));
 const mockDbTestConnection_1 = require("../mock/mockDbTestConnection");
 const router_1 = require("../config/router");
 const mockRequestData = __importStar(require("../utils/request"));
+const time_1 = require("../moudles/time");
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     const connection = yield mockDbTestConnection_1.mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
@@ -77,6 +78,26 @@ const requestGetPerformance = (data = null) => __awaiter(void 0, void 0, void 0,
         .set("Cookie", [cookies]).query(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, data))));
     return result;
 });
+const requestGetHighestOnlineAmount = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.onlineAmount)
+        .set("Cookie", [cookies]);
+    return result;
+});
+const requestGetHighestCommentAmount = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.commentAmount)
+        .set("Cookie", [cookies]);
+    return result;
+});
+const requestWeekCommentAmount = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.weekCommentAmount)
+        .set("Cookie", [cookies]);
+    return result;
+});
+const requestFuturePerformancesData = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.futurePerformancesData)
+        .set("Cookie", [cookies]);
+    return result;
+});
 describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll busker)`, () => {
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         const enrollResult = yield requestEnrollBusker(enrollBuskerData);
@@ -97,7 +118,7 @@ describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.performance}( Ap
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         yield requestEnrollBusker(enrollBuskerData);
-        performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
+        performanceData = buskerRepo.generateDiffPerformanceData(memberId, time_1.getCurrentFullTimeStr());
     }));
     it(" it should return status 200 if correct apply", () => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield requestApplyPerformance(performanceData);
@@ -112,17 +133,17 @@ describe(`test delete ${router_1.prefixApiPath}${router_1.apiPath.performance}( 
     let applyData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         yield requestEnrollBusker(enrollBuskerData);
-        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
+        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, time_1.getCurrentFullTimeStr());
         const applyResult = yield requestApplyPerformance(performanceData);
         applyData = JSON.parse(applyResult.text);
     }));
     it(" it should return status 200 if use correct perofrmance id", () => __awaiter(void 0, void 0, void 0, function* () {
-        const performanceData = { id: applyData.id };
+        const performanceData = { performanceId: applyData.performanceId };
         const result = yield requestDeletePerformance(performanceData);
         expect(result.statusCode).toBe(200);
     }));
     it(" it should return status 200 if use correct perofrmance id", () => __awaiter(void 0, void 0, void 0, function* () {
-        const performanceData = { id: applyData.id };
+        const performanceData = { performanceId: applyData.performanceId };
         const result = yield requestDeletePerformance(performanceData);
         expect(result.statusCode).toBe(200);
     }));
@@ -130,7 +151,7 @@ describe(`test delete ${router_1.prefixApiPath}${router_1.apiPath.performance}( 
 describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performancesTime}(get all time of busker performance)`, () => {
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         yield requestEnrollBusker(enrollBuskerData);
-        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
+        const performanceData = buskerRepo.generateDiffPerformanceData(memberId, time_1.getCurrentFullTimeStr());
         const applyResult = yield supertest_1.default(app_1.app).post(router_1.prefixApiPath + router_1.apiPath.performance).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateSendData(Object.assign({}, performanceData))));
     }));
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -142,24 +163,71 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performance}(get 
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         const enrollBuskerResult = yield requestEnrollBusker(enrollBuskerData);
-        performanceData = buskerRepo.generateDiffPerformanceData(memberId, buskerRepo.getCurrentDate());
+        performanceData = buskerRepo.generateDiffPerformanceData(memberId, time_1.getCurrentFullTimeStr());
         const applyResult = yield requestApplyPerformance(performanceData);
     }));
-    it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
+    it(" it should return status 200 if use correct format", () => __awaiter(void 0, void 0, void 0, function* () {
         const getPerformancesData = {
             page: 1,
-            time: `${performanceData.time.getUTCFullYear()}-${performanceData.time.getMonth() + 1}-${performanceData.time.getDate()}`
+            time: performanceData.time
         };
         const result = yield requestGetPerformance(getPerformancesData);
         expect(result.statusCode).toBe(200);
     }));
-    it(" it should return status 400 if use incorrect enroll", () => __awaiter(void 0, void 0, void 0, function* () {
+    it(" it should return status 400 if use incorrect format", () => __awaiter(void 0, void 0, void 0, function* () {
         const getPerformancesData = {
             page: 1,
-            time: `${performanceData.time.getUTCFullYear()}-${performanceData.time.getMonth() + 1}-${performanceData.time.getDate()}`
+            time: performanceData.time
         };
         const result = yield requestGetPerformance();
         expect(result.statusCode).toBe(400);
+    }));
+});
+describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.onlineAmount} ${router_1.prefixApiPath}${router_1.apiPath.commentAmount} ${router_1.prefixApiPath}${router_1.apiPath.weekCommentAmount}(
+    getTop5NewestHighestOnlineAmount :get  your Newest number of people in the chat room (only top 5 new)
+    getTop5HighestCommentAmount:get  your highest amount of comments (only top 5 high)
+    getWeekCommentAmount:Get one week comments
+    getFuturePerformancesData:get Future performances data
+    )`, () => {
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        const enrollBuskerResult = yield requestEnrollBusker(enrollBuskerData);
+        const curTimeStr = time_1.getCurrentFullTimeStr();
+        for (let i = 1; i < 2; i++) {
+            const buskerId = yield buskerRepo.getIdByMemberId(memberId);
+            const futurePerformanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, i), `110台北市信義區市府路${i}號`));
+            for (let j = 0; j < 2; j++) {
+                performanceData = buskerRepo.generateDiffPerformanceData(buskerId, time_1.addDay(curTimeStr, -(j)));
+                const applyResult = yield requestApplyPerformance(performanceData);
+                const performanceReponseData = JSON.parse(applyResult.text);
+                yield buskerRepo.createPerformanceComment({
+                    id: 0, buskerId: buskerId, performanceId: performanceData.id,
+                    comment: `${i}`, time: time_1.addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined,
+                    member: undefined
+                });
+                yield buskerRepo.updateMaxChatroomOnlineAmount(performanceReponseData.performanceId, i);
+            }
+        }
+    }));
+    it(" getTop5NewestHighestOnlineAmount:it should return status 200 if use correct  member id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield requestGetHighestOnlineAmount();
+        const data = JSON.parse(result.text);
+        expect(result.status).toBe(200);
+    }));
+    it(" getTop5HighestCommentAmount:it should return status 200 if use correct  member id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield requestGetHighestCommentAmount();
+        const data = JSON.parse(result.text);
+        expect(result.status).toBe(200);
+    }));
+    it(" getWeekCommentAmount:it should return status 200 if use correct  member id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield requestWeekCommentAmount();
+        const data = JSON.parse(result.text);
+        expect(result.status).toBe(200);
+    }));
+    it(" getFuturePerformancesData:it should return status 200 if use correct  member id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield requestFuturePerformancesData();
+        const data = JSON.parse(result.text);
+        expect(result.status).toBe(200);
     }));
 });
 //# sourceMappingURL=busker.api.test.js.map
