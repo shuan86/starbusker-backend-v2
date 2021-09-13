@@ -25,5 +25,9 @@ export class MemberRoutes extends IRoute {
       .get(authMember, memberController.getMemberInfo);
     this.router.route(apiPath.memberInfo)
       .put(authMember, upload.single('avatar'), memberController.updateMemberInfo);
+    this.router.route(apiPath.password)
+      .put(authMember, memberController.updatePassword);
+
+
   }
 }

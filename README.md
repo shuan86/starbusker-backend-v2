@@ -99,9 +99,9 @@ npm run tsc-prod
 
 | Code  | Description       | Result                                                                                               |
 | :---- | :---------------- | :--------------------------------------------------------------------------------------------------- |
-| `200` | sucessful login   | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}`" |
-| `400` | parameter error   | `"parameter error"`                                                                                  |
-| `401` | login fail        | `"login fail"`                                                                                       |
+| `200` | sucessful login   | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}`|
+| `400` | parameter error   | `"parameter error"` |
+| `401` | login fail        | `"login fail"`|
 | `500` | server is busying | `"server is busying"`                                                                                |
 
 ---
@@ -132,7 +132,7 @@ npm run tsc-prod
 | Code  | Description               | Result                                             |
 | :---- | :------------------------ | :------------------------------------------------- |
 | `200` | sucessful get member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}"` |
-| `400` | failed to get member info | `"failed to get member info、you aren't member "`  |
+| `401` | failed to get member info | `"failed to get member info、you aren't member "`  |
 | `500` | server is busying         | `"server is busying"`                              |
 
 ---
@@ -155,12 +155,35 @@ npm run tsc-prod
 
 | Code  | Description                  | Result                                            |
 | :---- | :--------------------------- | :------------------------------------------------ |
-| `200` | sucessful update member info | `""`                                              |
+| `200` | sucessful update member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}`                                              |
+| `400` | parameter error   | `"parameter error"` |
 | `401` | failed to update member info | `"failed to get member info、you aren't member "` |
 | `500` | server is busying            | `"server is busying"`                             |
 
 ---
 
+
+### Update member password
+
+`Put api/password`
+`you need to login first and the request needs to be encrypted`
+
+##### Requset
+
+| Parameter  | Type     | Require      | Description       |
+| :--------- | :------- | :----------- | :---------------- |
+| `oldPassword`     | `string` | **Required** | member's old password     |
+| `newPassword`    | `string` | **Required** | member's new password    |
+##### Response
+
+| Code  | Description                  | Result                                            |
+| :---- | :--------------------------- | :------------------------------------------------ |
+| `200` | sucessful update member password | `""`                                              |
+| `400` | parameter error   | `"parameter error"` |
+| `401` | failed to update member password | `"failed to get member info、you aren't member "` |
+| `500` | server is busying            | `"server is busying"`                             |
+
+---
 ### Apply busker
 
 ##### Requset
@@ -247,9 +270,22 @@ npm run tsc-prod
 ##### Response
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
-| `200` | sucessful add performance | `{"id":4200,"name":"busker","email":"account01@email.com","location":"台灣台北港","description":"Description1","title":"唱歌","latitude":25.0329636,"longitude":121.5654268,"time":"2021-09-23 05:48:00"}`                                             |
+| `200` | sucessful add performance | `{"performanceId":4200,"name":"busker","email":"account01@email.com","location":"台灣台北港","description":"Description1","title":"唱歌","latitude":25.0329636,"longitude":121.5654268,"time":"2021-09-23 05:48:00"}`                                             |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to apply           | `"failed to apply、you aren't member or busker"` |
+| `500` | server is busying         | `"server is busying"`                            |
+---
+### Get furtrure performances data 
+##### Requset
+`get api/furtrurePerformances `
+`you need to login first`
+##### Response
+
+| Code  | Description               | Result                                           |
+| :---- | :------------------------ | :----------------------------------------------- |
+| `200` | sucessful get data | `" [{"performanceId":"1","title":"","location":"","time":"2021/09/11 20:00"}]"` |
+| `400` | parameter error           | `"parameter error"`                              |
+| `401` | failed to get             | `"failed to get data"` |
 | `500` | server is busying         | `"server is busying"`                            |
 ---
 ### Get  your newest amount  of online people in the chat room (only top 5 new)
@@ -290,6 +326,7 @@ npm run tsc-prod
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to get             | `"failed to get data"` |
 | `500` | server is busying         | `"server is busying"`                            |
+
 ## License
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)

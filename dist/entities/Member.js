@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateMemberInfoType = exports.LoginType = exports.Member = void 0;
+exports.UpdatePassword = exports.UpdateMemberInfoType = exports.LoginType = exports.Member = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const typeorm_1 = require("typeorm");
@@ -79,12 +79,28 @@ class LoginType {
 }
 exports.LoginType = LoginType;
 class UpdateMemberInfoType {
-    constructor(name, email, password, avatar = null) {
+    constructor(name, email, avatar = null) {
         this.name = name;
         this.email = email;
-        this.password = password;
         this.avatar = avatar;
     }
 }
 exports.UpdateMemberInfoType = UpdateMemberInfoType;
+class UpdatePassword {
+    constructor(oldPassword, newPassword) {
+        this.newPassword = newPassword;
+        this.oldPassword = oldPassword;
+    }
+}
+__decorate([
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UpdatePassword.prototype, "oldPassword", void 0);
+__decorate([
+    class_validator_1.IsDefined(),
+    class_transformer_1.Expose(),
+    __metadata("design:type", String)
+], UpdatePassword.prototype, "newPassword", void 0);
+exports.UpdatePassword = UpdatePassword;
 //# sourceMappingURL=Member.js.map

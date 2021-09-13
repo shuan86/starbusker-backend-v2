@@ -4,6 +4,8 @@ import * as memberRepo from "../repositories/memberRepo";
 import { mockConnection } from "../mock/mockDbTestConnection";
 import { prefixApiPath, apiPath } from "../config/router";
 import * as mockRequestData from "../utils/request";
+import { UpdatePassword } from "../entities/Member";
+
 beforeAll(async () => {
     const connection = await mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
@@ -27,7 +29,10 @@ const requestGetMemberInfo = async (data = null) => {
     const result = await request(app).get(prefixApiPath + apiPath.memberInfo).set("Cookie", [cookies])
     return result
 }
-
+const requestUpdateMemberPassword = async (data = null) => {
+    const result = await request(app).put(prefixApiPath + apiPath.memberInfo).set("Cookie", [cookies]).send({ ...mockRequestData.generateEncryptSendData(data) });
+    return result
+}
 describe(`test post ${prefixApiPath}${apiPath.enroll}(enroll member) `, () => {
     let postData
     beforeEach(async () => {
@@ -74,10 +79,12 @@ describe(`test post ${prefixApiPath}${apiPath.login}(login)`, () => {
         expect(wrongPasswordResult.statusCode).toBe(401);
     });
 });
-describe(`test get ${prefixApiPath}${apiPath.memberInfo} and put ${prefixApiPath}${apiPath.memberInfo}(get and update memberInfo)`, () => {
+describe(`test get ${prefixApiPath}${apiPath.memberInfo} , put ${prefixApiPath}${apiPath.memberInfo}
+, and put ${prefixApiPath}${apiPath.password}(get ,update memberInfom ,and update password)`, () => {
+    let mockMember
     beforeEach(async () => {
         try {
-            const mockMember = memberRepo.generateFixedMemberMockData()
+            mockMember = memberRepo.generateFixedMemberMockData()
             const enrollResult = await requestEnrollMember(mockMember)
             const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password)
             const res = await requestLogin(loginData)
@@ -86,8 +93,16 @@ describe(`test get ${prefixApiPath}${apiPath.memberInfo} and put ${prefixApiPath
             console.error('error:', error);
         }
     });
-    it(" get /api/memberInfo:it should return status 200 if use correct login", async () => {
+    it(" get /api/memberInfo:it should return status 200 if  correct login", async () => {
         const memberInfoResult = await requestGetMemberInfo()
         expect(memberInfoResult.statusCode).toBe(200);
+    });
+    it(" put ${prefixApiPath}${apiPath.password}:it should return status 200 if  correct login", async () => {
+        const data: UpdatePassword = {
+            oldPassword: mockMember.password,
+            newPassword: '123'
+        }
+        const memberPasswordResult = await requestUpdateMemberPassword(data)
+        expect(memberPasswordResult.statusCode).toBe(200);
     });
 });

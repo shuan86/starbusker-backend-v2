@@ -54,7 +54,7 @@ describe("member repo test(login) ", () => {
 
 })
 
-describe("member repo test(getMemberInfoById and updateMemberInfoById)", () => {
+describe("member repo test(getMemberInfoById,updateMemberInfoById and updateMemberPassword)", () => {
     let member
     beforeEach(async () => {
         member = memberRepo.generateFixedMemberMockData()
@@ -72,14 +72,21 @@ describe("member repo test(getMemberInfoById and updateMemberInfoById)", () => {
         expect(result).toBe(null)//wrong account
     })
     it("Test updateMemberInfoById:it should be return 200 if use correct member id and set name:mockname and password:456", async () => {
-        const mockUpdateMemberInfoData = memberRepo.generateMemberInfoData(member.name, member.password, member.email)
+        const mockUpdateMemberInfoData = memberRepo.generateMemberInfoData(member.name, member.email)
         const result = await memberRepo.updateMemberInfoById(member.id, mockUpdateMemberInfoData)
         expect(result.status).toBe(200)
     })
     it("Test updateMemberInfoById:it should be return 401 if use wrong member id and set name:mockname and password:456", async () => {
-        const mockUpdateMemberInfoData = memberRepo.generateMemberInfoData(member.name, member.password, member.email)
+        const mockUpdateMemberInfoData = memberRepo.generateMemberInfoData(member.name, member.email)
         const result = await memberRepo.updateMemberInfoById(-1, mockUpdateMemberInfoData)
         expect(result.status).toBe(401)
     })
-
+    it("Test updateMemberPassword:it should be return 200 if use correct  member id and password", async () => {
+        const result = await memberRepo.updateMemberPassword(member.id, member.password, '456')
+        expect(result.status).toBe(200)
+    })
+    it("Test updateMemberPassword:it should be return 401 if use correct  member id and password", async () => {
+        const result = await memberRepo.updateMemberPassword(member.id, '-1', '456')
+        expect(result.status).toBe(401)
+    })
 })

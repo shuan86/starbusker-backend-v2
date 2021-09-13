@@ -14,8 +14,8 @@ export const generateLoginData = (account: string, password: string): LoginType 
 
     return data
 }
-export const generateMemberInfoData = (account: string, password: string, email: string): UpdateMemberInfoType => {
-    const data: UpdateMemberInfoType = new UpdateMemberInfoType(account, password, email)
+export const generateMemberInfoData = (account: string, email: string): UpdateMemberInfoType => {
+    const data: UpdateMemberInfoType = new UpdateMemberInfoType(account, email)
     return data
 }
 export const generateFixedMemberMockData = (): Member => {
@@ -195,18 +195,26 @@ export const getMemberInfoDataById = async (id: number): Promise<FrontEndMemberD
 }
 export const updateMemberInfoById = async (id: number, infoData: UpdateMemberInfoType): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
-
     try {
         const repo = getMemberRepos()
         const member = await repo.findOne({ id })
         if (member) {
             member.name = infoData.name
             member.email = infoData.email
-            member.password = infoData.password
             member.avatar = infoData.avatar
+            const isBusker = await buskerRepo.isBuskerByMemberId(member.id)
             await repo.save({ ...member })
             repoData.status = 200
-            repoData.data = ''
+            const data: FrontEndMemberDataType = {
+                account: member.account,
+                male: member.male,
+                email: member.email,
+                name: member.name,
+                exp: member.exp,
+                avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),
+                isBusker: isBusker
+            }
+            repoData.data = JSON.stringify(data)
         }
         else {
             repoData.status = 401
@@ -234,6 +242,31 @@ export const getIdByAccount = async (account: string): Promise<number> => {
         return -1
     }
 }
+
+export const updateMemberPassword = async (id: number, oldPassword: string, newPassword: string): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const memberRepo = getMemberRepos()
+        const member = await memberRepo.findOne({ id })
+        if (member && member.password === oldPassword) {
+            member.password = newPassword
+            await memberRepo.update(id, member)
+            repoData.status = 200
+            repoData.data = ''
+        }
+        else {
+            repoData.status = 401
+            repoData.data = 'failed to updated password'
+        }
+        return repoData
+    }
+    catch (error) {
+        console.error('updateMemberPassword:', error);
+        return repoData
+
+    }
+}
+
 
 export const clear = async () => {
     const memberRepo = getMemberRepos()

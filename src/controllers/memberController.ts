@@ -6,7 +6,7 @@ import * as memberRepo from '../repositories/memberRepo';
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
-import { LoginType, UpdateMemberInfoType } from '../entities/Member'
+import { LoginType, UpdateMemberInfoType, UpdatePassword } from '../entities/Member'
 import passport from "../moudles/passport";
 import { ReponseType } from 'types/reponseType';
 export const init = async (req: Request, res: Response) => {
@@ -76,7 +76,6 @@ export const updateMemberInfo = async (req: Request, res: Response) => {
         const data: UpdateMemberInfoType = {
             name: req.body.name,
             email: req.body.email,
-            password: decrypt(req.body.password),
             avatar: req.file ? req.file.buffer : null
         }
         const infoData = plainToClass(UpdateMemberInfoType, data)
@@ -93,5 +92,29 @@ export const updateMemberInfo = async (req: Request, res: Response) => {
 
     } catch (error) {
         console.error('api updateMemberInfo error:', error);
+    }
+}
+export const updatePassword = async (req: Request, res: Response) => {
+    try {
+
+        const encryptData = req.body.encryptData
+        const data = decrypt(encryptData)
+        const member = plainToClass(UpdatePassword, JSON.parse(data))
+        const errors = await validate(member)
+        if (errors.length > 0) {
+            res.status(400).send(`parameter error`);
+            return;
+        } else {
+            const result = await memberRepo.updateMemberPassword(req.user as number, member.oldPassword, member.newPassword)
+            if (result.status == 200 || result.status == 401) {
+                res.status(result.status).send(result.data)
+            }
+            else {
+                res.status(500).send('server is busying')
+            }
+        }
+
+    } catch (error) {
+        console.error('api updatePassword error:', error);
     }
 }

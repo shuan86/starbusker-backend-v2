@@ -6,6 +6,7 @@ export const apiPath = {
     enroll: '/member',
     logout: '/logout',
     login: '/login',
+    password: '/password',
     memberInfo: '/memberInfo',
     getBusker: '/busker',
     enrollBusker: '/busker',

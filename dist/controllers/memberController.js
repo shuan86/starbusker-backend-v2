@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.login = exports.enroll = exports.init = void 0;
+exports.updatePassword = exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.login = exports.enroll = exports.init = void 0;
 const Member_1 = require("../entities/Member");
 const memberRepo = __importStar(require("../repositories/memberRepo"));
 const class_transformer_1 = require("class-transformer");
@@ -114,7 +114,6 @@ const updateMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, functio
         const data = {
             name: req.body.name,
             email: req.body.email,
-            password: rsa_1.decrypt(req.body.password),
             avatar: req.file ? req.file.buffer : null
         };
         const infoData = class_transformer_1.plainToClass(Member_2.UpdateMemberInfoType, data);
@@ -134,4 +133,29 @@ const updateMemberInfo = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.updateMemberInfo = updateMemberInfo;
+const updatePassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const encryptData = req.body.encryptData;
+        const data = rsa_1.decrypt(encryptData);
+        const member = class_transformer_1.plainToClass(Member_2.UpdatePassword, JSON.parse(data));
+        const errors = yield class_validator_1.validate(member);
+        if (errors.length > 0) {
+            res.status(400).send(`parameter error`);
+            return;
+        }
+        else {
+            const result = yield memberRepo.updateMemberPassword(req.user, member.oldPassword, member.newPassword);
+            if (result.status == 200 || result.status == 401) {
+                res.status(result.status).send(result.data);
+            }
+            else {
+                res.status(500).send('server is busying');
+            }
+        }
+    }
+    catch (error) {
+        console.error('api updatePassword error:', error);
+    }
+});
+exports.updatePassword = updatePassword;
 //# sourceMappingURL=memberController.js.map

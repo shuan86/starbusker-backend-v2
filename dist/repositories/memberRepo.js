@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
+exports.clear = exports.updateMemberPassword = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
 const Member_1 = require("../entities/Member");
 const databaseRepo_1 = require("./databaseRepo");
 const buskerRepo = __importStar(require("./buskerRepo"));
@@ -46,8 +46,8 @@ const generateLoginData = (account, password) => {
     return data;
 };
 exports.generateLoginData = generateLoginData;
-const generateMemberInfoData = (account, password, email) => {
-    const data = new Member_1.UpdateMemberInfoType(account, password, email);
+const generateMemberInfoData = (account, email) => {
+    const data = new Member_1.UpdateMemberInfoType(account, email);
     return data;
 };
 exports.generateMemberInfoData = generateMemberInfoData;
@@ -241,11 +241,20 @@ const updateMemberInfoById = (id, infoData) => __awaiter(void 0, void 0, void 0,
         if (member) {
             member.name = infoData.name;
             member.email = infoData.email;
-            member.password = infoData.password;
             member.avatar = infoData.avatar;
+            const isBusker = yield buskerRepo.isBuskerByMemberId(member.id);
             yield repo.save(Object.assign({}, member));
             repoData.status = 200;
-            repoData.data = '';
+            const data = {
+                account: member.account,
+                male: member.male,
+                email: member.email,
+                name: member.name,
+                exp: member.exp,
+                avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),
+                isBusker: isBusker
+            };
+            repoData.data = JSON.stringify(data);
         }
         else {
             repoData.status = 401;
@@ -274,6 +283,29 @@ const getIdByAccount = (account) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getIdByAccount = getIdByAccount;
+const updateMemberPassword = (id, oldPassword, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
+    let repoData = { status: 501, data: '' };
+    try {
+        const memberRepo = databaseRepo_1.getMemberRepos();
+        const member = yield memberRepo.findOne({ id });
+        if (member && member.password === oldPassword) {
+            member.password = newPassword;
+            yield memberRepo.update(id, member);
+            repoData.status = 200;
+            repoData.data = '';
+        }
+        else {
+            repoData.status = 401;
+            repoData.data = 'failed to updated password';
+        }
+        return repoData;
+    }
+    catch (error) {
+        console.error('updateMemberPassword:', error);
+        return repoData;
+    }
+});
+exports.updateMemberPassword = updateMemberPassword;
 const clear = () => __awaiter(void 0, void 0, void 0, function* () {
     const memberRepo = databaseRepo_1.getMemberRepos();
     const members = yield memberRepo.find();

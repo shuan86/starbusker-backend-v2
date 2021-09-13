@@ -59,12 +59,22 @@ export type FrontEndMemberDataType = {
 export class UpdateMemberInfoType {
   name: string
   email: string
-  password: string
   avatar: Buffer
-  constructor(name: string, email: string, password: string, avatar: Buffer = null) {
+  constructor(name: string, email: string, avatar: Buffer = null) {
     this.name = name
     this.email = email
-    this.password = password
     this.avatar = avatar
+  }
+}
+export class UpdatePassword {
+  @IsDefined()
+  @Expose()
+  oldPassword: string
+  @IsDefined()
+  @Expose()
+  newPassword: string
+  constructor(oldPassword: string, newPassword: string) {
+    this.newPassword = newPassword
+    this.oldPassword = oldPassword
   }
 }

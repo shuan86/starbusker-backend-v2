@@ -60,6 +60,10 @@ const requestGetMemberInfo = (data = null) => __awaiter(void 0, void 0, void 0, 
     const result = yield supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.memberInfo).set("Cookie", [cookies]);
     return result;
 });
+const requestUpdateMemberPassword = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield supertest_1.default(app_1.app).put(router_1.prefixApiPath + router_1.apiPath.memberInfo).set("Cookie", [cookies]).send(Object.assign({}, mockRequestData.generateEncryptSendData(data)));
+    return result;
+});
 describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll member) `, () => {
     let postData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
@@ -106,10 +110,12 @@ describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.login}(login)`, 
         expect(wrongPasswordResult.statusCode).toBe(401);
     }));
 });
-describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.memberInfo} and put ${router_1.prefixApiPath}${router_1.apiPath.memberInfo}(get and update memberInfo)`, () => {
+describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.memberInfo} , put ${router_1.prefixApiPath}${router_1.apiPath.memberInfo}
+, and put ${router_1.prefixApiPath}${router_1.apiPath.password}(get ,update memberInfom ,and update password)`, () => {
+    let mockMember;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         try {
-            const mockMember = memberRepo.generateFixedMemberMockData();
+            mockMember = memberRepo.generateFixedMemberMockData();
             const enrollResult = yield requestEnrollMember(mockMember);
             const loginData = memberRepo.generateLoginData(mockMember.account, mockMember.password);
             const res = yield requestLogin(loginData);
@@ -119,9 +125,17 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.memberInfo} and p
             console.error('error:', error);
         }
     }));
-    it(" get /api/memberInfo:it should return status 200 if use correct login", () => __awaiter(void 0, void 0, void 0, function* () {
+    it(" get /api/memberInfo:it should return status 200 if  correct login", () => __awaiter(void 0, void 0, void 0, function* () {
         const memberInfoResult = yield requestGetMemberInfo();
         expect(memberInfoResult.statusCode).toBe(200);
+    }));
+    it(" put ${prefixApiPath}${apiPath.password}:it should return status 200 if  correct login", () => __awaiter(void 0, void 0, void 0, function* () {
+        const data = {
+            oldPassword: mockMember.password,
+            newPassword: '123'
+        };
+        const memberPasswordResult = yield requestUpdateMemberPassword(data);
+        expect(memberPasswordResult.statusCode).toBe(200);
     }));
 });
 //# sourceMappingURL=member.api.test.js.map
