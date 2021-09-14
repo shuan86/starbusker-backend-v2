@@ -2,7 +2,6 @@ import NodeGeocoder from 'node-geocoder';
 import nodeFetch from 'node-fetch';
 import * as dotenv from 'dotenv'
 import { envSetup } from "../envSetup";
-
 dotenv.config({ path: envSetup() })
 
 

@@ -17,6 +17,13 @@ const Member_1 = require("./Member");
 const Busker_1 = require("./Busker");
 const BuskerPerformance_1 = require("./BuskerPerformance");
 let BuskerPerformanceComment = class BuskerPerformanceComment {
+    constructor(buskerId, performanceId, memberId, comment, time) {
+        this.buskerId = buskerId;
+        this.performanceId = performanceId;
+        this.memberId = memberId;
+        this.comment = comment;
+        this.time = time;
+    }
 };
 __decorate([
     typeorm_1.PrimaryGeneratedColumn(),
@@ -68,7 +75,8 @@ __decorate([
     __metadata("design:type", BuskerPerformance_1.BuskerPerformance)
 ], BuskerPerformanceComment.prototype, "buskerPerformance", void 0);
 BuskerPerformanceComment = __decorate([
-    typeorm_1.Entity()
+    typeorm_1.Entity(),
+    __metadata("design:paramtypes", [Number, Number, Number, String, String])
 ], BuskerPerformanceComment);
 exports.BuskerPerformanceComment = BuskerPerformanceComment;
 //# sourceMappingURL=BuskerPerformanceComment.js.map

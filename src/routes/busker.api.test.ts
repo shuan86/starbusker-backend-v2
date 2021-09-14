@@ -6,10 +6,11 @@ import {
     GetPerformancesType, BuskerPerformance, FrontEndPerformanceType
     , GetPerformanceType, FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType
 } from "../entities/BuskerPerformance";
+
 import { mockConnection } from "../mock/mockDbTestConnection";
 import { prefixApiPath, apiPath } from "../config/router";
 import * as mockRequestData from "../utils/request";
-import { FrontEndHighestComentAmountType, FrontEndWeekCommentAmountType } from "entities/BuskerPerformanceComment";
+import { BuskerPerformanceComment, FrontEndHighestComentAmountType, FrontEndWeekCommentAmountType } from "../entities/BuskerPerformanceComment";
 import { getCurrentFullTimeStr, addDay } from '../moudles/time';
 
 beforeAll(async () => {
@@ -173,19 +174,23 @@ describe(`test get ${prefixApiPath}${apiPath.onlineAmount} ${prefixApiPath}${api
         const enrollBuskerResult = await requestEnrollBusker(enrollBuskerData)
         const curTimeStr = getCurrentFullTimeStr()
 
-        for (let i = 1; i < 2; i++) {
+        for (let i = 1; i < 1; i++) {
             const buskerId = await buskerRepo.getIdByMemberId(memberId)
             const futurePerformanceResponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription'
                 , addDay(curTimeStr, i), `110台北市信義區市府路${i}號`))
-            for (let j = 0; j < 2; j++) {
+            for (let j = 0; j < 1; j++) {
                 performanceData = buskerRepo.generateDiffPerformanceData(buskerId, addDay(curTimeStr, -(j)))
                 const applyResult = await requestApplyPerformance(performanceData)
                 const performanceReponseData: FrontEndPerformanceType = JSON.parse(applyResult.text)
-                await buskerRepo.createPerformanceComment({
-                    id: 0, buskerId: buskerId, performanceId: performanceData.id
-                    , comment: `${i}`, time: addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined
-                    , member: undefined
-                })
+                console.error('performanceData:', performanceData);
+                await buskerRepo.createPerformanceComment(new BuskerPerformanceComment(
+                    buskerId, performanceData.id, memberId, `${i}`, addDay(curTimeStr, -(j))
+                ))
+                // await buskerRepo.createPerformanceComment({
+                //     id: 0, buskerId: buskerId, performanceId: performanceData.id
+                //     , comment: `${i}`, time: addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined
+                //     , member: undefined
+                // })
                 await buskerRepo.updateMaxChatroomOnlineAmount(performanceReponseData.performanceId, i)
             }
         }

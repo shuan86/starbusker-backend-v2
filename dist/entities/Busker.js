@@ -24,6 +24,12 @@ var BuskerType;
     BuskerType[BuskerType["drummer"] = 3] = "drummer";
 })(BuskerType = exports.BuskerType || (exports.BuskerType = {}));
 let Busker = class Busker {
+    constructor(memberId, type, description, likeAmount) {
+        this.memberId = memberId;
+        this.type = type;
+        this.description = description;
+        this.likeAmount = likeAmount;
+    }
 };
 __decorate([
     typeorm_1.PrimaryGeneratedColumn(),
@@ -63,7 +69,8 @@ __decorate([
     __metadata("design:type", Array)
 ], Busker.prototype, "buskerPerformanceComments", void 0);
 Busker = __decorate([
-    typeorm_1.Entity()
+    typeorm_1.Entity(),
+    __metadata("design:paramtypes", [Number, Number, String, Number])
 ], Busker);
 exports.Busker = Busker;
 //front-end request format

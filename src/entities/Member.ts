@@ -4,6 +4,14 @@ import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm";
 import { Busker } from './Busker'
 import { BuskerPerformanceComment } from './BuskerPerformanceComment'
 
+export enum LoginModeEnum {
+  local,
+  Line,
+  Facebook,
+  Goolgle,
+}
+
+
 @Entity()
 export class Member {
   @PrimaryGeneratedColumn()
@@ -30,6 +38,10 @@ export class Member {
   name: string;
   @Column({ default: 0, nullable: true })
   exp: number;
+  @Column({ default: LoginModeEnum.local, })
+  loginMode: LoginModeEnum
+  @Column({ nullable: true })
+  thirdPartyToken: string
   @Column("longblob", { default: null, nullable: true })
   avatar: Buffer;
   // @OneToMany(type => Busker, busker => busker.memberId, { cascade: true })
@@ -37,6 +49,17 @@ export class Member {
   buskers: Busker[];
   @OneToMany(type => BuskerPerformanceComment, comment => comment)
   buskerPerformanceComments: BuskerPerformanceComment[];
+  constructor(account: string, password: string, male: boolean, email: string, name: string, avatar: Buffer, loginMode: LoginModeEnum, thirdPartyToken: string) {
+    this.account = account
+    this.password = password
+    this.male = male
+    this.email = email
+    this.name = name
+    this.avatar = avatar
+    this.loginMode = loginMode
+    this.thirdPartyToken = thirdPartyToken
+  }
+
 }
 
 export class LoginType {

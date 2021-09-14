@@ -3,7 +3,7 @@ import { mockConnection } from "../mock/mockDbTestConnection";
 import * as memberRepo from "./memberRepo";
 import * as buskerRepo from "./buskerRepo";
 import { FrontEndPerformanceType, FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType, } from "../entities/BuskerPerformance";
-import { FrontEndCommentDataType, FrontEndHighestComentAmountType, FrontEndWeekCommentAmountType } from "../entities/BuskerPerformanceComment";
+import { BuskerPerformanceComment, FrontEndCommentDataType, FrontEndHighestComentAmountType, FrontEndWeekCommentAmountType } from "../entities/BuskerPerformanceComment";
 
 import { describe, expect, test } from '@jest/globals'
 import { ReponseType } from "types/reponseType";
@@ -160,10 +160,10 @@ describe("busker repo test(createPerformanceComment)", () => {
         performanceData = JSON.parse(result.data)
     });
     it("Test createPerformanceComment :it should be return true if use correct  format", async () => {
-        await buskerRepo.createPerformanceComment({
-            id: 0, buskerId: buskerData.id, performanceId: performanceData.performanceId, memberId: buskerData.memberId
-            , comment: testStr, time: undefined, buskerPerformance: undefined, busker: undefined, member: undefined
-        })
+
+        await buskerRepo.createPerformanceComment(new BuskerPerformanceComment(
+            buskerData.id, performanceData.performanceId, buskerData.memberId, testStr, undefined)
+        )
         const result = await buskerRepo.getPerformanceCommentsByBuskerId(buskerData.id)
         expect(result.status).toBe(200)
         const dataArr: FrontEndCommentDataType[] = JSON.parse(result.data)
@@ -191,12 +191,9 @@ describe("busker repo test(getTop5MaxOnlineAmount,getTop5NewestMaxCommentAmount,
                     , addDay(curTimeStr, -(j)), `110台北市信義區市府路${i}號`))
                 const performanceData: FrontEndPerformanceType = JSON.parse(performanceResponse.data)
                 const memberId = await buskerRepo.getMemberIdByBuskerId(buskerData.id)
-                await buskerRepo.createPerformanceComment({
-                    id: 0, buskerId: buskerData.id, performanceId: performanceData.performanceId
-                    , comment: `${j}`, time: addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined
-                    , member: undefined
-                })
-
+                await buskerRepo.createPerformanceComment(new BuskerPerformanceComment(
+                    buskerData.id, performanceData.performanceId, memberId, `${i}`, addDay(curTimeStr, -(j))
+                ))
                 await buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, i)
             }
         }

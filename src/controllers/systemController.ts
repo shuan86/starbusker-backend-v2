@@ -4,6 +4,9 @@ import { Busker } from "../entities/Busker";
 import * as memberRepo from '../repositories/memberRepo';
 import * as buskerRepo from '../repositories/buskerRepo';
 import { FrontEndPerformanceType } from '../entities/BuskerPerformance';
+import { BuskerPerformanceComment } from '../entities/BuskerPerformanceComment';
+
+
 import { addDay, addTime, getCurrentFullTimeStr } from '../moudles/time';
 
 import { plainToClass, Expose } from "class-transformer";
@@ -49,11 +52,14 @@ export const init = async (req: Request, res: Response) => {
                 const performanceResponse = await buskerRepo.applyPerformance(performanceMockData)
                 const performanceData: FrontEndPerformanceType = JSON.parse(performanceResponse.data)
                 const memberId = await buskerRepo.getMemberIdByBuskerId(buskerArr[i].id)
-                await buskerRepo.createPerformanceComment({
-                    id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId
-                    , comment: `comment${j}`, time: addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined
-                    , member: undefined
-                })
+                // await buskerRepo.createPerformanceComment({
+                //     id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId
+                //     , comment: `comment${j}`, time: addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined
+                //     , member: undefined
+                // })
+                await buskerRepo.createPerformanceComment(new BuskerPerformanceComment(
+                    buskerArr[i].id, performanceData.performanceId, memberId, `comment${j}`, addDay(curTimeStr, date - j))
+                )
                 await buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, 1 + j)
             }
         }

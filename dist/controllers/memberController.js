@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePassword = exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.login = exports.enroll = exports.init = void 0;
+exports.updatePassword = exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.googleCallback = exports.loginWithGoogle = exports.fbCallback = exports.loginWithFB = exports.lineCallback = exports.loginWithLine = exports.login = exports.enroll = exports.init = void 0;
 const Member_1 = require("../entities/Member");
 const memberRepo = __importStar(require("../repositories/memberRepo"));
 const class_transformer_1 = require("class-transformer");
@@ -39,6 +39,9 @@ const class_validator_1 = require("class-validator");
 const rsa_1 = require("../moudles/rsa");
 const Member_2 = require("../entities/Member");
 const passport_1 = __importDefault(require("../moudles/passport"));
+const envSetup_1 = require("../envSetup");
+const dotenv = __importStar(require("dotenv"));
+dotenv.config({ path: envSetup_1.envSetup() });
 const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield memberRepo.enroll(memberRepo.generateFixedMemberMockData());
@@ -84,6 +87,100 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }))(req, res);
 });
 exports.login = login;
+const loginWithLine = () => {
+    return passport_1.default.authenticate('line');
+};
+exports.loginWithLine = loginWithLine;
+const lineCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    passport_1.default.authenticate('line', (err, data, info) => __awaiter(void 0, void 0, void 0, function* () {
+        const { email, picture, name } = data;
+        const memberId = yield memberRepo.getIdByEmail(email);
+        const url = `${process.env.CLIENT_URL}?loginMode=line`;
+        if (memberId == -1) {
+            const member = yield memberRepo.createMember(new Member_1.Member(email, name + '465789', true, email, name, picture, Member_1.LoginModeEnum.Line, ''));
+            req.login(member.id, (err) => {
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            const result = yield memberRepo.getMemberInfoById(member.id);
+            res.status(result.status).redirect(url);
+        }
+        else {
+            yield memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name });
+            req.login(memberId, (err) => {
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            res.status(200).redirect(url);
+        }
+    }))(req, res);
+});
+exports.lineCallback = lineCallback;
+const loginWithFB = () => {
+    return passport_1.default.authenticate('facebook', { scope: ['email'] });
+};
+exports.loginWithFB = loginWithFB;
+const fbCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    passport_1.default.authenticate('facebook', (err, data, info) => __awaiter(void 0, void 0, void 0, function* () {
+        const { email, picture, name } = data;
+        const memberId = yield memberRepo.getIdByEmail(email);
+        const url = `${process.env.CLIENT_URL}?loginMode=facebook`;
+        if (memberId == -1) {
+            const member = yield memberRepo.createMember(new Member_1.Member(email, name + '465789', true, email, name, picture, Member_1.LoginModeEnum.Line, ''));
+            req.login(member.id, (err) => {
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            const result = yield memberRepo.getMemberInfoById(member.id);
+            res.status(result.status).redirect(url);
+        }
+        else {
+            yield memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name });
+            req.login(memberId, (err) => {
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            res.status(200).redirect(url);
+        }
+    }))(req, res);
+});
+exports.fbCallback = fbCallback;
+const loginWithGoogle = () => {
+    return passport_1.default.authenticate('google', { scope: ['profile', 'email'] });
+};
+exports.loginWithGoogle = loginWithGoogle;
+const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    passport_1.default.authenticate('google', (err, data, info) => __awaiter(void 0, void 0, void 0, function* () {
+        const { email, picture, name } = data;
+        console.log('data:', data);
+        const memberId = yield memberRepo.getIdByEmail(email);
+        const url = `${process.env.CLIENT_URL}?loginMode=facebook`;
+        if (memberId == -1) {
+            const member = yield memberRepo.createMember(new Member_1.Member(email, name + '465789', true, email, name, picture, Member_1.LoginModeEnum.Line, ''));
+            req.login(member.id, (err) => {
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            const result = yield memberRepo.getMemberInfoById(member.id);
+            res.status(result.status).redirect(url);
+        }
+        else {
+            yield memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name });
+            req.login(memberId, (err) => {
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            res.status(200).redirect(url);
+        }
+    }))(req, res);
+});
+exports.googleCallback = googleCallback;
 const logout = (req, res) => {
     try {
         //    console.log('logout:',req.isAuthenticated());

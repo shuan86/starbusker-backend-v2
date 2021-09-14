@@ -1,7 +1,7 @@
 
 import { Request, response, Response } from 'express';
 import { IMember } from "../interfaces/IMember";
-import { Member } from "../entities/Member";
+import { Member, LoginModeEnum } from "../entities/Member";
 import * as memberRepo from '../repositories/memberRepo';
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
@@ -9,6 +9,9 @@ import { decrypt } from "../moudles/rsa";
 import { LoginType, UpdateMemberInfoType, UpdatePassword } from '../entities/Member'
 import passport from "../moudles/passport";
 import { ReponseType } from 'types/reponseType';
+import { envSetup } from "../envSetup";
+import * as dotenv from 'dotenv'
+dotenv.config({ path: envSetup() })
 export const init = async (req: Request, res: Response) => {
     try {
         await memberRepo.enroll(memberRepo.generateFixedMemberMockData())
@@ -49,6 +52,98 @@ export const login = async (req: Request, res: Response) => {
 
     })(req, res)
 }
+export const loginWithLine = () => {
+    return passport.authenticate('line')
+}
+export const lineCallback = async (req: Request, res: Response) => {
+    passport.authenticate('line', async (err, data, info) => {
+        const { email, picture, name } = data
+        const memberId = await memberRepo.getIdByEmail(email)
+        const url = `${process.env.CLIENT_URL}?loginMode=line`
+        if (memberId == -1) {
+            const member = await memberRepo.createMember(new Member(email, name + '465789', true, email, name, picture, LoginModeEnum.Line, ''))
+            req.login(member.id, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            const result = await memberRepo.getMemberInfoById(member.id)
+            res.status(result.status).redirect(url)
+        }
+        else {
+            await memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name })
+            req.login(memberId, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            res.status(200).redirect(url)
+        }
+    })(req, res)
+}
+export const loginWithFB = () => {
+    return passport.authenticate('facebook', { scope: ['email'] })
+}
+export const fbCallback = async (req: Request, res: Response) => {
+    passport.authenticate('facebook', async (err, data, info) => {
+        const { email, picture, name } = data
+        const memberId = await memberRepo.getIdByEmail(email)
+        const url = `${process.env.CLIENT_URL}?loginMode=facebook`
+        if (memberId == -1) {
+            const member = await memberRepo.createMember(new Member(email, name + '465789', true, email, name, picture, LoginModeEnum.Line, ''))
+            req.login(member.id, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            const result = await memberRepo.getMemberInfoById(member.id)
+            res.status(result.status).redirect(url)
+        }
+        else {
+            await memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name })
+            req.login(memberId, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            res.status(200).redirect(url)
+        }
+    })(req, res)
+}
+
+export const loginWithGoogle = () => {
+    return passport.authenticate('google', { scope: ['profile', 'email'] })
+}
+export const googleCallback = async (req: Request, res: Response) => {
+    passport.authenticate('google', async (err, data, info) => {
+        const { email, picture, name } = data
+        console.log('data:', data);
+
+        const memberId = await memberRepo.getIdByEmail(email)
+        const url = `${process.env.CLIENT_URL}?loginMode=facebook`
+        if (memberId == -1) {
+            const member = await memberRepo.createMember(new Member(email, name + '465789', true, email, name, picture, LoginModeEnum.Line, ''))
+            req.login(member.id, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            const result = await memberRepo.getMemberInfoById(member.id)
+            res.status(result.status).redirect(url)
+        }
+        else {
+            await memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name })
+            req.login(memberId, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
+                if (err) {
+                    console.error('err:', err);
+                }
+            });
+            res.status(200).redirect(url)
+        }
+    })(req, res)
+}
+
+
 export const logout = (req: Request, res: Response) => {
     try {
         //    console.log('logout:',req.isAuthenticated());

@@ -42,6 +42,14 @@ export class BuskerPerformanceComment {
   buskerPerformance: BuskerPerformance
 
 
+  constructor(buskerId: number, performanceId: number, memberId: number, comment: string, time: string) {
+    this.buskerId = buskerId
+    this.performanceId = performanceId
+    this.memberId = memberId
+    this.comment = comment
+    this.time = time
+  }
+
 
 }
 export type FrontEndCommentDataType = {

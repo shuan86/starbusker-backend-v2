@@ -16,6 +16,17 @@ const class_validator_1 = require("class-validator");
 const Busker_1 = require("./Busker");
 const BuskerPerformanceComment_1 = require("./BuskerPerformanceComment");
 let BuskerPerformance = class BuskerPerformance {
+    constructor(buskerId, title, description, time, lineMoney, highestOnlineAmount, latitude, longitude, location) {
+        this.buskerId = buskerId;
+        this.title = title;
+        this.description = description;
+        this.time = time;
+        this.lineMoney = lineMoney;
+        this.highestOnlineAmount = highestOnlineAmount;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.location = location;
+    }
 };
 __decorate([
     typeorm_1.PrimaryGeneratedColumn(),
@@ -79,7 +90,8 @@ __decorate([
     __metadata("design:type", Array)
 ], BuskerPerformance.prototype, "buskerPerformanceComments", void 0);
 BuskerPerformance = __decorate([
-    typeorm_1.Entity()
+    typeorm_1.Entity(),
+    __metadata("design:paramtypes", [Number, String, String, String, Number, Number, Number, Number, String])
 ], BuskerPerformance);
 exports.BuskerPerformance = BuskerPerformance;
 //front-end request format

@@ -31,6 +31,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mockDbTestConnection_1 = require("../mock/mockDbTestConnection");
 const memberRepo = __importStar(require("./memberRepo"));
 const buskerRepo = __importStar(require("./buskerRepo"));
+const BuskerPerformanceComment_1 = require("../entities/BuskerPerformanceComment");
 const globals_1 = require("@jest/globals");
 const time_1 = require("../moudles/time");
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
@@ -167,10 +168,7 @@ globals_1.describe("busker repo test(createPerformanceComment)", () => {
         performanceData = JSON.parse(result.data);
     }));
     it("Test createPerformanceComment :it should be return true if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
-        yield buskerRepo.createPerformanceComment({
-            id: 0, buskerId: buskerData.id, performanceId: performanceData.performanceId, memberId: buskerData.memberId,
-            comment: testStr, time: undefined, buskerPerformance: undefined, busker: undefined, member: undefined
-        });
+        yield buskerRepo.createPerformanceComment(new BuskerPerformanceComment_1.BuskerPerformanceComment(buskerData.id, performanceData.performanceId, buskerData.memberId, testStr, undefined));
         const result = yield buskerRepo.getPerformanceCommentsByBuskerId(buskerData.id);
         globals_1.expect(result.status).toBe(200);
         const dataArr = JSON.parse(result.data);
@@ -194,11 +192,7 @@ globals_1.describe("busker repo test(getTop5MaxOnlineAmount,getTop5NewestMaxComm
                 const performanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, -(j)), `110台北市信義區市府路${i}號`));
                 const performanceData = JSON.parse(performanceResponse.data);
                 const memberId = yield buskerRepo.getMemberIdByBuskerId(buskerData.id);
-                yield buskerRepo.createPerformanceComment({
-                    id: 0, buskerId: buskerData.id, performanceId: performanceData.performanceId,
-                    comment: `${j}`, time: time_1.addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined,
-                    member: undefined
-                });
+                yield buskerRepo.createPerformanceComment(new BuskerPerformanceComment_1.BuskerPerformanceComment(buskerData.id, performanceData.performanceId, memberId, `${i}`, time_1.addDay(curTimeStr, -(j))));
                 yield buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, i);
             }
         }

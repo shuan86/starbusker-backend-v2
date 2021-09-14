@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.updateMemberPassword = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
+exports.clear = exports.updateMemberPassword = exports.getIdByEmail = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
 const Member_1 = require("../entities/Member");
 const databaseRepo_1 = require("./databaseRepo");
 const buskerRepo = __importStar(require("./buskerRepo"));
@@ -52,11 +52,12 @@ const generateMemberInfoData = (account, email) => {
 };
 exports.generateMemberInfoData = generateMemberInfoData;
 const generateFixedMemberMockData = () => {
-    const mockData = {
-        id: 0, account: `t${mockMemberCount}`, password: '123', male: true,
-        email: `t${mockMemberCount}@gmail.com`,
-        name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: undefined, buskerPerformanceComments: undefined
-    };
+    const mockData = new Member_1.Member(`t${mockMemberCount}`, '123', true, `t${mockMemberCount}@gmail.com`, `${mockMemberCount}_name`, null, Member_1.LoginModeEnum.local, '');
+    // {
+    //     id: 0, account: `t${mockMemberCount}`, password: '123', male: true
+    //         , email: `t${mockMemberCount}@gmail.com`
+    //             , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: undefined, buskerPerformanceComments: undefined
+    // }
     // const mockMember = Object.assign(new Member(), mockData)
     return mockData;
 };
@@ -68,11 +69,12 @@ const generateDiffMemberMockData = () => __awaiter(void 0, void 0, void 0, funct
         if (r < 4) {
             imageData = fs_1.default.readFileSync(`${__dirname}/../public/img/busker0${r}.png`);
         }
-        const mockData = {
-            id: 0, account: `t${mockMemberCount}`, password: '123',
-            male: true, email: `t${mockMemberCount}@gmail.com`,
-            name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: undefined, buskerPerformanceComments: undefined
-        };
+        const mockData = new Member_1.Member(`t${mockMemberCount}`, '123', true, `t${mockMemberCount}@gmail.com`, `${mockMemberCount}_name`, imageData, Member_1.LoginModeEnum.local, '');
+        // const mockData: Member = {
+        //     id: 0, account: `t${mockMemberCount}`, password: '123'
+        //     , male: true, email: `t${mockMemberCount}@gmail.com`
+        //     , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: undefined, buskerPerformanceComments: undefined
+        // }
         mockMemberCount++;
         return mockData;
     }
@@ -106,8 +108,9 @@ exports.enroll = enroll;
 const createMember = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const memberRepo = databaseRepo_1.getMemberRepos();
-        const member = yield memberRepo.findOne({ account: data.account });
-        if (member) {
+        const checkMemberAccount = yield memberRepo.findOne({ account: data.account });
+        const checkMemberEmail = yield memberRepo.findOne({ email: data.email });
+        if (checkMemberAccount || checkMemberEmail) {
             return null;
         }
         else {
@@ -228,7 +231,7 @@ const getMemberInfoDataById = (id) => __awaiter(void 0, void 0, void 0, function
             return null;
     }
     catch (error) {
-        console.error('getMemberInfoById:', error);
+        console.error('getMemberInfoDataById:', error);
         return null;
     }
 });
@@ -283,6 +286,21 @@ const getIdByAccount = (account) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.getIdByAccount = getIdByAccount;
+const getIdByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const repo = databaseRepo_1.getMemberRepos();
+        const member = yield repo.findOne({ email });
+        if (member)
+            return member.id;
+        else
+            return -1;
+    }
+    catch (error) {
+        console.error('getIdByEmail:', error);
+        return -1;
+    }
+});
+exports.getIdByEmail = getIdByEmail;
 const updateMemberPassword = (id, oldPassword, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
     try {

@@ -37,6 +37,14 @@ export class Busker {
   performances: BuskerPerformance[]
   @OneToMany(type => BuskerPerformanceComment, comment => comment.buskerId, { cascade: true })
   buskerPerformanceComments: BuskerPerformanceComment[]
+
+  constructor(memberId: number, type: BuskerType, description: string, likeAmount: number) {
+    this.memberId = memberId
+    this.type = type
+    this.description = description
+    this.likeAmount = likeAmount
+
+  }
 }
 //front-end request format
 export class EnrollBuskerType {

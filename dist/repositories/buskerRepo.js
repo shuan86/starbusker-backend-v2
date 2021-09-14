@@ -12,12 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getFuturePerformancesData = exports.getWeekCommentAmount = exports.getTop5HighestCommentAmount = exports.getTop5NewestHighestOnlineAmount = exports.getPerformanceCommentsByBuskerId = exports.createPerformanceComment = exports.getMemberIdByBuskerId = exports.getIdByMemberId = exports.updateMaxChatroomOnlineAmount = exports.getBuskerInfoByBuskerId = exports.isBuskerIdExist = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.deletePerformance = exports.applyPerformance = exports.isPerformanceExist = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.dateToDbDate = exports.getCurrentTime = exports.getCurrentYearMonthDateTimeStr = exports.generateDiffMockData = exports.generateFixedMockData = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
+exports.clear = exports.getFuturePerformancesData = exports.getWeekCommentAmount = exports.getTop5HighestCommentAmount = exports.getTop5NewestHighestOnlineAmount = exports.getPerformanceCommentsByBuskerId = exports.createPerformanceComment = exports.getMemberIdByBuskerId = exports.getIdByMemberId = exports.updateMaxChatroomOnlineAmount = exports.getBuskerInfoByBuskerId = exports.isBuskerIdExist = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.deletePerformance = exports.applyPerformance = exports.isPerformanceExist = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.dateToDbDate = exports.getCurrentTime = exports.getCurrentYearMonthDateTimeStr = exports.generateDiffMockData = exports.generateFixedMockData = exports.generatePerformanceComment = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
 const Busker_1 = require("../entities/Busker");
 const Member_1 = require("../entities/Member");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 const databaseRepo_1 = require("./databaseRepo");
 const buskerPerformance_1 = require("../mock/buskerPerformance");
+const BuskerPerformanceComment_1 = require("../entities/BuskerPerformanceComment");
 const moment_1 = __importDefault(require("moment"));
 require("moment-timezone");
 const time_1 = require("../moudles/time");
@@ -28,10 +29,11 @@ const generateEnrollBusker = (description, type) => {
 };
 exports.generateEnrollBusker = generateEnrollBusker;
 const generatePerformance = (buskerId, title, description, time, location, lineMoney = 0, latitude = 0, longitude = 0) => {
-    const data = {
-        id: 0, buskerId, title, description,
-        time, lineMoney, highestOnlineAmount: 0, latitude, longitude, location, busker: undefined, buskerPerformanceComments: undefined
-    };
+    const data = new BuskerPerformance_1.BuskerPerformance(buskerId, title, description, time, lineMoney, 0, latitude, longitude, location);
+    // const data: BuskerPerformance = {
+    //     id: 0, buskerId, title, description
+    //     , time, lineMoney, highestOnlineAmount: 0, latitude, longitude, location, busker: undefined, buskerPerformanceComments: undefined
+    // }
     return data;
 };
 exports.generatePerformance = generatePerformance;
@@ -41,24 +43,18 @@ const generateApplyPerformance = (tile, description, time, location) => {
     return data;
 };
 exports.generateApplyPerformance = generateApplyPerformance;
+const generatePerformanceComment = (buskerId, performanceId, memberId, comment, time) => {
+    const data = new BuskerPerformanceComment_1.BuskerPerformanceComment(buskerId, performanceId, memberId, comment, time);
+    return data;
+};
+exports.generatePerformanceComment = generatePerformanceComment;
 const generateFixedMockData = (memberId) => {
-    // const mockData = { id: 0, memberId: memberId, type: BuskerKind.singer, description: `description` }
-    // const mockMember = Object.assign(new Busker(), mockData)
-    // return mockMember
-    const mockData = {
-        id: 0, memberId: memberId, type: Busker_1.BuskerType.singer,
-        description: `description`, likeAmount: 0, member: undefined, performances: [], buskerPerformanceComments: undefined
-    };
+    const mockData = new Busker_1.Busker(memberId, Busker_1.BuskerType.singer, `description${mockCount}`, 0);
     return Object.assign({}, mockData);
 };
 exports.generateFixedMockData = generateFixedMockData;
 const generateDiffMockData = (memberId) => {
-    // const mockData = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description${mockCount}` }
-    // const mockMember = Object.assign(new Busker(), mockData)
-    const mockData = {
-        id: 0, memberId: memberId, type: Busker_1.BuskerType.singer,
-        description: `description${mockCount}`, likeAmount: 0, member: undefined, performances: [], buskerPerformanceComments: undefined
-    };
+    const mockData = new Busker_1.Busker(memberId, Busker_1.BuskerType.singer, `description${mockCount}`, 0);
     mockCount++;
     return mockData;
 };
@@ -104,18 +100,19 @@ const generateDiffPerformanceData = (buskerId, time) => {
     if (mockCount >= buskerPerformance_1.locationArr.length - 1) {
         count = Math.floor(count % buskerPerformance_1.locationArr.length);
     }
-    const mockData = {
-        id: 0, buskerId: buskerId, title: `title${mockCount}`,
-        description: `description${mockCount}`,
-        time: time,
-        lineMoney: 0,
-        highestOnlineAmount: 0,
-        latitude: buskerPerformance_1.locationArr[count].latitude,
-        longitude: buskerPerformance_1.locationArr[count].longtiude,
-        location: buskerPerformance_1.locationArr[count].location,
-        busker: undefined,
-        buskerPerformanceComments: undefined
-    };
+    const mockData = new BuskerPerformance_1.BuskerPerformance(buskerId, `title${mockCount}`, `description${mockCount}`, time, count, count, buskerPerformance_1.locationArr[count].latitude, buskerPerformance_1.locationArr[count].longtiude, buskerPerformance_1.locationArr[count].location);
+    // const mockData: BuskerPerformance = {
+    //     id: 0, buskerId: buskerId, title: `title${mockCount}`
+    //     , description: `description${mockCount}`
+    //     , time: time
+    //     , lineMoney: 0
+    //     , highestOnlineAmount: 0
+    //     , latitude: locationArr[count].latitude
+    //     , longitude: locationArr[count].longtiude
+    //     , location: locationArr[count].location
+    //     , busker: undefined
+    //     , buskerPerformanceComments: undefined
+    // }
     mockCount++;
     return Object.assign({}, mockData);
 };

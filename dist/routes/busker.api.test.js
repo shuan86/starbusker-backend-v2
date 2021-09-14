@@ -38,6 +38,7 @@ const buskerRepo = __importStar(require("../repositories/buskerRepo"));
 const mockDbTestConnection_1 = require("../mock/mockDbTestConnection");
 const router_1 = require("../config/router");
 const mockRequestData = __importStar(require("../utils/request"));
+const BuskerPerformanceComment_1 = require("../entities/BuskerPerformanceComment");
 const time_1 = require("../moudles/time");
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     const connection = yield mockDbTestConnection_1.mockConnection.create();
@@ -193,18 +194,20 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.onlineAmount} ${r
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         const enrollBuskerResult = yield requestEnrollBusker(enrollBuskerData);
         const curTimeStr = time_1.getCurrentFullTimeStr();
-        for (let i = 1; i < 2; i++) {
+        for (let i = 1; i < 1; i++) {
             const buskerId = yield buskerRepo.getIdByMemberId(memberId);
             const futurePerformanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, i), `110台北市信義區市府路${i}號`));
-            for (let j = 0; j < 2; j++) {
+            for (let j = 0; j < 1; j++) {
                 performanceData = buskerRepo.generateDiffPerformanceData(buskerId, time_1.addDay(curTimeStr, -(j)));
                 const applyResult = yield requestApplyPerformance(performanceData);
                 const performanceReponseData = JSON.parse(applyResult.text);
-                yield buskerRepo.createPerformanceComment({
-                    id: 0, buskerId: buskerId, performanceId: performanceData.id,
-                    comment: `${i}`, time: time_1.addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined,
-                    member: undefined
-                });
+                console.error('performanceData:', performanceData);
+                yield buskerRepo.createPerformanceComment(new BuskerPerformanceComment_1.BuskerPerformanceComment(buskerId, performanceData.id, memberId, `${i}`, time_1.addDay(curTimeStr, -(j))));
+                // await buskerRepo.createPerformanceComment({
+                //     id: 0, buskerId: buskerId, performanceId: performanceData.id
+                //     , comment: `${i}`, time: addDay(curTimeStr, -(j)), memberId: memberId, buskerPerformance: undefined, busker: undefined
+                //     , member: undefined
+                // })
                 yield buskerRepo.updateMaxChatroomOnlineAmount(performanceReponseData.performanceId, i);
             }
         }

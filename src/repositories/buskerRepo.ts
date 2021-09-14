@@ -1,8 +1,8 @@
 import { Busker, BuskerType, EnrollBuskerType, } from "../entities/Busker";
 import { Member } from "../entities/Member";
 import {
-    BuskerPerformance, ApplyPerformanceType
-    , FrontEndPerformanceType, FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType
+    BuskerPerformance, ApplyPerformanceType, FrontEndPerformanceType
+    , FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType
 } from "../entities/BuskerPerformance";
 import { getBuskerRepo, getBuskerPerformanceRepo, getMemberRepos, getBuskerPerformanceCommentRepo } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
@@ -10,7 +10,7 @@ import { locationArr } from "../mock/buskerPerformance";
 import {
     BuskerPerformanceComment, FrontEndCommentDataType, FrontEndHighestComentAmountType
     , FrontEndWeekCommentAmountType
-} from "entities/BuskerPerformanceComment";
+} from "../entities/BuskerPerformanceComment";
 import moment from 'moment';
 import 'moment-timezone';
 import { addDay, addDayReturnYearMonthDate } from '../moudles/time';
@@ -21,10 +21,15 @@ export const generateEnrollBusker = (description: string, type: BuskerType): Enr
     return data
 }
 export const generatePerformance = (buskerId: number, title: string, description: string, time: string, location: string, lineMoney: number = 0, latitude: number = 0, longitude: number = 0): BuskerPerformance => {
-    const data: BuskerPerformance = {
-        id: 0, buskerId, title, description
-        , time, lineMoney, highestOnlineAmount: 0, latitude, longitude, location, busker: undefined, buskerPerformanceComments: undefined
-    }
+    const data = new BuskerPerformance(buskerId, title
+        , description, time, lineMoney, 0, latitude
+        , longitude, location
+    )
+
+    // const data: BuskerPerformance = {
+    //     id: 0, buskerId, title, description
+    //     , time, lineMoney, highestOnlineAmount: 0, latitude, longitude, location, busker: undefined, buskerPerformanceComments: undefined
+    // }
     return data
 }
 //front end format
@@ -32,27 +37,17 @@ export const generateApplyPerformance = (tile: string, description: string, time
     const data = new ApplyPerformanceType(tile, description, time, location)
     return data
 }
-
+export const generatePerformanceComment = (buskerId: number, performanceId: number, memberId: number, comment: string, time: string) => {
+    const data = new BuskerPerformanceComment(buskerId, performanceId, memberId, comment, time)
+    return data
+}
 
 export const generateFixedMockData = (memberId: number): Busker => {
-    // const mockData = { id: 0, memberId: memberId, type: BuskerKind.singer, description: `description` }
-    // const mockMember = Object.assign(new Busker(), mockData)
-    // return mockMember
-    const mockData: Busker = {
-        id: 0, memberId: memberId, type: BuskerType.singer
-        , description: `description`, likeAmount: 0, member: undefined, performances: [], buskerPerformanceComments: undefined
-    }
-
+    const mockData = new Busker(memberId, BuskerType.singer, `description${mockCount}`, 0)
     return { ...mockData }
 }
 export const generateDiffMockData = (memberId: number): Busker => {
-    // const mockData = { id: 0, memberId: memberId, kind: BuskerKind.singer, description: `description${mockCount}` }
-    // const mockMember = Object.assign(new Busker(), mockData)
-    const mockData: Busker = {
-        id: 0, memberId: memberId, type: BuskerType.singer,
-        description: `description${mockCount}`, likeAmount: 0, member: undefined, performances: [], buskerPerformanceComments: undefined
-    }
-
+    const mockData = new Busker(memberId, BuskerType.singer, `description${mockCount}`, 0)
     mockCount++
     return mockData
 }
@@ -99,18 +94,22 @@ export const generateDiffPerformanceData = (buskerId: number, time: string): Bus
     if (mockCount >= locationArr.length - 1) {
         count = Math.floor(count % locationArr.length)
     }
-    const mockData: BuskerPerformance = {
-        id: 0, buskerId: buskerId, title: `title${mockCount}`
-        , description: `description${mockCount}`
-        , time: time
-        , lineMoney: 0
-        , highestOnlineAmount: 0
-        , latitude: locationArr[count].latitude
-        , longitude: locationArr[count].longtiude
-        , location: locationArr[count].location
-        , busker: undefined
-        , buskerPerformanceComments: undefined
-    }
+    const mockData = new BuskerPerformance(buskerId, `title${mockCount}`
+        , `description${mockCount}`, time, count, count, locationArr[count].latitude
+        , locationArr[count].longtiude, locationArr[count].location
+    )
+    // const mockData: BuskerPerformance = {
+    //     id: 0, buskerId: buskerId, title: `title${mockCount}`
+    //     , description: `description${mockCount}`
+    //     , time: time
+    //     , lineMoney: 0
+    //     , highestOnlineAmount: 0
+    //     , latitude: locationArr[count].latitude
+    //     , longitude: locationArr[count].longtiude
+    //     , location: locationArr[count].location
+    //     , busker: undefined
+    //     , buskerPerformanceComments: undefined
+    // }
     mockCount++
     return { ...mockData }
 }

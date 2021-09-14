@@ -43,6 +43,18 @@ class MemberRoutes extends route_abstract_1.default {
             .post(memberController.enroll);
         this.router.route(router_1.apiPath.login)
             .post(rsaDecrypt_1.loginRsaDecrypt, memberController.login);
+        this.router.route(router_1.apiPath.line)
+            .get(memberController.loginWithLine());
+        this.router.route(router_1.apiPath.lineCallback)
+            .get(memberController.lineCallback);
+        this.router.route(router_1.apiPath.fb)
+            .get(memberController.loginWithFB());
+        this.router.route(router_1.apiPath.fbCallback)
+            .get(memberController.fbCallback);
+        this.router.route(router_1.apiPath.google)
+            .get(memberController.loginWithGoogle());
+        this.router.route(router_1.apiPath.googleCallback)
+            .get(memberController.googleCallback);
         this.router.route(router_1.apiPath.logout)
             .post(auth_1.authMember, memberController.logout);
         this.router.route(router_1.apiPath.memberInfo)

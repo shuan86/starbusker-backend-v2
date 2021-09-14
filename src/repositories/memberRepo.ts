@@ -1,4 +1,4 @@
-import { Member, LoginType, FrontEndMemberDataType, UpdateMemberInfoType } from "../entities/Member";
+import { Member, LoginModeEnum, LoginType, FrontEndMemberDataType, UpdateMemberInfoType } from "../entities/Member";
 import { IMember } from "../interfaces/IMember";
 import { getMemberRepos } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
@@ -18,12 +18,14 @@ export const generateMemberInfoData = (account: string, email: string): UpdateMe
     const data: UpdateMemberInfoType = new UpdateMemberInfoType(account, email)
     return data
 }
+
 export const generateFixedMemberMockData = (): Member => {
-    const mockData: Member = {
-        id: 0, account: `t${mockMemberCount}`, password: '123', male: true
-        , email: `t${mockMemberCount}@gmail.com`
-        , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: undefined, buskerPerformanceComments: undefined
-    }
+    const mockData: Member = new Member(`t${mockMemberCount}`, '123', true, `t${mockMemberCount}@gmail.com`, `${mockMemberCount}_name`, null, LoginModeEnum.local, '')
+    // {
+    //     id: 0, account: `t${mockMemberCount}`, password: '123', male: true
+    //         , email: `t${mockMemberCount}@gmail.com`
+    //             , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: null, buskers: undefined, buskerPerformanceComments: undefined
+    // }
     // const mockMember = Object.assign(new Member(), mockData)
     return mockData
 }
@@ -36,11 +38,13 @@ export const generateDiffMemberMockData = async (): Promise<Member> => {
         if (r < 4) {
             imageData = fs.readFileSync(`${__dirname}/../public/img/busker0${r}.png`)
         }
-        const mockData: Member = {
-            id: 0, account: `t${mockMemberCount}`, password: '123'
-            , male: true, email: `t${mockMemberCount}@gmail.com`
-            , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: undefined, buskerPerformanceComments: undefined
-        }
+        const mockData: Member = new Member(`t${mockMemberCount}`, '123', true, `t${mockMemberCount}@gmail.com`, `${mockMemberCount}_name`, imageData, LoginModeEnum.local, '')
+
+        // const mockData: Member = {
+        //     id: 0, account: `t${mockMemberCount}`, password: '123'
+        //     , male: true, email: `t${mockMemberCount}@gmail.com`
+        //     , name: `${mockMemberCount}_name`, exp: mockMemberCount, avatar: imageData, buskers: undefined, buskerPerformanceComments: undefined
+        // }
         mockMemberCount++
         return mockData
     } catch (error) {
@@ -73,8 +77,10 @@ export const enroll = async (data: Member): Promise<ReponseType> => {
 export const createMember = async (data: Member): Promise<Member> => {
     try {
         const memberRepo = getMemberRepos()
-        const member: Member = await memberRepo.findOne({ account: data.account })
-        if (member) {
+        const checkMemberAccount: Member = await memberRepo.findOne({ account: data.account })
+        const checkMemberEmail: Member = await memberRepo.findOne({ email: data.email })
+
+        if (checkMemberAccount || checkMemberEmail) {
             return null
         }
         else {
@@ -189,7 +195,7 @@ export const getMemberInfoDataById = async (id: number): Promise<FrontEndMemberD
             return null
     }
     catch (error) {
-        console.error('getMemberInfoById:', error);
+        console.error('getMemberInfoDataById:', error);
         return null
     }
 }
@@ -242,7 +248,19 @@ export const getIdByAccount = async (account: string): Promise<number> => {
         return -1
     }
 }
-
+export const getIdByEmail = async (email: string): Promise<number> => {
+    try {
+        const repo = getMemberRepos()
+        const member = await repo.findOne({ email })
+        if (member)
+            return member.id
+        else
+            return -1
+    } catch (error) {
+        console.error('getIdByEmail:', error);
+        return -1
+    }
+}
 export const updateMemberPassword = async (id: number, oldPassword: string, newPassword: string): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {

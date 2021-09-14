@@ -9,13 +9,30 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdatePassword = exports.UpdateMemberInfoType = exports.LoginType = exports.Member = void 0;
+exports.UpdatePassword = exports.UpdateMemberInfoType = exports.LoginType = exports.Member = exports.LoginModeEnum = void 0;
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const typeorm_1 = require("typeorm");
 const Busker_1 = require("./Busker");
 const BuskerPerformanceComment_1 = require("./BuskerPerformanceComment");
+var LoginModeEnum;
+(function (LoginModeEnum) {
+    LoginModeEnum[LoginModeEnum["local"] = 0] = "local";
+    LoginModeEnum[LoginModeEnum["Line"] = 1] = "Line";
+    LoginModeEnum[LoginModeEnum["Facebook"] = 2] = "Facebook";
+    LoginModeEnum[LoginModeEnum["Goolgle"] = 3] = "Goolgle";
+})(LoginModeEnum = exports.LoginModeEnum || (exports.LoginModeEnum = {}));
 let Member = class Member {
+    constructor(account, password, male, email, name, avatar, loginMode, thirdPartyToken) {
+        this.account = account;
+        this.password = password;
+        this.male = male;
+        this.email = email;
+        this.name = name;
+        this.avatar = avatar;
+        this.loginMode = loginMode;
+        this.thirdPartyToken = thirdPartyToken;
+    }
 };
 __decorate([
     typeorm_1.PrimaryGeneratedColumn(),
@@ -56,6 +73,14 @@ __decorate([
     __metadata("design:type", Number)
 ], Member.prototype, "exp", void 0);
 __decorate([
+    typeorm_1.Column({ default: LoginModeEnum.local, }),
+    __metadata("design:type", Number)
+], Member.prototype, "loginMode", void 0);
+__decorate([
+    typeorm_1.Column({ nullable: true }),
+    __metadata("design:type", String)
+], Member.prototype, "thirdPartyToken", void 0);
+__decorate([
     typeorm_1.Column("longblob", { default: null, nullable: true }),
     __metadata("design:type", Buffer)
 ], Member.prototype, "avatar", void 0);
@@ -68,7 +93,8 @@ __decorate([
     __metadata("design:type", Array)
 ], Member.prototype, "buskerPerformanceComments", void 0);
 Member = __decorate([
-    typeorm_1.Entity()
+    typeorm_1.Entity(),
+    __metadata("design:paramtypes", [String, String, Boolean, String, String, Buffer, Number, String])
 ], Member);
 exports.Member = Member;
 class LoginType {

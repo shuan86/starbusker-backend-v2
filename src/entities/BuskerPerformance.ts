@@ -44,6 +44,19 @@ export class BuskerPerformance {
   busker: Busker
   @OneToMany(type => BuskerPerformanceComment, comment => comment.performanceId, { cascade: true })
   buskerPerformanceComments: BuskerPerformanceComment[]
+  gg: string
+  constructor(buskerId: number, title: string, description: string, time: string
+    , lineMoney: number, highestOnlineAmount: number, latitude: number, longitude: number, location: string) {
+    this.buskerId = buskerId
+    this.title = title
+    this.description = description
+    this.time = time
+    this.lineMoney = lineMoney
+    this.highestOnlineAmount = highestOnlineAmount
+    this.latitude = latitude
+    this.longitude = longitude
+    this.location = location
+  }
 }
 //front-end request format
 export class ApplyPerformanceType {

@@ -31,6 +31,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.logout = exports.init = void 0;
 const memberRepo = __importStar(require("../repositories/memberRepo"));
 const buskerRepo = __importStar(require("../repositories/buskerRepo"));
+const BuskerPerformanceComment_1 = require("../entities/BuskerPerformanceComment");
 const time_1 = require("../moudles/time");
 const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -66,11 +67,12 @@ const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 const performanceResponse = yield buskerRepo.applyPerformance(performanceMockData);
                 const performanceData = JSON.parse(performanceResponse.data);
                 const memberId = yield buskerRepo.getMemberIdByBuskerId(buskerArr[i].id);
-                yield buskerRepo.createPerformanceComment({
-                    id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId,
-                    comment: `comment${j}`, time: time_1.addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined,
-                    member: undefined
-                });
+                // await buskerRepo.createPerformanceComment({
+                //     id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId
+                //     , comment: `comment${j}`, time: addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined
+                //     , member: undefined
+                // })
+                yield buskerRepo.createPerformanceComment(new BuskerPerformanceComment_1.BuskerPerformanceComment(buskerArr[i].id, performanceData.performanceId, memberId, `comment${j}`, time_1.addDay(curTimeStr, date - j)));
                 yield buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, 1 + j);
             }
         }
