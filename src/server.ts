@@ -1,7 +1,7 @@
 import { app, sessionMiddleware } from "./app";
 import { Server, Socket } from "socket.io";
 import sharedsession from "express-socket.io-session";
-import { isBuskerIdExist, createPerformanceComment, updateMaxChatroomOnlineAmount } from "./repositories/buskerRepo";
+import { isPerformanceIdExist, createPerformanceComment, updateMaxChatroomOnlineAmount } from "./repositories/buskerRepo";
 import { getMemberAvatarByAccount } from "./repositories/memberRepo";
 
 const PORT = 8081;
@@ -49,11 +49,8 @@ type GetMemberAvatarType = {
 }
 io.on('connection', (socket: any) => {
   //經過連線後在 console 中印出訊息
-  console.log('success connect !')
   socket.on('disconnecting', async () => {
-    console.log('disconnecting rooms:', socket.rooms, 'leave:', socket['room']); // the Set contains at least the socket ID
     await socket.leave(socket['room'])//socket['id']
-    console.log('disconnect:', io.sockets.adapter.rooms.get(socket['room']));
     if (io.sockets.adapter.rooms.get(socket['room']) == undefined) {//room cancel
 
     }
@@ -71,7 +68,6 @@ io.on('connection', (socket: any) => {
   socket.on(socketEvent.sendMsgFromClient, async (msg: string) => {
     //回傳 message 給發送訊息的 Client
     const { account, data } = JSON.parse(msg)//buskerId
-    console.log('account:', socket['account'], 'buskerId:', socket['buskerId'], "sendMsg:", msg);
     const isSucessfulEnroll = await createPerformanceComment({
       id: 0, buskerId: socket['buskerId'], performanceId: socket['performanceId']
       , comment: data, time: undefined, memberId: socket['memberId'], buskerPerformance: undefined, busker: undefined
@@ -82,11 +78,10 @@ io.on('connection', (socket: any) => {
 
   })
   socket.on(socketEvent.joinMsg, async (msg: string) => {
-    const { buskerId, performanceId, account } = JSON.parse(msg)//buskerId
-    console.log('join msg:', msg);
+    const { performanceId, account } = JSON.parse(msg)//buskerId
 
-    const isExist = await isBuskerIdExist(buskerId)
-    if (isExist) {
+    const isPerformanceExist = await isPerformanceIdExist(performanceId)
+    if (isPerformanceExist) {
       const nowRoom = Object.keys(socket.rooms).find(room => {
         return room !== socket.id
       })
@@ -94,9 +89,9 @@ io.on('connection', (socket: any) => {
       if (nowRoom) {
         socket.leave(nowRoom)
       }
-      const room = `room${buskerId}`
+      const room = `room${isPerformanceExist.buskerId}`
       await socket.join(room);//id
-      socket['buskerId'] = buskerId;
+      socket['buskerId'] = isPerformanceExist.buskerId;
       socket['performanceId'] = performanceId;
       socket['room'] = room;
       socket['account'] = account;

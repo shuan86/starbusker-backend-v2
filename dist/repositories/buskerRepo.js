@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.getFuturePerformancesData = exports.getWeekCommentAmount = exports.getTop5HighestCommentAmount = exports.getTop5NewestHighestOnlineAmount = exports.getPerformanceCommentsByBuskerId = exports.createPerformanceComment = exports.getMemberIdByBuskerId = exports.getIdByMemberId = exports.updateMaxChatroomOnlineAmount = exports.getBuskerInfoByBuskerId = exports.isBuskerIdExist = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.deletePerformance = exports.applyPerformance = exports.isPerformanceExist = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.dateToDbDate = exports.getCurrentTime = exports.getCurrentYearMonthDateTimeStr = exports.generateDiffMockData = exports.generateFixedMockData = exports.generatePerformanceComment = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
+exports.clear = exports.getFuturePerformancesData = exports.getWeekCommentAmount = exports.getTop5HighestCommentAmount = exports.getTop5NewestHighestOnlineAmount = exports.getPerformanceCommentsByBuskerId = exports.createPerformanceComment = exports.updateLinePayMoneyByPerformanceId = exports.getMemberIdByBuskerId = exports.getNameBukserIdPerformanceIdByLinePayOrderId = exports.getIdByMemberId = exports.updateMaxChatroomOnlineAmount = exports.getPerformancesDonateByMemberId = exports.getPerformanceInfo = exports.getBuskerInfoByBuskerId = exports.isPerformanceIdExist = exports.isBuskerIdExist = exports.isBuskerByMemberId = exports.applyMockPerformance = exports.deletePerformance = exports.applyPerformance = exports.isPerformanceExist = exports.getAllPerformanceTime = exports.getPerformances = exports.createBusker = exports.enroll = exports.generateDiffPerformanceData = exports.dateToDbDate = exports.getCurrentTime = exports.getCurrentYearMonthDateTimeStr = exports.generateDiffMockData = exports.generateFixedMockData = exports.generatePerformanceComment = exports.generateApplyPerformance = exports.generatePerformance = exports.generateEnrollBusker = void 0;
 const Busker_1 = require("../entities/Busker");
 const Member_1 = require("../entities/Member");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
@@ -22,6 +22,8 @@ const BuskerPerformanceComment_1 = require("../entities/BuskerPerformanceComment
 const moment_1 = __importDefault(require("moment"));
 require("moment-timezone");
 const time_1 = require("../moudles/time");
+const memberRepo_1 = require("./memberRepo");
+const linePay_1 = require("../moudles/linePay");
 let mockCount = 0;
 const generateEnrollBusker = (description, type) => {
     const data = new Busker_1.EnrollBuskerType(description, type);
@@ -50,7 +52,7 @@ const generatePerformanceComment = (buskerId, performanceId, memberId, comment, 
 exports.generatePerformanceComment = generatePerformanceComment;
 const generateFixedMockData = (memberId) => {
     const mockData = new Busker_1.Busker(memberId, Busker_1.BuskerType.singer, `description${mockCount}`, 0);
-    return Object.assign({}, mockData);
+    return mockData;
 };
 exports.generateFixedMockData = generateFixedMockData;
 const generateDiffMockData = (memberId) => {
@@ -100,19 +102,7 @@ const generateDiffPerformanceData = (buskerId, time) => {
     if (mockCount >= buskerPerformance_1.locationArr.length - 1) {
         count = Math.floor(count % buskerPerformance_1.locationArr.length);
     }
-    const mockData = new BuskerPerformance_1.BuskerPerformance(buskerId, `title${mockCount}`, `description${mockCount}`, time, count, count, buskerPerformance_1.locationArr[count].latitude, buskerPerformance_1.locationArr[count].longtiude, buskerPerformance_1.locationArr[count].location);
-    // const mockData: BuskerPerformance = {
-    //     id: 0, buskerId: buskerId, title: `title${mockCount}`
-    //     , description: `description${mockCount}`
-    //     , time: time
-    //     , lineMoney: 0
-    //     , highestOnlineAmount: 0
-    //     , latitude: locationArr[count].latitude
-    //     , longitude: locationArr[count].longtiude
-    //     , location: locationArr[count].location
-    //     , busker: undefined
-    //     , buskerPerformanceComments: undefined
-    // }
+    const mockData = new BuskerPerformance_1.BuskerPerformance(buskerId, `title${mockCount}`, `description${mockCount}`, time, 0, count, buskerPerformance_1.locationArr[count].latitude, buskerPerformance_1.locationArr[count].longtiude, buskerPerformance_1.locationArr[count].location);
     mockCount++;
     return Object.assign({}, mockData);
 };
@@ -127,7 +117,8 @@ const enroll = (data) => __awaiter(void 0, void 0, void 0, function* () {
         }
         else {
             repoData.status = 200;
-            repoData.data = 'enroll suessful';
+            const infoData = yield memberRepo_1.getMemberInfoDataById(busker.memberId);
+            repoData.data = JSON.stringify(infoData);
         }
         return repoData;
     }
@@ -140,12 +131,19 @@ exports.enroll = enroll;
 const createBusker = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const buskerRepo = databaseRepo_1.getBuskerRepo();
-        const busker = yield buskerRepo.findOne({ memberId: data.memberId });
-        if (busker) {
+        const isBuskerExist = yield buskerRepo.findOne({ memberId: data.memberId });
+        if (isBuskerExist) {
             return null;
         }
         else {
-            return yield buskerRepo.save(buskerRepo.create(data));
+            const orderReuslt = yield linePay_1.createBuskerDonateLineOrder(data.memberId);
+            if (orderReuslt.returnCode == '0000') {
+                data.linePayOrderId = orderReuslt.orderId;
+                data.linePayTransactionId = orderReuslt.info.transactionId.toString();
+                data.linePayOrderUrl = orderReuslt.info.paymentUrl.web;
+                return yield buskerRepo.save(buskerRepo.create(data));
+            }
+            return null;
         }
     }
     catch (error) {
@@ -224,16 +222,28 @@ const isPerformanceExist = (id) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.isPerformanceExist = isPerformanceExist;
-const applyPerformance = (data) => __awaiter(void 0, void 0, void 0, function* () {
+const applyPerformance = (memberId, data) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
     try {
         const performanceRepo = databaseRepo_1.getBuskerPerformanceRepo();
+        const orderReuslt = yield linePay_1.createBuskerDonateLineOrder(memberId);
+        if (orderReuslt.returnCode == '0000') {
+            data.linePayOrderId = orderReuslt.orderId;
+            data.linePayTransactionId = orderReuslt.info.transactionId.toString();
+            data.linePayOrderUrl = orderReuslt.info.paymentUrl.web;
+        }
+        else {
+            repoData.data = 'line error';
+            return repoData;
+        }
         const performanceResult = yield performanceRepo.save(performanceRepo.create(data));
         if (performanceResult) {
             repoData.status = 200;
             const reponseData = yield performanceRepo.createQueryBuilder('p')
                 .select(['p.id performanceId ', 'm.name name', 'm.email email',
-                'p.location location', 'p.description description', 'p.title title', 'p.latitude latitude', 'p.longitude longitude', 'p.time time'])
+                'p.location location', 'p.description description', 'p.title title',
+                'p.latitude latitude', 'p.longitude longitude', 'p.time time'
+            ])
                 .innerJoin(Busker_1.Busker, 'b', `b.id=${performanceResult.buskerId}`)
                 .innerJoin(Member_1.Member, 'm', 'm.id=b.memberId')
                 .where(`p.id=${performanceResult.id}`)
@@ -319,13 +329,28 @@ const isBuskerIdExist = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.isBuskerIdExist = isBuskerIdExist;
+const isPerformanceIdExist = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const repo = databaseRepo_1.getBuskerPerformanceRepo();
+        const performance = yield repo.findOne({ id });
+        if (performance)
+            return performance;
+        else
+            return null;
+    }
+    catch (error) {
+        console.error('isBuskerIdExist:', error);
+    }
+    return null;
+});
+exports.isPerformanceIdExist = isPerformanceIdExist;
 //not test
 const getBuskerInfoByBuskerId = (buskerId) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
     try {
         const buskerRepo = databaseRepo_1.getBuskerRepo();
         const data = yield buskerRepo.createQueryBuilder('b')
-            .select(['b.description description', 'b.likeAmount  likeAmount', 'b.type type', 'm.name name', 'm.avatar avatar'])
+            .select(['b.description description', 'b.likeAmount  likeAmount', 'b.type type', 'b.linePayOrderUrl linePayOrderUrl', 'm.name name', 'm.avatar avatar'])
             .innerJoin(Member_1.Member, "m", "m.id = b.memberId")
             .where(`b.id=:buskerId`, { buskerId })
             .getRawOne();
@@ -347,6 +372,59 @@ const getBuskerInfoByBuskerId = (buskerId) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.getBuskerInfoByBuskerId = getBuskerInfoByBuskerId;
+const getPerformanceInfo = (performanceId) => __awaiter(void 0, void 0, void 0, function* () {
+    let repoData = { status: 501, data: '' };
+    try {
+        const performanceRepo = databaseRepo_1.getBuskerPerformanceRepo();
+        const data = yield performanceRepo.createQueryBuilder('p')
+            .select(['b.description description', 'b.likeAmount  likeAmount',
+            'b.type type', 'p.linePayOrderUrl linePayOrderUrl', 'm.name name', 'm.avatar avatar'])
+            .where(`p.id=:performanceId`, { performanceId })
+            .innerJoin(Busker_1.Busker, "b", `b.id=p.buskerId`)
+            .innerJoin(Member_1.Member, "m", "m.id = b.memberId")
+            .getRawOne();
+        if (data) {
+            data.avatar = data.avatar == null ? '' : Buffer.from(data.avatar).toString('base64');
+            repoData.status = 200;
+            repoData.data = JSON.stringify(data);
+        }
+        else {
+            repoData.status = 401;
+        }
+        return repoData;
+    }
+    catch (error) {
+        console.error('getPerformanceInfo:', error);
+        return repoData;
+    }
+});
+exports.getPerformanceInfo = getPerformanceInfo;
+const getPerformancesDonateByMemberId = (memberId) => __awaiter(void 0, void 0, void 0, function* () {
+    let repoData = { status: 501, data: '' };
+    try {
+        const memberRepo = databaseRepo_1.getMemberRepos();
+        const data = yield memberRepo.createQueryBuilder('m')
+            .select(['sum(p.lineMoney) amount'])
+            .innerJoin(Busker_1.Busker, 'b', `b.memberId=m.id and m.id=:memberId`, { memberId })
+            .innerJoin(BuskerPerformance_1.BuskerPerformance, 'p', `p.buskerId=b.id`)
+            .groupBy('p.buskerId')
+            .getRawOne();
+        console.log('getPerformancesDonateByMemberId memberId:', memberId, 'data:', data);
+        if (data) {
+            repoData.status = 200;
+            repoData.data = JSON.stringify(data);
+        }
+        else {
+            repoData.status = 401;
+        }
+        return repoData;
+    }
+    catch (error) {
+        console.error('getPerformancesDonate:', error);
+        return repoData;
+    }
+});
+exports.getPerformancesDonateByMemberId = getPerformancesDonateByMemberId;
 //not test
 const updateMaxChatroomOnlineAmount = (performanceId, onlineAmount) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
@@ -379,6 +457,25 @@ const getIdByMemberId = (id) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getIdByMemberId = getIdByMemberId;
+const getNameBukserIdPerformanceIdByLinePayOrderId = (orderId) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const performanceRepo = databaseRepo_1.getBuskerPerformanceRepo();
+        const data = yield performanceRepo.createQueryBuilder('p')
+            .select(['p.id performanceId', 'p.buskerId buskerId', 'm.name name'])
+            .where(`p.linePayOrderId=:orderId`, { orderId: orderId })
+            .innerJoin(Busker_1.Busker, 'b', `b.id = p.buskerId`)
+            .innerJoin(Member_1.Member, 'm', `m.id = b.memberId`)
+            .getRawOne();
+        if (data)
+            return { name: data.name, performanceId: data.performanceId, buskerId: data.buskerId };
+        else
+            return null;
+    }
+    catch (error) {
+        console.error('getNameBukserIdPerformanceIdByLinePayOrderId:', error);
+    }
+});
+exports.getNameBukserIdPerformanceIdByLinePayOrderId = getNameBukserIdPerformanceIdByLinePayOrderId;
 const getMemberIdByBuskerId = (id) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const repo = databaseRepo_1.getBuskerRepo();
@@ -393,6 +490,24 @@ const getMemberIdByBuskerId = (id) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getMemberIdByBuskerId = getMemberIdByBuskerId;
+const updateLinePayMoneyByPerformanceId = (performanceId, money) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const performanceRepo = databaseRepo_1.getBuskerPerformanceRepo();
+        const performance = yield performanceRepo.findOne({ id: performanceId });
+        if (performance) {
+            const result = yield performanceRepo.update(performanceId, { lineMoney: performance.lineMoney + money });
+            console.log('updateLinePayMoneyBy PerformanceId:', performanceId, performance.lineMoney, money);
+            if (result)
+                return true;
+        }
+        return false;
+    }
+    catch (error) {
+        console.error('updateLinePayMoneyByPerformanceId:', error);
+        return false;
+    }
+});
+exports.updateLinePayMoneyByPerformanceId = updateLinePayMoneyByPerformanceId;
 const createPerformanceComment = (data) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const commentRepo = databaseRepo_1.getBuskerPerformanceCommentRepo();
@@ -487,8 +602,8 @@ const getWeekCommentAmount = (buskerId) => __awaiter(void 0, void 0, void 0, fun
         const sevenDaysAgo = time_1.addDayReturnYearMonthDate(curTime, -7);
         const result = yield commentRepo.createQueryBuilder('c') //FrontEndWeekCommentAmountType[]
             .select(['count(c.time) count', "DATE_FORMAT(c.time,'%Y/%m/%d') time"])
-            .where(`c.buskerId = ${buskerId}`)
-            .where('c.time > :sevenDaysAgo', { sevenDaysAgo: sevenDaysAgo })
+            .andWhere(`c.buskerId = ${buskerId}`)
+            .andWhere('c.time > :sevenDaysAgo', { sevenDaysAgo: sevenDaysAgo })
             .andWhere('c.time <= :curTime', { curTime: curTime })
             .groupBy('date(c.time)')
             .orderBy('c.time', 'DESC')
@@ -520,7 +635,8 @@ const getFuturePerformancesData = (buskerId) => __awaiter(void 0, void 0, void 0
         ])
             .innerJoin(Busker_1.Busker, 'b', `b.id=${buskerId}`)
             .innerJoin(Member_1.Member, 'm', 'm.id=b.memberId')
-            .where('p.time >= :curTime', { curTime: curTime })
+            .andWhere(`p.buskerId=${buskerId}`)
+            .andWhere('p.time >= :curTime', { curTime: curTime })
             .orderBy('p.time', 'ASC')
             .getRawMany();
         if (result) {

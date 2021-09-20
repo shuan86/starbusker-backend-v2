@@ -19,6 +19,8 @@ export class BuskerRoutes extends IRoute {
       .post(authMember, buskerController.enroll);
     this.router.route(apiPath.performance)
       .post(authMember, buskerController.applyPerformance);
+    this.router.route(apiPath.performance)
+      .get(authMember, buskerController.getPerformance);
     this.router.route(apiPath.performances)
       .get(buskerController.getPerformances);
     this.router.route(apiPath.performancesTime)
@@ -26,14 +28,18 @@ export class BuskerRoutes extends IRoute {
     this.router.route(apiPath.performance)
       .delete(buskerController.deletePerformance);
     this.router.route(apiPath.onlineAmount)
-      .get(buskerController.getOnlineAmount);
+      .get(authMember, buskerController.getOnlineAmount);
     this.router.route(apiPath.commentAmount)
-      .get(buskerController.getCommentAmount);
-    this.router.route(apiPath.commentAmount)
-      .get(buskerController.getCommentAmount);
+      .get(authMember, buskerController.getCommentAmount);
+    this.router.route(apiPath.performancesDonate)
+      .get(authMember, buskerController.getPerformancesDonate);
     this.router.route(apiPath.weekCommentAmount)
-      .get(buskerController.getWeekCommentAmount);
+      .get(authMember, buskerController.getWeekCommentAmount);
     this.router.route(apiPath.futurePerformancesData)
-      .get(buskerController.getFuturePerformancesData);
+      .get(authMember, buskerController.getFuturePerformancesData);
+    this.router.route(apiPath.confirmLineDonateOrder)
+      .get(authMember, buskerController.confirmLinePayDonateOrder);
+    // this.router.route(apiPath.confirmLineDonateOrder)
+    //   .post(authMember, buskerController.confirmLinePayDonateOrder);
   }
 }

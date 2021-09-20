@@ -28,10 +28,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logout = exports.init = void 0;
+exports.logout = exports.lineReceipt = exports.lineOrder = exports.init = void 0;
 const memberRepo = __importStar(require("../repositories/memberRepo"));
 const buskerRepo = __importStar(require("../repositories/buskerRepo"));
 const BuskerPerformanceComment_1 = require("../entities/BuskerPerformanceComment");
+const linePay_1 = require("../moudles/linePay");
 const time_1 = require("../moudles/time");
 const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -57,21 +58,16 @@ const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         for (let i = 0; i < buskerArr.length; i++) {
             for (let j = 0; j < 10; j++) {
                 const futurePerformanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, time_1.addDay(curTimeStr, date + j));
-                const futurePerformanceResponse = yield buskerRepo.applyPerformance(futurePerformanceMockData);
+                const futurePerformanceResponse = yield buskerRepo.applyPerformance(buskerArr[i].memberId, futurePerformanceMockData);
                 const performanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id, time_1.addDay(curTimeStr, date - j));
                 if (j >= 10 && j % 10 == 0) {
                     date++;
                     hour++;
                 }
                 minute = Math.random() * 60;
-                const performanceResponse = yield buskerRepo.applyPerformance(performanceMockData);
+                const performanceResponse = yield buskerRepo.applyPerformance(buskerArr[i].memberId, performanceMockData);
                 const performanceData = JSON.parse(performanceResponse.data);
                 const memberId = yield buskerRepo.getMemberIdByBuskerId(buskerArr[i].id);
-                // await buskerRepo.createPerformanceComment({
-                //     id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId
-                //     , comment: `comment${j}`, time: addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined
-                //     , member: undefined
-                // })
                 yield buskerRepo.createPerformanceComment(new BuskerPerformanceComment_1.BuskerPerformanceComment(buskerArr[i].id, performanceData.performanceId, memberId, `comment${j}`, time_1.addDay(curTimeStr, date - j)));
                 yield buskerRepo.updateMaxChatroomOnlineAmount(performanceData.performanceId, 1 + j);
             }
@@ -87,6 +83,16 @@ const init = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     res.status(200).send('fail init');
 });
 exports.init = init;
+const lineOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    yield linePay_1.createBuskerDonateLineOrder(0);
+    res.status(200).send('line pay:order');
+});
+exports.lineOrder = lineOrder;
+const lineReceipt = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log('lineReceipt:', req.query);
+    res.redirect('http://localhost:3000/home?q=123456789');
+});
+exports.lineReceipt = lineReceipt;
 // export const apply = async (req: Request, res: Response) => {
 //     try {
 //         const encryptData = req.body.encryptData

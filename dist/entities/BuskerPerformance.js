@@ -57,10 +57,6 @@ __decorate([
 __decorate([
     typeorm_1.Column({ default: () => 0 }),
     __metadata("design:type", Number)
-], BuskerPerformance.prototype, "lineMoney", void 0);
-__decorate([
-    typeorm_1.Column({ default: () => 0 }),
-    __metadata("design:type", Number)
 ], BuskerPerformance.prototype, "highestOnlineAmount", void 0);
 __decorate([
     typeorm_1.Column({ type: "double" }),
@@ -80,6 +76,22 @@ __decorate([
     typeorm_1.Column(),
     __metadata("design:type", String)
 ], BuskerPerformance.prototype, "location", void 0);
+__decorate([
+    typeorm_1.Column({ default: () => 0 }),
+    __metadata("design:type", Number)
+], BuskerPerformance.prototype, "lineMoney", void 0);
+__decorate([
+    typeorm_1.Column({ length: 200 }),
+    __metadata("design:type", String)
+], BuskerPerformance.prototype, "linePayOrderId", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], BuskerPerformance.prototype, "linePayTransactionId", void 0);
+__decorate([
+    typeorm_1.Column({ length: 200 }),
+    __metadata("design:type", String)
+], BuskerPerformance.prototype, "linePayOrderUrl", void 0);
 __decorate([
     typeorm_1.ManyToOne(type => Busker_1.Busker, busker => busker.performances, { onDelete: 'CASCADE' }),
     typeorm_1.JoinColumn(),

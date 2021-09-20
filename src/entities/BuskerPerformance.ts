@@ -23,8 +23,7 @@ export class BuskerPerformance {
   @Expose()
   @Column({ type: 'timestamp', default: () => 'NOW()' })
   time: string
-  @Column({ default: () => 0 })
-  lineMoney: number
+
   @Column({ default: () => 0 })
   highestOnlineAmount: number
   @Column({ type: "double" })
@@ -39,12 +38,21 @@ export class BuskerPerformance {
   @Expose()
   @Column()
   location: string
+  @Column({ default: () => 0 })
+  lineMoney: number
+
+  @Column({ length: 200 })
+  linePayOrderId: string
+  @Column()
+  linePayTransactionId: string
+  @Column({ length: 200 })
+  linePayOrderUrl: string
   @ManyToOne(type => Busker, busker => busker.performances, { onDelete: 'CASCADE' })
   @JoinColumn()
   busker: Busker
   @OneToMany(type => BuskerPerformanceComment, comment => comment.performanceId, { cascade: true })
   buskerPerformanceComments: BuskerPerformanceComment[]
-  gg: string
+
   constructor(buskerId: number, title: string, description: string, time: string
     , lineMoney: number, highestOnlineAmount: number, latitude: number, longitude: number, location: string) {
     this.buskerId = buskerId
@@ -101,6 +109,9 @@ export type FrontEndPerformanceType = {
   time: string,
   longitude: number,
   latitude: number
+}
+export type FrontEndPerformancesDoanteType = {
+  amount: number
 }
 export type FrontEndHighestOnlineAmountType = {
   highestOnlineAmount: number,

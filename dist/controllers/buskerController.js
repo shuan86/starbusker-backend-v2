@@ -28,13 +28,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getFuturePerformancesData = exports.getWeekCommentAmount = exports.getCommentAmount = exports.getOnlineAmount = exports.deletePerformance = exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformances = exports.enroll = exports.getBusker = void 0;
+exports.confirmLinePayDonateOrder = exports.getFuturePerformancesData = exports.getWeekCommentAmount = exports.getPerformancesDonate = exports.getCommentAmount = exports.getOnlineAmount = exports.deletePerformance = exports.getAllPerformanceTime = exports.applyPerformance = exports.getPerformance = exports.getPerformances = exports.enroll = exports.getBusker = void 0;
 const Busker_1 = require("../entities/Busker");
 const BuskerPerformance_1 = require("../entities/BuskerPerformance");
 const buskerRepo = __importStar(require("../repositories/buskerRepo"));
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
 const time_1 = require("../moudles/time");
+const linePay_1 = require("../moudles/linePay");
+const envSetup_1 = require("../envSetup");
+const dotenv = __importStar(require("dotenv"));
+dotenv.config({ path: envSetup_1.envSetup() });
 const getBusker = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.query.data;
@@ -127,6 +131,31 @@ const getPerformances = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.getPerformances = getPerformances;
+const getPerformance = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.query.data;
+        const performance = class_transformer_1.plainToClass(BuskerPerformance_1.GetPerformanceType, JSON.parse(data));
+        const errors = yield class_validator_1.validate(performance, { skipMissingProperties: true });
+        if (errors.length > 0) {
+            // console.error(errors);
+            res.status(400).send(`parameter error`);
+            return;
+        }
+        else {
+            const result = yield buskerRepo.getPerformanceInfo(performance.performanceId);
+            if (result.status == 200 || result.status == 401) {
+                res.status(result.status).send(result.data);
+            }
+            else {
+                res.status(500).send('server is busying');
+            }
+        }
+    }
+    catch (error) {
+        console.error('api getBusker  error:', error);
+    }
+});
+exports.getPerformance = getPerformance;
 const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body.data;
@@ -142,10 +171,8 @@ const applyPerformance = (req, res) => __awaiter(void 0, void 0, void 0, functio
             const buskerId = yield buskerRepo.getIdByMemberId(memberId);
             performance.buskerId = buskerId;
             if (buskerId) {
-                const result = yield buskerRepo.applyPerformance(performance);
-                if (result.status == 200 || result.status == 401) {
-                    res.status(result.status).send(result.data);
-                }
+                const result = yield buskerRepo.applyPerformance(memberId, performance);
+                res.status(result.status).send(result.data);
             }
             else
                 res.status(501).send('server is busying');
@@ -227,6 +254,23 @@ const getCommentAmount = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getCommentAmount = getCommentAmount;
+const getPerformancesDonate = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const memberId = req.user;
+        if (memberId) {
+            const result = yield buskerRepo.getPerformancesDonateByMemberId(memberId);
+            res.status(result.status).send(result.data);
+        }
+        else {
+            res.status(401).send(`failed to get data`);
+            return;
+        }
+    }
+    catch (error) {
+        console.error('api getPerformancesDonate error:', error);
+    }
+});
+exports.getPerformancesDonate = getPerformancesDonate;
 const getWeekCommentAmount = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const memberId = req.user;
     const buskerId = yield buskerRepo.getIdByMemberId(memberId);
@@ -253,6 +297,31 @@ const getFuturePerformancesData = (req, res) => __awaiter(void 0, void 0, void 0
     }
 });
 exports.getFuturePerformancesData = getFuturePerformancesData;
+const confirmLinePayDonateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { transactionId, orderId } = req.query;
+        const lienData = yield linePay_1.confirmLineDonateOrder(transactionId);
+        const orderIdStr = orderId;
+        if (lienData.returnCode == '0000') {
+            const donateAmount = lienData.info.payInfo[0].amount;
+            const findData = yield buskerRepo.getNameBukserIdPerformanceIdByLinePayOrderId(orderId);
+            if (findData != null) {
+                console.log('lienData.info.payInfo.amount:', donateAmount);
+                const updateResult = yield buskerRepo.updateLinePayMoneyByPerformanceId(findData.performanceId, donateAmount);
+                if (updateResult) {
+                    console.log('findData:', findData);
+                    res.redirect(`${process.env.CLIENT_URL}/donateResult?name=${findData.name}&performanceId=${findData.performanceId}&donateResult=true&donateAmount=${donateAmount}`);
+                    return;
+                }
+            }
+        }
+        res.redirect(`${process.env.CLIENT_URL}/donateResult?performanceId=${orderIdStr.split('&')[2]}&donateResult=false`);
+    }
+    catch (error) {
+        console.error('api confirmLinePayOrder error:', error);
+    }
+});
+exports.confirmLinePayDonateOrder = confirmLinePayDonateOrder;
 // export class BuskerController {
 //     /**
 //      * async name

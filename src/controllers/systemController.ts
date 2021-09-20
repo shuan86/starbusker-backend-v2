@@ -5,7 +5,7 @@ import * as memberRepo from '../repositories/memberRepo';
 import * as buskerRepo from '../repositories/buskerRepo';
 import { FrontEndPerformanceType } from '../entities/BuskerPerformance';
 import { BuskerPerformanceComment } from '../entities/BuskerPerformanceComment';
-
+import { createBuskerDonateLineOrder } from "../moudles/linePay";
 
 import { addDay, addTime, getCurrentFullTimeStr } from '../moudles/time';
 
@@ -33,13 +33,11 @@ export const init = async (req: Request, res: Response) => {
         let date = 0
         let hour = 0
         let minute = 0
-
         for (let i = 0; i < buskerArr.length; i++) {
-
             for (let j = 0; j < 10; j++) {
                 const futurePerformanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id
                     , addDay(curTimeStr, date + j))
-                const futurePerformanceResponse = await buskerRepo.applyPerformance(
+                const futurePerformanceResponse = await buskerRepo.applyPerformance(buskerArr[i].memberId,
                     futurePerformanceMockData)
                 const performanceMockData = buskerRepo.generateDiffPerformanceData(buskerArr[i].id
                     , addDay(curTimeStr, date - j))
@@ -49,14 +47,9 @@ export const init = async (req: Request, res: Response) => {
                     hour++
                 }
                 minute = Math.random() * 60
-                const performanceResponse = await buskerRepo.applyPerformance(performanceMockData)
+                const performanceResponse = await buskerRepo.applyPerformance(buskerArr[i].memberId, performanceMockData)
                 const performanceData: FrontEndPerformanceType = JSON.parse(performanceResponse.data)
                 const memberId = await buskerRepo.getMemberIdByBuskerId(buskerArr[i].id)
-                // await buskerRepo.createPerformanceComment({
-                //     id: 0, buskerId: buskerArr[i].id, performanceId: performanceData.performanceId
-                //     , comment: `comment${j}`, time: addDay(curTimeStr, date - j), memberId: memberId, buskerPerformance: undefined, busker: undefined
-                //     , member: undefined
-                // })
                 await buskerRepo.createPerformanceComment(new BuskerPerformanceComment(
                     buskerArr[i].id, performanceData.performanceId, memberId, `comment${j}`, addDay(curTimeStr, date - j))
                 )
@@ -78,6 +71,15 @@ export const init = async (req: Request, res: Response) => {
 
 }
 
+export const lineOrder = async (req: Request, res: Response) => {
+    await createBuskerDonateLineOrder(0)
+    res.status(200).send('line pay:order')
+}
+export const lineReceipt = async (req: Request, res: Response) => {
+    console.log('lineReceipt:', req.query);
+
+    res.redirect('http://localhost:3000/home?q=123456789')
+}
 
 
 // export const apply = async (req: Request, res: Response) => {

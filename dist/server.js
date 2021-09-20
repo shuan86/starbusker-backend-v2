@@ -49,11 +49,8 @@ const socketEvent = {
 };
 io.on('connection', (socket) => {
     //經過連線後在 console 中印出訊息
-    console.log('success connect !');
     socket.on('disconnecting', () => __awaiter(void 0, void 0, void 0, function* () {
-        console.log('disconnecting rooms:', socket.rooms, 'leave:', socket['room']); // the Set contains at least the socket ID
         yield socket.leave(socket['room']); //socket['id']
-        console.log('disconnect:', io.sockets.adapter.rooms.get(socket['room']));
         if (io.sockets.adapter.rooms.get(socket['room']) == undefined) { //room cancel
         }
         console.log("a user go out:", socket['account']);
@@ -70,7 +67,6 @@ io.on('connection', (socket) => {
     socket.on(socketEvent.sendMsgFromClient, (msg) => __awaiter(void 0, void 0, void 0, function* () {
         //回傳 message 給發送訊息的 Client
         const { account, data } = JSON.parse(msg); //buskerId
-        console.log('account:', socket['account'], 'buskerId:', socket['buskerId'], "sendMsg:", msg);
         const isSucessfulEnroll = yield buskerRepo_1.createPerformanceComment({
             id: 0, buskerId: socket['buskerId'], performanceId: socket['performanceId'],
             comment: data, time: undefined, memberId: socket['memberId'], buskerPerformance: undefined, busker: undefined,
@@ -80,10 +76,9 @@ io.on('connection', (socket) => {
             io.to(socket['room']).emit(socketEvent.sendMsgFromServer, msg);
     }));
     socket.on(socketEvent.joinMsg, (msg) => __awaiter(void 0, void 0, void 0, function* () {
-        const { buskerId, performanceId, account } = JSON.parse(msg); //buskerId
-        console.log('join msg:', msg);
-        const isExist = yield buskerRepo_1.isBuskerIdExist(buskerId);
-        if (isExist) {
+        const { performanceId, account } = JSON.parse(msg); //buskerId
+        const isPerformanceExist = yield buskerRepo_1.isPerformanceIdExist(performanceId);
+        if (isPerformanceExist) {
             const nowRoom = Object.keys(socket.rooms).find(room => {
                 return room !== socket.id;
             });
@@ -91,9 +86,9 @@ io.on('connection', (socket) => {
             if (nowRoom) {
                 socket.leave(nowRoom);
             }
-            const room = `room${buskerId}`;
+            const room = `room${isPerformanceExist.buskerId}`;
             yield socket.join(room); //id
-            socket['buskerId'] = buskerId;
+            socket['buskerId'] = isPerformanceExist.buskerId;
             socket['performanceId'] = performanceId;
             socket['room'] = room;
             socket['account'] = account;

@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GetBuskerType = exports.EnrollBuskerType = exports.Busker = exports.BuskerType = void 0;
+exports.ConfirmLinePayOrderType = exports.GetPerformanceType = exports.GetBuskerType = exports.EnrollBuskerType = exports.Busker = exports.BuskerType = void 0;
 const typeorm_1 = require("typeorm");
 const class_transformer_1 = require("class-transformer");
 const class_validator_1 = require("class-validator");
@@ -56,6 +56,18 @@ __decorate([
     __metadata("design:type", Number)
 ], Busker.prototype, "likeAmount", void 0);
 __decorate([
+    typeorm_1.Column({ length: 200 }),
+    __metadata("design:type", String)
+], Busker.prototype, "linePayOrderId", void 0);
+__decorate([
+    typeorm_1.Column(),
+    __metadata("design:type", String)
+], Busker.prototype, "linePayTransactionId", void 0);
+__decorate([
+    typeorm_1.Column({ length: 200 }),
+    __metadata("design:type", String)
+], Busker.prototype, "linePayOrderUrl", void 0);
+__decorate([
     typeorm_1.ManyToOne(type => Member_1.Member, member => member.buskers),
     typeorm_1.JoinColumn(),
     __metadata("design:type", Member_1.Member)
@@ -87,4 +99,17 @@ class GetBuskerType {
     }
 }
 exports.GetBuskerType = GetBuskerType;
+class GetPerformanceType {
+    constructor(performanceId) {
+        this.performanceId = performanceId;
+    }
+}
+exports.GetPerformanceType = GetPerformanceType;
+class ConfirmLinePayOrderType {
+    constructor(transactionId, orderId) {
+        this.transactionId = transactionId;
+        this.orderId = orderId;
+    }
+}
+exports.ConfirmLinePayOrderType = ConfirmLinePayOrderType;
 //# sourceMappingURL=Busker.js.map

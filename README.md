@@ -99,7 +99,7 @@ npm run tsc-prod
 
 | Code  | Description       | Result                                                                                               |
 | :---- | :---------------- | :--------------------------------------------------------------------------------------------------- |
-| `200` | sucessful login   | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}`|
+| `200` | sucessful login   | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name",loginMode:0(0:local,1:Line,2:Facebook,3:Google)}`|
 | `400` | parameter error   | `"parameter error"` |
 | `401` | login fail        | `"login fail"`|
 | `500` | server is busying | `"server is busying"`                                                                                |
@@ -131,7 +131,7 @@ npm run tsc-prod
 
 | Code  | Description               | Result                                             |
 | :---- | :------------------------ | :------------------------------------------------- |
-| `200` | sucessful get member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}"` |
+| `200` | sucessful get member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name",loginMode:0(0:local,1:Line,2:Facebook,3:Google)}"` |
 | `401` | failed to get member info | `"failed to get member info、you aren't member "`  |
 | `500` | server is busying         | `"server is busying"`                              |
 
@@ -155,7 +155,7 @@ npm run tsc-prod
 
 | Code  | Description                  | Result                                            |
 | :---- | :--------------------------- | :------------------------------------------------ |
-| `200` | sucessful update member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name"}`                                              |
+| `200` | sucessful update member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name",loginMode:0(0:local,1:Line,2:Facebook,3:Google)}`                                              |
 | `400` | parameter error   | `"parameter error"` |
 | `401` | failed to update member info | `"failed to get member info、you aren't member "` |
 | `500` | server is busying            | `"server is busying"`                             |
@@ -199,7 +199,7 @@ npm run tsc-prod
 
 | Code  | Description       | Result                                 |
 | :---- | :---------------- | :------------------------------------- |
-| `200` | sucessful apply   | `""`                                   |
+| `200` | sucessful apply   | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name",loginMode:0(0:local,1:Line,2:Facebook,3:Google)}"`                                  |
 | `400` | parameter error   | `"parameter error"`                    |
 | `401` | failed to apply   | `"failed to apply、you aren't member"` |
 | `500` | server is busying | `"server is busying"`                  |
@@ -217,7 +217,7 @@ npm run tsc-prod
 ##### Response
 | Code  | Description       | Result                                 |
 | :---- | :---------------- | :------------------------------------- |
-| `200` | sucessful get   | `[{"name":'a',"type":'singer'(buskerType),"description":'description1',"likeAmount":10,"avatar":'}']`" |
+| `200` | sucessful get   | `{"name":'a',"type":'singer'(buskerType),"description":'description1',"likeAmount":10,"avatar":'',linePayOrderUrl:''}` |
 | `400` | parameter error   | `"parameter error"`                    |
 | `401` | failed to get   | `"failed to apply、you aren't member"` |
 | `500` | server is busying | `"server is busying"`                  |
@@ -274,6 +274,19 @@ npm run tsc-prod
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to apply           | `"failed to apply、you aren't member or busker"` |
 | `500` | server is busying         | `"server is busying"`                            |
+---
+### Get all performances donate 
+##### Requset
+`get api/performancesDonate`
+`you need to login first`
+##### Response
+| Code  | Description               | Result                                           |
+| :---- | :------------------------ | :----------------------------------------------- |
+| `200` | sucessful get data | `"{"amount":0}"` |
+| `400` | parameter error           | `"parameter error"`                              |
+| `401` | failed to get             | `"failed to get data"` |
+| `500` | server is busying         | `"server is busying"`                            |
+
 ---
 ### Get furtrure performances data 
 ##### Requset

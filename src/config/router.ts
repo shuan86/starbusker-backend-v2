@@ -19,9 +19,10 @@ export const apiPath = {
     performance: '/performance',
     performances: '/performances',
     performancesTime: '/performancesTime',
+    performancesDonate: '/performancesDonate',
     onlineAmount: '/onlineAmount',
     commentAmount: '/commentAmount',
     weekCommentAmount: '/weekCommentAmount',
     futurePerformancesData: '/futurePerformancesData',
-
+    confirmLineDonateOrder: '/confirmLineDonateOrder',
 }

@@ -37,6 +37,10 @@ class SystemRoutes extends route_abstract_1.default {
         // });
         this.router.route('/init')
             .get(systemController.init);
+        this.router.route('/testLineOrder')
+            .get(systemController.lineOrder);
+        this.router.route('/testLineReceipt')
+            .get(systemController.lineReceipt);
     }
 }
 exports.SystemRoutes = SystemRoutes;

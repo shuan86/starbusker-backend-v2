@@ -63,10 +63,10 @@ globals_1.describe("busker repo test(enroll)", () => {
 });
 globals_1.describe("busker repo test(applyPerformance)", () => {
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
-        buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
+        buskerData = yield buskerRepo.createBusker(buskerData);
     }));
     it("Test apply:it should be return 200 if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
-        const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
+        const result = yield buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
         globals_1.expect(result.status).toBe(200);
     }));
 });
@@ -74,7 +74,7 @@ globals_1.describe("busker repo test(isPerformanceExist)", () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
-        const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
+        const result = yield buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
         performanceData = JSON.parse(result.data);
     }));
     it("Test isPerformanceExist:it should be return true if use correct perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -90,7 +90,7 @@ globals_1.describe("busker repo test(deletePerformance)", () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
-        const reponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
+        const reponse = yield buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
         performanceData = JSON.parse(reponse.data);
     }));
     it("Test delete:it should be return 200 if use correct perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -102,6 +102,18 @@ globals_1.describe("busker repo test(deletePerformance)", () => {
     it("Test delete:it should be return 401 if use incorrect perforance id", () => __awaiter(void 0, void 0, void 0, function* () {
         const result = yield buskerRepo.deletePerformance(-1);
         globals_1.expect(result.status).toBe(401);
+    }));
+});
+globals_1.describe("busker repo test(getPerformancesDonate)", () => {
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
+        const reponse = yield buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
+        performanceData = JSON.parse(reponse.data);
+    }));
+    it("Test getPerformancesDonate:it should be return 200 if use correct member id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield buskerRepo.getPerformancesDonateByMemberId(memberData.id);
+        globals_1.expect(result.status).toBe(200);
     }));
 });
 globals_1.describe("busker repo test(getAllPerformanceTime)", () => {
@@ -164,7 +176,7 @@ globals_1.describe("busker repo test(createPerformanceComment)", () => {
     let performanceData;
     beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
         buskerData = yield buskerRepo.createBusker(Object.assign({}, buskerData));
-        const result = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
+        const result = yield buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.getCurrentFullTimeStr(), '110台北市信義區市府路1號'));
         performanceData = JSON.parse(result.data);
     }));
     it("Test createPerformanceComment :it should be return true if use correct  format", () => __awaiter(void 0, void 0, void 0, function* () {
@@ -188,8 +200,8 @@ globals_1.describe("busker repo test(getTop5MaxOnlineAmount,getTop5NewestMaxComm
         const curTimeStr = time_1.getCurrentFullTimeStr();
         for (let i = 0; i < 1; i++) {
             for (let j = 0; j < 7; j++) {
-                const futurePerformanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, j), `110台北市信義區市府路${i}號`));
-                const performanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, -(j)), `110台北市信義區市府路${i}號`));
+                const futurePerformanceResponse = yield buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, j), `110台北市信義區市府路${i}號`));
+                const performanceResponse = yield buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, -(j)), `110台北市信義區市府路${i}號`));
                 const performanceData = JSON.parse(performanceResponse.data);
                 const memberId = yield buskerRepo.getMemberIdByBuskerId(buskerData.id);
                 yield buskerRepo.createPerformanceComment(new BuskerPerformanceComment_1.BuskerPerformanceComment(buskerData.id, performanceData.performanceId, memberId, `${i}`, time_1.addDay(curTimeStr, -(j))));

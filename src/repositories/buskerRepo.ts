@@ -2,7 +2,7 @@ import { Busker, BuskerType, EnrollBuskerType, } from "../entities/Busker";
 import { Member } from "../entities/Member";
 import {
     BuskerPerformance, ApplyPerformanceType, FrontEndPerformanceType
-    , FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType
+    , FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType, FrontEndPerformancesDoanteType
 } from "../entities/BuskerPerformance";
 import { getBuskerRepo, getBuskerPerformanceRepo, getMemberRepos, getBuskerPerformanceCommentRepo } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
@@ -14,7 +14,8 @@ import {
 import moment from 'moment';
 import 'moment-timezone';
 import { addDay, addDayReturnYearMonthDate } from '../moudles/time';
-
+import { getMemberInfoDataById } from "./memberRepo";
+import { createBuskerDonateLineOrder } from "../moudles/linePay";
 let mockCount = 0
 export const generateEnrollBusker = (description: string, type: BuskerType): EnrollBuskerType => {
     const data = new EnrollBuskerType(description, type)
@@ -44,7 +45,7 @@ export const generatePerformanceComment = (buskerId: number, performanceId: numb
 
 export const generateFixedMockData = (memberId: number): Busker => {
     const mockData = new Busker(memberId, BuskerType.singer, `description${mockCount}`, 0)
-    return { ...mockData }
+    return mockData
 }
 export const generateDiffMockData = (memberId: number): Busker => {
     const mockData = new Busker(memberId, BuskerType.singer, `description${mockCount}`, 0)
@@ -95,21 +96,9 @@ export const generateDiffPerformanceData = (buskerId: number, time: string): Bus
         count = Math.floor(count % locationArr.length)
     }
     const mockData = new BuskerPerformance(buskerId, `title${mockCount}`
-        , `description${mockCount}`, time, count, count, locationArr[count].latitude
+        , `description${mockCount}`, time, 0, count, locationArr[count].latitude
         , locationArr[count].longtiude, locationArr[count].location
     )
-    // const mockData: BuskerPerformance = {
-    //     id: 0, buskerId: buskerId, title: `title${mockCount}`
-    //     , description: `description${mockCount}`
-    //     , time: time
-    //     , lineMoney: 0
-    //     , highestOnlineAmount: 0
-    //     , latitude: locationArr[count].latitude
-    //     , longitude: locationArr[count].longtiude
-    //     , location: locationArr[count].location
-    //     , busker: undefined
-    //     , buskerPerformanceComments: undefined
-    // }
     mockCount++
     return { ...mockData }
 }
@@ -124,8 +113,10 @@ export const enroll = async (data: Busker) => {
             repoData.status = 401
         }
         else {
+
             repoData.status = 200
-            repoData.data = 'enroll suessful'
+            const infoData = await getMemberInfoDataById(busker.memberId)
+            repoData.data = JSON.stringify(infoData)
         }
         return repoData
     } catch (error) {
@@ -136,12 +127,20 @@ export const enroll = async (data: Busker) => {
 export const createBusker = async (data: Busker): Promise<Busker> => {
     try {
         const buskerRepo = getBuskerRepo()
-        const busker: Busker = await buskerRepo.findOne({ memberId: data.memberId })
-        if (busker) {
+        const isBuskerExist: Busker = await buskerRepo.findOne({ memberId: data.memberId })
+        if (isBuskerExist) {
             return null
         }
         else {
-            return await buskerRepo.save(buskerRepo.create(data))
+
+            const orderReuslt = await createBuskerDonateLineOrder(data.memberId)
+            if (orderReuslt.returnCode == '0000') {
+                data.linePayOrderId = orderReuslt.orderId
+                data.linePayTransactionId = orderReuslt.info.transactionId.toString()
+                data.linePayOrderUrl = orderReuslt.info.paymentUrl.web
+                return await buskerRepo.save(buskerRepo.create(data))
+            }
+            return null
         }
     } catch (error) {
         console.error('createBusker:', error);
@@ -216,17 +215,29 @@ export const isPerformanceExist = async (id: number): Promise<boolean> => {
 }
 
 
-export const applyPerformance = async (data: BuskerPerformance): Promise<ReponseType> => {
+export const applyPerformance = async (memberId: number, data: BuskerPerformance): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {
         const performanceRepo = getBuskerPerformanceRepo()
+        const orderReuslt = await createBuskerDonateLineOrder(memberId)
+        if (orderReuslt.returnCode == '0000') {
+            data.linePayOrderId = orderReuslt.orderId
+            data.linePayTransactionId = orderReuslt.info.transactionId.toString()
+            data.linePayOrderUrl = orderReuslt.info.paymentUrl.web
 
+        }
+        else {
+            repoData.data = 'line error'
+            return repoData
+        }
         const performanceResult = await performanceRepo.save(performanceRepo.create(data))
         if (performanceResult) {
             repoData.status = 200
             const reponseData: FrontEndPerformanceType = await performanceRepo.createQueryBuilder('p')
                 .select(['p.id performanceId ', 'm.name name', 'm.email email'
-                    , 'p.location location', 'p.description description', 'p.title title', 'p.latitude latitude', 'p.longitude longitude', 'p.time time'])
+                    , 'p.location location', 'p.description description', 'p.title title'
+                    , 'p.latitude latitude', 'p.longitude longitude', 'p.time time'
+                ])
                 .innerJoin(Busker, 'b', `b.id=${performanceResult.buskerId}`)
                 .innerJoin(Member, 'm', 'm.id=b.memberId')
                 .where(`p.id=${performanceResult.id}`)
@@ -306,13 +317,27 @@ export const isBuskerIdExist = async (id: number): Promise<boolean> => {
         return false
     }
 }
+export const isPerformanceIdExist = async (id: number): Promise<BuskerPerformance> => {
+    try {
+        const repo = getBuskerPerformanceRepo()
+        const performance = await repo.findOne({ id })
+        if (performance)
+            return performance
+        else
+            return null
+    } catch (error) {
+        console.error('isBuskerIdExist:', error);
+
+    }
+    return null
+}
 //not test
 export const getBuskerInfoByBuskerId = async (buskerId: number): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {
         const buskerRepo = getBuskerRepo()
         const data = await buskerRepo.createQueryBuilder('b')
-            .select(['b.description description', 'b.likeAmount  likeAmount', 'b.type type', 'm.name name', 'm.avatar avatar'])
+            .select(['b.description description', 'b.likeAmount  likeAmount', 'b.type type', 'b.linePayOrderUrl linePayOrderUrl', 'm.name name', 'm.avatar avatar'])
             .innerJoin(Member, "m", "m.id = b.memberId")
             .where(`b.id=:buskerId`, { buskerId })
             .getRawOne()
@@ -333,6 +358,57 @@ export const getBuskerInfoByBuskerId = async (buskerId: number): Promise<Reponse
         return repoData
     }
 }
+export const getPerformanceInfo = async (performanceId: number): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const performanceRepo = getBuskerPerformanceRepo()
+        const data = await performanceRepo.createQueryBuilder('p')
+            .select(['b.description description', 'b.likeAmount  likeAmount'
+                , 'b.type type', 'p.linePayOrderUrl linePayOrderUrl', 'm.name name', 'm.avatar avatar'])
+            .where(`p.id=:performanceId`, { performanceId })
+            .innerJoin(Busker, "b", `b.id=p.buskerId`)
+            .innerJoin(Member, "m", "m.id = b.memberId")
+            .getRawOne()
+        if (data) {
+            data.avatar = data.avatar == null ? '' : Buffer.from(data.avatar).toString('base64')
+            repoData.status = 200
+            repoData.data = JSON.stringify(data)
+        }
+        else {
+            repoData.status = 401
+        }
+        return repoData
+    } catch (error) {
+        console.error('getPerformanceInfo:', error);
+        return repoData
+    }
+}
+export const getPerformancesDonateByMemberId = async (memberId: number): Promise<ReponseType> => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const memberRepo = getMemberRepos()
+        const data: FrontEndPerformancesDoanteType = await memberRepo.createQueryBuilder('m')
+            .select(['sum(p.lineMoney) amount'])
+            .innerJoin(Busker, 'b', `b.memberId=m.id and m.id=:memberId`, { memberId })
+            .innerJoin(BuskerPerformance, 'p', `p.buskerId=b.id`)
+            .groupBy('p.buskerId')
+            .getRawOne()
+
+        if (data) {
+            repoData.status = 200
+            repoData.data = JSON.stringify(data)
+        }
+        else {
+            repoData.status = 401
+        }
+        return repoData
+    } catch (error) {
+        console.error('getPerformancesDonate:', error);
+        return repoData
+    }
+}
+
+
 //not test
 export const updateMaxChatroomOnlineAmount = async (performanceId: number, onlineAmount: number): Promise<boolean> => {
     let repoData: ReponseType = { status: 501, data: '' }
@@ -361,6 +437,23 @@ export const getIdByMemberId = async (id: number): Promise<number> => {
         console.error('getIdByMemberId:', error);
     }
 }
+export const getNameBukserIdPerformanceIdByLinePayOrderId = async (orderId: string): Promise<{ name: string, performanceId: number, buskerId: number }> => {
+    try {
+        const performanceRepo = getBuskerPerformanceRepo()
+        const data = await performanceRepo.createQueryBuilder('p')
+            .select(['p.id performanceId', 'p.buskerId buskerId', 'm.name name'])
+            .where(`p.linePayOrderId=:orderId`, { orderId: orderId })
+            .innerJoin(Busker, 'b', `b.id = p.buskerId`)
+            .innerJoin(Member, 'm', `m.id = b.memberId`)
+            .getRawOne()
+        if (data)
+            return { name: data.name, performanceId: data.performanceId, buskerId: data.buskerId }
+        else
+            return null
+    } catch (error) {
+        console.error('getNameBukserIdPerformanceIdByLinePayOrderId:', error);
+    }
+}
 export const getMemberIdByBuskerId = async (id: number): Promise<number> => {
     try {
         const repo = getBuskerRepo()
@@ -371,6 +464,23 @@ export const getMemberIdByBuskerId = async (id: number): Promise<number> => {
             return null
     } catch (error) {
         console.error('getIdByMemberId:', error);
+    }
+}
+export const updateLinePayMoneyByPerformanceId = async (performanceId: number, money: number) => {
+    try {
+        const performanceRepo = getBuskerPerformanceRepo()
+        const performance = await performanceRepo.findOne({ id: performanceId })
+        if (performance) {
+            const result = await performanceRepo.update(performanceId, { lineMoney: performance.lineMoney + money })
+            console.log('updateLinePayMoneyBy PerformanceId:', performanceId, performance.lineMoney, money);
+
+            if (result)
+                return true
+        }
+        return false
+    } catch (error) {
+        console.error('updateLinePayMoneyByPerformanceId:', error);
+        return false
     }
 }
 export const createPerformanceComment = async (data: BuskerPerformanceComment): Promise<Boolean> => {
@@ -464,8 +574,8 @@ export const getWeekCommentAmount = async (buskerId: number) => {
         const sevenDaysAgo = addDayReturnYearMonthDate(curTime, -7)
         const result: FrontEndWeekCommentAmountType[] = await commentRepo.createQueryBuilder('c')//FrontEndWeekCommentAmountType[]
             .select(['count(c.time) count', "DATE_FORMAT(c.time,'%Y/%m/%d') time"])
-            .where(`c.buskerId = ${buskerId}`)
-            .where('c.time > :sevenDaysAgo', { sevenDaysAgo: sevenDaysAgo })
+            .andWhere(`c.buskerId = ${buskerId}`)
+            .andWhere('c.time > :sevenDaysAgo', { sevenDaysAgo: sevenDaysAgo })
             .andWhere('c.time <= :curTime', { curTime: curTime })
             .groupBy('date(c.time)')
             .orderBy('c.time', 'DESC')
@@ -496,7 +606,8 @@ export const getFuturePerformancesData = async (buskerId: number) => {
             ])
             .innerJoin(Busker, 'b', `b.id=${buskerId}`)
             .innerJoin(Member, 'm', 'm.id=b.memberId')
-            .where('p.time >= :curTime', { curTime: curTime })
+            .andWhere(`p.buskerId=${buskerId}`)
+            .andWhere('p.time >= :curTime', { curTime: curTime })
             .orderBy('p.time', 'ASC')
             .getRawMany()
         if (result) {

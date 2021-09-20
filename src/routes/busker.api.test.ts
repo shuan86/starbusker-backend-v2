@@ -72,7 +72,11 @@ const requestFuturePerformancesData = async (data = null) => {
         .set("Cookie", [cookies])
     return result
 }
-
+const requestGetPerformancesDonate = async (data = null) => {
+    const result = request(app).get(prefixApiPath + apiPath.performancesDonate)
+        .set("Cookie", [cookies])
+    return result
+}
 describe(`test post ${prefixApiPath}${apiPath.enroll}(enroll busker)`, () => {
     it(" it should return status 200 if correct enroll", async () => {
         const enrollResult = await requestEnrollBusker(enrollBuskerData)
@@ -163,6 +167,19 @@ describe(`test get ${prefixApiPath}${apiPath.performance}(get specific busker pe
         expect(result.statusCode).toBe(400);
     });
 });
+describe(`test get ${prefixApiPath}${apiPath.performancesDonate}(get all performances donate )`, () => {
+    let performanceData: BuskerPerformance
+    beforeEach(async () => {
+        const enrollBuskerResult = await requestEnrollBusker(enrollBuskerData)
+        performanceData = buskerRepo.generateDiffPerformanceData(memberId, getCurrentFullTimeStr())
+        const applyResult = await requestApplyPerformance(performanceData)
+    });
+    it(" it should return status 200 if use correct member id", async () => {
+        const result = await requestGetPerformancesDonate()
+        expect(result.statusCode).toBe(200);
+    });
+
+});
 describe(`test get ${prefixApiPath}${apiPath.onlineAmount} ${prefixApiPath}${apiPath.commentAmount} ${prefixApiPath}${apiPath.weekCommentAmount}(
     getTop5NewestHighestOnlineAmount :get  your Newest number of people in the chat room (only top 5 new)
     getTop5HighestCommentAmount:get  your highest amount of comments (only top 5 high)
@@ -176,7 +193,7 @@ describe(`test get ${prefixApiPath}${apiPath.onlineAmount} ${prefixApiPath}${api
 
         for (let i = 1; i < 1; i++) {
             const buskerId = await buskerRepo.getIdByMemberId(memberId)
-            const futurePerformanceResponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription'
+            const futurePerformanceResponse = await buskerRepo.applyPerformance(memberId, buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription'
                 , addDay(curTimeStr, i), `110台北市信義區市府路${i}號`))
             for (let j = 0; j < 1; j++) {
                 performanceData = buskerRepo.generateDiffPerformanceData(buskerId, addDay(curTimeStr, -(j)))

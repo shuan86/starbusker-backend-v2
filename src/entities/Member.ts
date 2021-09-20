@@ -16,7 +16,7 @@ export enum LoginModeEnum {
 export class Member {
   @PrimaryGeneratedColumn()
   id: number;
-  @Column({ length: 20, nullable: false })
+  @Column({ length: 50, nullable: false })
   @IsDefined()
   @Expose()
   account: string;
@@ -28,7 +28,7 @@ export class Member {
   @IsDefined()
   @Expose()
   male: boolean;
-  @Column({ length: 20, nullable: false })
+  @Column({ length: 50, nullable: false })
   @IsDefined()
   @Expose()
   email: string;
@@ -78,6 +78,7 @@ export type FrontEndMemberDataType = {
   exp: number
   avatar: string
   isBusker: boolean
+  loginMode: LoginModeEnum
 }
 export class UpdateMemberInfoType {
   name: string

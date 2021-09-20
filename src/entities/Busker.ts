@@ -29,6 +29,13 @@ export class Busker {
   description: string
   @Column({ default: 0, nullable: true })
   likeAmount: number
+  @Column({ length: 200 })
+  linePayOrderId: string
+  @Column()
+  linePayTransactionId: string
+  @Column({ length: 200 })
+  linePayOrderUrl: string
+
   // @ManyToOne(type => Member, member => member.buskers, { onDelete: 'CASCADE' })
   @ManyToOne(type => Member, member => member.buskers)
   @JoinColumn()
@@ -59,5 +66,20 @@ export class GetBuskerType {
   id: number
   constructor(id: number) {
     this.id = id
+  }
+}
+export class GetPerformanceType {
+  performanceId: number
+  constructor(performanceId: number) {
+    this.performanceId = performanceId
+  }
+}
+export class ConfirmLinePayOrderType {
+  transactionId: string
+  orderId: string
+
+  constructor(transactionId: string, orderId: string) {
+    this.transactionId = transactionId
+    this.orderId = orderId
   }
 }

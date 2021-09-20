@@ -71,6 +71,7 @@ export const lineCallback = async (req: Request, res: Response) => {
             res.status(result.status).redirect(url)
         }
         else {
+            await memberRepo.updateMemberLoginMode(memberId, LoginModeEnum.Line)
             await memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name })
             req.login(memberId, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
                 if (err) {
@@ -90,7 +91,8 @@ export const fbCallback = async (req: Request, res: Response) => {
         const memberId = await memberRepo.getIdByEmail(email)
         const url = `${process.env.CLIENT_URL}?loginMode=facebook`
         if (memberId == -1) {
-            const member = await memberRepo.createMember(new Member(email, name + '465789', true, email, name, picture, LoginModeEnum.Line, ''))
+            const member = await memberRepo.createMember(new Member(email, name + '465789'
+                , true, email, name, picture, LoginModeEnum.Facebook, ''))
             req.login(member.id, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
                 if (err) {
                     console.error('err:', err);
@@ -100,6 +102,7 @@ export const fbCallback = async (req: Request, res: Response) => {
             res.status(result.status).redirect(url)
         }
         else {
+            await memberRepo.updateMemberLoginMode(memberId, LoginModeEnum.Facebook)
             await memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name })
             req.login(memberId, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
                 if (err) {
@@ -117,12 +120,11 @@ export const loginWithGoogle = () => {
 export const googleCallback = async (req: Request, res: Response) => {
     passport.authenticate('google', async (err, data, info) => {
         const { email, picture, name } = data
-        console.log('data:', data);
-
         const memberId = await memberRepo.getIdByEmail(email)
         const url = `${process.env.CLIENT_URL}?loginMode=facebook`
         if (memberId == -1) {
-            const member = await memberRepo.createMember(new Member(email, name + '465789', true, email, name, picture, LoginModeEnum.Line, ''))
+            const member = await memberRepo.createMember(new Member(email, name + '465789'
+                , true, email, name, picture, LoginModeEnum.Goolgle, ''))
             req.login(member.id, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
                 if (err) {
                     console.error('err:', err);
@@ -132,6 +134,7 @@ export const googleCallback = async (req: Request, res: Response) => {
             res.status(result.status).redirect(url)
         }
         else {
+            await memberRepo.updateMemberLoginMode(memberId, LoginModeEnum.Goolgle)
             await memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name })
             req.login(memberId, (err) => { // I added req.login() here and now deserializeUser is being called and req.user is being set correctly.
                 if (err) {

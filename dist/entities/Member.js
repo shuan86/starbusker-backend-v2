@@ -39,7 +39,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Member.prototype, "id", void 0);
 __decorate([
-    typeorm_1.Column({ length: 20, nullable: false }),
+    typeorm_1.Column({ length: 50, nullable: false }),
     class_validator_1.IsDefined(),
     class_transformer_1.Expose(),
     __metadata("design:type", String)
@@ -57,7 +57,7 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Member.prototype, "male", void 0);
 __decorate([
-    typeorm_1.Column({ length: 20, nullable: false }),
+    typeorm_1.Column({ length: 50, nullable: false }),
     class_validator_1.IsDefined(),
     class_transformer_1.Expose(),
     __metadata("design:type", String)

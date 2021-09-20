@@ -1,4 +1,4 @@
-import { Member, LoginModeEnum, LoginType, FrontEndMemberDataType, UpdateMemberInfoType } from "../entities/Member";
+import { Member, LoginModeEnum, LoginType, FrontEndMemberDataType, UpdateMemberInfoType, } from "../entities/Member";
 import { IMember } from "../interfaces/IMember";
 import { getMemberRepos } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
@@ -57,6 +57,7 @@ export const enroll = async (data: Member): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {
         const memberRepo = getMemberRepos()
+        data.loginMode = LoginModeEnum.local
         const member = await createMember(data)
         if (member == null) {
             repoData.data = 'enroll fail:memberExist'
@@ -187,7 +188,8 @@ export const getMemberInfoDataById = async (id: number): Promise<FrontEndMemberD
                 name: member.name,
                 exp: member.exp,
                 avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),//member.avatar(blob) if you want to send image data ,you need to convert blob object into base64 string
-                isBusker: isBusker
+                loginMode: member.loginMode,
+                isBusker: isBusker,
             }
             return frontEndMemberData
         }
@@ -218,7 +220,8 @@ export const updateMemberInfoById = async (id: number, infoData: UpdateMemberInf
                 name: member.name,
                 exp: member.exp,
                 avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),
-                isBusker: isBusker
+                isBusker: isBusker,
+                loginMode: member.loginMode
             }
             repoData.data = JSON.stringify(data)
         }
@@ -234,7 +237,17 @@ export const updateMemberInfoById = async (id: number, infoData: UpdateMemberInf
 
     }
 }
-
+export const updateMemberLoginMode = async (id: number, loginMode: LoginModeEnum): Promise<Boolean> => {
+    try {
+        const memberRepo = getMemberRepos()
+        memberRepo.update(id, { loginMode: loginMode })
+        return true
+    }
+    catch (error) {
+        console.error('updateMemberLoginMode:', error);
+    }
+    return false
+}
 export const getIdByAccount = async (account: string): Promise<number> => {
     try {
         const repo = getMemberRepos()

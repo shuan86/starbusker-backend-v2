@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.updateMemberPassword = exports.getIdByEmail = exports.getIdByAccount = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
+exports.clear = exports.updateMemberPassword = exports.getIdByEmail = exports.getIdByAccount = exports.updateMemberLoginMode = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
 const Member_1 = require("../entities/Member");
 const databaseRepo_1 = require("./databaseRepo");
 const buskerRepo = __importStar(require("./buskerRepo"));
@@ -87,6 +87,7 @@ const enroll = (data) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
     try {
         const memberRepo = databaseRepo_1.getMemberRepos();
+        data.loginMode = Member_1.LoginModeEnum.local;
         const member = yield exports.createMember(data);
         if (member == null) {
             repoData.data = 'enroll fail:memberExist';
@@ -223,7 +224,8 @@ const getMemberInfoDataById = (id) => __awaiter(void 0, void 0, void 0, function
                 name: member.name,
                 exp: member.exp,
                 avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),
-                isBusker: isBusker
+                loginMode: member.loginMode,
+                isBusker: isBusker,
             };
             return frontEndMemberData;
         }
@@ -255,7 +257,8 @@ const updateMemberInfoById = (id, infoData) => __awaiter(void 0, void 0, void 0,
                 name: member.name,
                 exp: member.exp,
                 avatar: member.avatar == null ? '' : Buffer.from(member.avatar).toString('base64'),
-                isBusker: isBusker
+                isBusker: isBusker,
+                loginMode: member.loginMode
             };
             repoData.data = JSON.stringify(data);
         }
@@ -271,6 +274,18 @@ const updateMemberInfoById = (id, infoData) => __awaiter(void 0, void 0, void 0,
     }
 });
 exports.updateMemberInfoById = updateMemberInfoById;
+const updateMemberLoginMode = (id, loginMode) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const memberRepo = databaseRepo_1.getMemberRepos();
+        memberRepo.update(id, { loginMode: loginMode });
+        return true;
+    }
+    catch (error) {
+        console.error('updateMemberLoginMode:', error);
+    }
+    return false;
+});
+exports.updateMemberLoginMode = updateMemberLoginMode;
 const getIdByAccount = (account) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const repo = databaseRepo_1.getMemberRepos();

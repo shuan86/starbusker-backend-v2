@@ -107,6 +107,7 @@ const lineCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             res.status(result.status).redirect(url);
         }
         else {
+            yield memberRepo.updateMemberLoginMode(memberId, Member_1.LoginModeEnum.Line);
             yield memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name });
             req.login(memberId, (err) => {
                 if (err) {
@@ -128,7 +129,7 @@ const fbCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const memberId = yield memberRepo.getIdByEmail(email);
         const url = `${process.env.CLIENT_URL}?loginMode=facebook`;
         if (memberId == -1) {
-            const member = yield memberRepo.createMember(new Member_1.Member(email, name + '465789', true, email, name, picture, Member_1.LoginModeEnum.Line, ''));
+            const member = yield memberRepo.createMember(new Member_1.Member(email, name + '465789', true, email, name, picture, Member_1.LoginModeEnum.Facebook, ''));
             req.login(member.id, (err) => {
                 if (err) {
                     console.error('err:', err);
@@ -138,6 +139,7 @@ const fbCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             res.status(result.status).redirect(url);
         }
         else {
+            yield memberRepo.updateMemberLoginMode(memberId, Member_1.LoginModeEnum.Facebook);
             yield memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name });
             req.login(memberId, (err) => {
                 if (err) {
@@ -156,11 +158,10 @@ exports.loginWithGoogle = loginWithGoogle;
 const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     passport_1.default.authenticate('google', (err, data, info) => __awaiter(void 0, void 0, void 0, function* () {
         const { email, picture, name } = data;
-        console.log('data:', data);
         const memberId = yield memberRepo.getIdByEmail(email);
         const url = `${process.env.CLIENT_URL}?loginMode=facebook`;
         if (memberId == -1) {
-            const member = yield memberRepo.createMember(new Member_1.Member(email, name + '465789', true, email, name, picture, Member_1.LoginModeEnum.Line, ''));
+            const member = yield memberRepo.createMember(new Member_1.Member(email, name + '465789', true, email, name, picture, Member_1.LoginModeEnum.Goolgle, ''));
             req.login(member.id, (err) => {
                 if (err) {
                     console.error('err:', err);
@@ -170,6 +171,7 @@ const googleCallback = (req, res) => __awaiter(void 0, void 0, void 0, function*
             res.status(result.status).redirect(url);
         }
         else {
+            yield memberRepo.updateMemberLoginMode(memberId, Member_1.LoginModeEnum.Goolgle);
             yield memberRepo.updateMemberInfoById(memberId, { email, avatar: picture, name });
             req.login(memberId, (err) => {
                 if (err) {

@@ -1,5 +1,7 @@
 
 import { mockConnection } from "../mock/mockDbTestConnection";
+import { Member } from "../entities/Member";
+import { Busker } from "../entities/Busker";
 import * as memberRepo from "./memberRepo";
 import * as buskerRepo from "./buskerRepo";
 import { FrontEndPerformanceType, FrontEndHighestOnlineAmountType, FrontEndFuturePerformanceDataType, } from "../entities/BuskerPerformance";
@@ -8,19 +10,21 @@ import { BuskerPerformanceComment, FrontEndCommentDataType, FrontEndHighestComen
 import { describe, expect, test } from '@jest/globals'
 import { ReponseType } from "types/reponseType";
 import { addTime, getCurrentFullTimeStr, addDay } from '../moudles/time';
+import { createBuskerDonateLineOrder } from '../moudles/linePay';
 
 beforeAll(async () => {
     const connection = await mockConnection.create();
     console.log("beforeAll Has connected to DB? ", connection.isConnected);
 });
-let memberData
-let buskerData
+let memberData: Member
+let buskerData: Busker
 beforeEach(async () => {
     //create member
     await mockConnection.clearAllRepo();
     memberData = await memberRepo.generateDiffMemberMockData()
     memberData = await memberRepo.createMember({ ...memberData })
     buskerData = buskerRepo.generateFixedMockData(memberData.id)
+
     // buskerData = await buskerRepo.createBusker({ ...buskerData })
 });
 afterAll(async () => {
@@ -37,12 +41,13 @@ describe("busker repo test(enroll)", () => {
         expect(result1.status).toBe(200)
     })
 })
+
 describe("busker repo test(applyPerformance)", () => {
     beforeEach(async () => {
-        buskerData = await buskerRepo.createBusker({ ...buskerData })
+        buskerData = await buskerRepo.createBusker(buskerData)
     });
     it("Test apply:it should be return 200 if use correct  format", async () => {
-        const result = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+        const result = await buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
             , getCurrentFullTimeStr(), '110台北市信義區市府路1號'))
         expect(result.status).toBe(200)
     })
@@ -51,7 +56,7 @@ describe("busker repo test(isPerformanceExist)", () => {
     let performanceData: FrontEndPerformanceType
     beforeEach(async () => {
         buskerData = await buskerRepo.createBusker({ ...buskerData })
-        const result = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+        const result = await buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
             , getCurrentFullTimeStr(), '110台北市信義區市府路1號'))
 
         performanceData = JSON.parse(result.data)
@@ -69,7 +74,7 @@ describe("busker repo test(deletePerformance)", () => {
     let performanceData: FrontEndPerformanceType
     beforeEach(async () => {
         buskerData = await buskerRepo.createBusker({ ...buskerData })
-        const reponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+        const reponse = await buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
             , getCurrentFullTimeStr(), '110台北市信義區市府路1號'))
         performanceData = JSON.parse(reponse.data)
     });
@@ -85,7 +90,19 @@ describe("busker repo test(deletePerformance)", () => {
     })
 
 })
-
+describe("busker repo test(getPerformancesDonate)", () => {
+    let performanceData: FrontEndPerformanceType
+    beforeEach(async () => {
+        buskerData = await buskerRepo.createBusker({ ...buskerData })
+        const reponse = await buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+            , getCurrentFullTimeStr(), '110台北市信義區市府路1號'))
+        performanceData = JSON.parse(reponse.data)
+    });
+    it("Test getPerformancesDonate:it should be return 200 if use correct member id", async () => {
+        const result = await buskerRepo.getPerformancesDonateByMemberId(memberData.id)
+        expect(result.status).toBe(200)
+    })
+})
 describe("busker repo test(getAllPerformanceTime)", () => {
     let memberArr = []
     let buskerArr = []
@@ -155,7 +172,7 @@ describe("busker repo test(createPerformanceComment)", () => {
     let performanceData: FrontEndPerformanceType
     beforeEach(async () => {
         buskerData = await buskerRepo.createBusker({ ...buskerData })
-        const result = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+        const result = await buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
             , getCurrentFullTimeStr(), '110台北市信義區市府路1號'))
         performanceData = JSON.parse(result.data)
     });
@@ -185,9 +202,9 @@ describe("busker repo test(getTop5MaxOnlineAmount,getTop5NewestMaxCommentAmount,
         for (let i = 0; i < 1; i++) {
 
             for (let j = 0; j < 7; j++) {
-                const futurePerformanceResponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+                const futurePerformanceResponse = await buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
                     , addDay(curTimeStr, j), `110台北市信義區市府路${i}號`))
-                const performanceResponse = await buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
+                const performanceResponse = await buskerRepo.applyPerformance(buskerData.memberId, buskerRepo.generatePerformance(buskerData.id, 'mockTitle', 'mockDecscription'
                     , addDay(curTimeStr, -(j)), `110台北市信義區市府路${i}號`))
                 const performanceData: FrontEndPerformanceType = JSON.parse(performanceResponse.data)
                 const memberId = await buskerRepo.getMemberIdByBuskerId(buskerData.id)

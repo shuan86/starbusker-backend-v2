@@ -99,6 +99,11 @@ const requestFuturePerformancesData = (data = null) => __awaiter(void 0, void 0,
         .set("Cookie", [cookies]);
     return result;
 });
+const requestGetPerformancesDonate = (data = null) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = supertest_1.default(app_1.app).get(router_1.prefixApiPath + router_1.apiPath.performancesDonate)
+        .set("Cookie", [cookies]);
+    return result;
+});
 describe(`test post ${router_1.prefixApiPath}${router_1.apiPath.enroll}(enroll busker)`, () => {
     it(" it should return status 200 if correct enroll", () => __awaiter(void 0, void 0, void 0, function* () {
         const enrollResult = yield requestEnrollBusker(enrollBuskerData);
@@ -184,6 +189,18 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performance}(get 
         expect(result.statusCode).toBe(400);
     }));
 });
+describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.performancesDonate}(get all performances donate )`, () => {
+    let performanceData;
+    beforeEach(() => __awaiter(void 0, void 0, void 0, function* () {
+        const enrollBuskerResult = yield requestEnrollBusker(enrollBuskerData);
+        performanceData = buskerRepo.generateDiffPerformanceData(memberId, time_1.getCurrentFullTimeStr());
+        const applyResult = yield requestApplyPerformance(performanceData);
+    }));
+    it(" it should return status 200 if use correct member id", () => __awaiter(void 0, void 0, void 0, function* () {
+        const result = yield requestGetPerformancesDonate();
+        expect(result.statusCode).toBe(200);
+    }));
+});
 describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.onlineAmount} ${router_1.prefixApiPath}${router_1.apiPath.commentAmount} ${router_1.prefixApiPath}${router_1.apiPath.weekCommentAmount}(
     getTop5NewestHighestOnlineAmount :get  your Newest number of people in the chat room (only top 5 new)
     getTop5HighestCommentAmount:get  your highest amount of comments (only top 5 high)
@@ -196,7 +213,7 @@ describe(`test get ${router_1.prefixApiPath}${router_1.apiPath.onlineAmount} ${r
         const curTimeStr = time_1.getCurrentFullTimeStr();
         for (let i = 1; i < 1; i++) {
             const buskerId = yield buskerRepo.getIdByMemberId(memberId);
-            const futurePerformanceResponse = yield buskerRepo.applyPerformance(buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, i), `110台北市信義區市府路${i}號`));
+            const futurePerformanceResponse = yield buskerRepo.applyPerformance(memberId, buskerRepo.generatePerformance(buskerId, 'mockTitle', 'mockDecscription', time_1.addDay(curTimeStr, i), `110台北市信義區市府路${i}號`));
             for (let j = 0; j < 1; j++) {
                 performanceData = buskerRepo.generateDiffPerformanceData(buskerId, time_1.addDay(curTimeStr, -(j)));
                 const applyResult = yield requestApplyPerformance(performanceData);

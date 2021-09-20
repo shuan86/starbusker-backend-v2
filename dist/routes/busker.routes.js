@@ -43,6 +43,8 @@ class BuskerRoutes extends route_abstract_1.default {
             .post(auth_1.authMember, buskerController.enroll);
         this.router.route(router_1.apiPath.performance)
             .post(auth_1.authMember, buskerController.applyPerformance);
+        this.router.route(router_1.apiPath.performance)
+            .get(auth_1.authMember, buskerController.getPerformance);
         this.router.route(router_1.apiPath.performances)
             .get(buskerController.getPerformances);
         this.router.route(router_1.apiPath.performancesTime)
@@ -50,15 +52,19 @@ class BuskerRoutes extends route_abstract_1.default {
         this.router.route(router_1.apiPath.performance)
             .delete(buskerController.deletePerformance);
         this.router.route(router_1.apiPath.onlineAmount)
-            .get(buskerController.getOnlineAmount);
+            .get(auth_1.authMember, buskerController.getOnlineAmount);
         this.router.route(router_1.apiPath.commentAmount)
-            .get(buskerController.getCommentAmount);
-        this.router.route(router_1.apiPath.commentAmount)
-            .get(buskerController.getCommentAmount);
+            .get(auth_1.authMember, buskerController.getCommentAmount);
+        this.router.route(router_1.apiPath.performancesDonate)
+            .get(auth_1.authMember, buskerController.getPerformancesDonate);
         this.router.route(router_1.apiPath.weekCommentAmount)
-            .get(buskerController.getWeekCommentAmount);
+            .get(auth_1.authMember, buskerController.getWeekCommentAmount);
         this.router.route(router_1.apiPath.futurePerformancesData)
-            .get(buskerController.getFuturePerformancesData);
+            .get(auth_1.authMember, buskerController.getFuturePerformancesData);
+        this.router.route(router_1.apiPath.confirmLineDonateOrder)
+            .get(auth_1.authMember, buskerController.confirmLinePayDonateOrder);
+        // this.router.route(apiPath.confirmLineDonateOrder)
+        //   .post(authMember, buskerController.confirmLinePayDonateOrder);
     }
 }
 exports.BuskerRoutes = BuskerRoutes;

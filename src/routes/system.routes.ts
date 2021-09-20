@@ -15,6 +15,9 @@ export class SystemRoutes extends IRoute {
     // });
     this.router.route('/init')
       .get(systemController.init);
-
+    this.router.route('/testLineOrder')
+      .get(systemController.lineOrder);
+    this.router.route('/testLineReceipt')
+      .get(systemController.lineReceipt);
   }
 }
