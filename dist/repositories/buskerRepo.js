@@ -409,7 +409,6 @@ const getPerformancesDonateByMemberId = (memberId) => __awaiter(void 0, void 0, 
             .innerJoin(BuskerPerformance_1.BuskerPerformance, 'p', `p.buskerId=b.id`)
             .groupBy('p.buskerId')
             .getRawOne();
-        console.log('getPerformancesDonateByMemberId memberId:', memberId, 'data:', data);
         if (data) {
             repoData.status = 200;
             repoData.data = JSON.stringify(data);

@@ -63,6 +63,8 @@ class MemberRoutes extends route_abstract_1.default {
             .put(auth_1.authMember, auth_2.upload.single('avatar'), memberController.updateMemberInfo);
         this.router.route(router_1.apiPath.password)
             .put(auth_1.authMember, memberController.updatePassword);
+        this.router.route(router_1.apiPath.forgotPassword)
+            .post(memberController.forgotPassword);
     }
 }
 exports.MemberRoutes = MemberRoutes;

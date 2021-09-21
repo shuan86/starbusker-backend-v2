@@ -43,7 +43,7 @@ export class MemberRoutes extends IRoute {
       .put(authMember, upload.single('avatar'), memberController.updateMemberInfo);
     this.router.route(apiPath.password)
       .put(authMember, memberController.updatePassword);
-
-
+    this.router.route(apiPath.forgotPassword)
+      .post(memberController.forgotPassword)
   }
 }

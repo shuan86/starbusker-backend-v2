@@ -1,9 +1,12 @@
 import { Member, LoginModeEnum, LoginType, FrontEndMemberDataType, UpdateMemberInfoType, } from "../entities/Member";
-import { IMember } from "../interfaces/IMember";
 import { getMemberRepos } from './databaseRepo'
 import { ReponseType } from "../types/reponseType";
+import { sendEmail } from "../moudles/email";
+
 import * as buskerRepo from "./buskerRepo";
 import fs from "fs";
+import uuid from 'uuid4'
+
 let mockMemberCount = 0
 export const setMockMemberCount = (count: number) => {
     mockMemberCount = 0;
@@ -274,6 +277,17 @@ export const getIdByEmail = async (email: string): Promise<number> => {
         return -1
     }
 }
+export const getMemberDataByEmail = async (email: string) => {
+    try {
+        const repo = getMemberRepos()
+        const member = await repo.findOne({ email })
+        return member
+    } catch (error) {
+        console.error('getMemberDataById :', error);
+    }
+}
+
+
 export const updateMemberPassword = async (id: number, oldPassword: string, newPassword: string): Promise<ReponseType> => {
     let repoData: ReponseType = { status: 501, data: '' }
     try {
@@ -294,7 +308,43 @@ export const updateMemberPassword = async (id: number, oldPassword: string, newP
     catch (error) {
         console.error('updateMemberPassword:', error);
         return repoData
+    }
+}
+const generateRandomStr = (length: number) => {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() *
+            charactersLength));
+    }
+    return result;
+}
 
+export const forgotPasswordAndGeneratePassword = async (email: string) => {
+    let repoData: ReponseType = { status: 501, data: '' }
+    try {
+        const memberRepo = getMemberRepos()
+        const member = await memberRepo.findOne({ email })
+        if (member && member.loginMode == LoginModeEnum.local) {
+            const passwordStr = generateRandomStr(10)
+            member.password = passwordStr
+            const updateResult = await memberRepo.update(member.id, member)
+            if (updateResult) {
+                sendEmail(member.email, 'starbusker new password', `<h1>your new password:${member.password}</h1>`)
+                repoData.status = 200
+                repoData.data = ''
+            }
+        }
+        else {
+            repoData.status = 401
+            repoData.data = "system didn't find email"
+        }
+        return repoData
+    }
+    catch (error) {
+        console.error('forgotPasswordAndGeneratePassword:', error);
+        return repoData
     }
 }
 

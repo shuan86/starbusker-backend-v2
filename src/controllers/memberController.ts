@@ -6,7 +6,8 @@ import * as memberRepo from '../repositories/memberRepo';
 import { plainToClass, Expose } from "class-transformer";
 import { validate } from "class-validator";
 import { decrypt } from "../moudles/rsa";
-import { LoginType, UpdateMemberInfoType, UpdatePassword } from '../entities/Member'
+import { sendEmail } from "../moudles/email";
+import { UpdateMemberInfoType, UpdatePassword } from '../entities/Member'
 import passport from "../moudles/passport";
 import { ReponseType } from 'types/reponseType';
 import { envSetup } from "../envSetup";
@@ -214,5 +215,15 @@ export const updatePassword = async (req: Request, res: Response) => {
 
     } catch (error) {
         console.error('api updatePassword error:', error);
+    }
+}
+export const forgotPassword = async (req: Request, res: Response) => {
+    try {
+        const data = req.body.data
+        const { email } = JSON.parse(data)
+        const result = await memberRepo.forgotPasswordAndGeneratePassword(email)
+        res.status(result.status).send(result.data)
+    } catch (error) {
+        console.error('api forgotPassword error:', error);
     }
 }

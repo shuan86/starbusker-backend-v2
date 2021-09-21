@@ -13,6 +13,7 @@ export const apiPath = {
     google: '/google',
     googleCallback: '/google/callback',
     password: '/password',
+    forgotPassword: '/forgotPassword',
     memberInfo: '/memberInfo',
     getBusker: '/busker',
     enrollBusker: '/busker',

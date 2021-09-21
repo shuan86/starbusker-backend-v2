@@ -31,7 +31,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePassword = exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.googleCallback = exports.loginWithGoogle = exports.fbCallback = exports.loginWithFB = exports.lineCallback = exports.loginWithLine = exports.login = exports.enroll = exports.init = void 0;
+exports.forgotPassword = exports.updatePassword = exports.updateMemberInfo = exports.getMemberInfo = exports.logout = exports.googleCallback = exports.loginWithGoogle = exports.fbCallback = exports.loginWithFB = exports.lineCallback = exports.loginWithLine = exports.login = exports.enroll = exports.init = void 0;
 const Member_1 = require("../entities/Member");
 const memberRepo = __importStar(require("../repositories/memberRepo"));
 const class_transformer_1 = require("class-transformer");
@@ -257,4 +257,16 @@ const updatePassword = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.updatePassword = updatePassword;
+const forgotPassword = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = req.body.data;
+        const { email } = JSON.parse(data);
+        const result = yield memberRepo.forgotPasswordAndGeneratePassword(email);
+        res.status(result.status).send(result.data);
+    }
+    catch (error) {
+        console.error('api forgotPassword error:', error);
+    }
+});
+exports.forgotPassword = forgotPassword;
 //# sourceMappingURL=memberController.js.map

@@ -31,9 +31,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.clear = exports.updateMemberPassword = exports.getIdByEmail = exports.getIdByAccount = exports.updateMemberLoginMode = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
+exports.clear = exports.forgotPasswordAndGeneratePassword = exports.updateMemberPassword = exports.getMemberDataByEmail = exports.getIdByEmail = exports.getIdByAccount = exports.updateMemberLoginMode = exports.updateMemberInfoById = exports.getMemberInfoDataById = exports.getMemberAvatarByAccount = exports.getMemberInfoById = exports.login = exports.loginByAccountPasswd = exports.createMember = exports.enroll = exports.generateDiffMemberMockData = exports.generateFixedMemberMockData = exports.generateMemberInfoData = exports.generateLoginData = exports.setMockMemberCount = void 0;
 const Member_1 = require("../entities/Member");
 const databaseRepo_1 = require("./databaseRepo");
+const email_1 = require("../moudles/email");
 const buskerRepo = __importStar(require("./buskerRepo"));
 const fs_1 = __importDefault(require("fs"));
 let mockMemberCount = 0;
@@ -316,6 +317,17 @@ const getIdByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getIdByEmail = getIdByEmail;
+const getMemberDataByEmail = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const repo = databaseRepo_1.getMemberRepos();
+        const member = yield repo.findOne({ email });
+        return member;
+    }
+    catch (error) {
+        console.error('getMemberDataById :', error);
+    }
+});
+exports.getMemberDataByEmail = getMemberDataByEmail;
 const updateMemberPassword = (id, oldPassword, newPassword) => __awaiter(void 0, void 0, void 0, function* () {
     let repoData = { status: 501, data: '' };
     try {
@@ -339,6 +351,43 @@ const updateMemberPassword = (id, oldPassword, newPassword) => __awaiter(void 0,
     }
 });
 exports.updateMemberPassword = updateMemberPassword;
+const generateRandomStr = (length) => {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (var i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() *
+            charactersLength));
+    }
+    return result;
+};
+const forgotPasswordAndGeneratePassword = (email) => __awaiter(void 0, void 0, void 0, function* () {
+    let repoData = { status: 501, data: '' };
+    try {
+        const memberRepo = databaseRepo_1.getMemberRepos();
+        const member = yield memberRepo.findOne({ email });
+        if (member && member.loginMode == Member_1.LoginModeEnum.local) {
+            const passwordStr = generateRandomStr(10);
+            member.password = passwordStr;
+            const updateResult = yield memberRepo.update(member.id, member);
+            if (updateResult) {
+                email_1.sendEmail(member.email, 'starbusker new password', `<h1>your new password:${member.password}</h1>`);
+                repoData.status = 200;
+                repoData.data = '';
+            }
+        }
+        else {
+            repoData.status = 401;
+            repoData.data = "system didn't find email";
+        }
+        return repoData;
+    }
+    catch (error) {
+        console.error('forgotPasswordAndGeneratePassword:', error);
+        return repoData;
+    }
+});
+exports.forgotPasswordAndGeneratePassword = forgotPasswordAndGeneratePassword;
 const clear = () => __awaiter(void 0, void 0, void 0, function* () {
     const memberRepo = databaseRepo_1.getMemberRepos();
     const members = yield memberRepo.find();

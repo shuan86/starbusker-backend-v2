@@ -306,10 +306,8 @@ const confirmLinePayDonateOrder = (req, res) => __awaiter(void 0, void 0, void 0
             const donateAmount = lienData.info.payInfo[0].amount;
             const findData = yield buskerRepo.getNameBukserIdPerformanceIdByLinePayOrderId(orderId);
             if (findData != null) {
-                console.log('lienData.info.payInfo.amount:', donateAmount);
                 const updateResult = yield buskerRepo.updateLinePayMoneyByPerformanceId(findData.performanceId, donateAmount);
                 if (updateResult) {
-                    console.log('findData:', findData);
                     res.redirect(`${process.env.CLIENT_URL}/donateResult?name=${findData.name}&performanceId=${findData.performanceId}&donateResult=true&donateAmount=${donateAmount}`);
                     return;
                 }
