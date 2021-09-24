@@ -39,7 +39,7 @@ npm install
 
 ### Start Server
 
-1. Setup database environment,open **test.env dev.env prod.env** file,modify following parameter
+1. Setup database environment,open **src/env/test.env 、 dev.env 、 prod.env** file,modify following parameter
 
 ```
 CLIENT_URL=http://localhost:3000
