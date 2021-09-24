@@ -9,19 +9,23 @@ The following is the introduction video of StarBusker
 
 [youtube](https://www.youtube.com/watch?v=5EMPqfQ8q2A&ab_channel=%E7%BE%85%E5%A3%AB%E6%AC%BD)
 
-The following is the front-end of StarBusker
-
-[front-end page]()
 
 The following is the front-end of source code
 
-[github]()
+[github](https://github.com/shuan86/starbusker-frontend-v2)
 
 ## Tech Stack
 
 **Server:** TypeScript, Node, Express, Mysql, Redis, Session, TypeORM
 
-**API:** [Line login](https://developers.line.biz/zh-hant/), [Line pay](https://developers.line.biz/zh-hant/), [Information for busker](https://opendata.culture.tw/frontsite/openData/detail?datasetId=539), [Busker exhibition space information](https://opendata.culture.tw/frontsite/openData/detail?datasetId=540)
+**API:** 
+[Google login](https://console.cloud.google.com/apis/dashboard?hl=zh-tw&project=disco-song-312608)
+[Geocoder api](https://developers.google.com/maps/documentation/geocoding/overview)
+[Facebook login](https://developers.facebook.com/docs/facebook-login/web/)
+[Line login](https://developers.line.biz/zh-hant/)
+[Line pay](https://developers.line.biz/zh-hant/)
+[Information for busker](https://opendata.culture.tw/frontsite/openData/detail?datasetId=539)
+[Busker exhibition space information](https://opendata.culture.tw/frontsite/openData/detail?datasetId=540)
 
 ## Running Sever
 
@@ -38,17 +42,43 @@ npm install
 1. Setup database environment,open **test.env dev.env prod.env** file,modify following parameter
 
 ```
-MYSQL_USERNAME=root
-MYSQL_PASSWORD=123456
-MYSQL_DB=test
+CLIENT_URL=http://localhost:3000
+MYSQL_HOST=your mysql host 
+MYSQL_USERNAME=your mysql user name
+MYSQL_PASSWORD=your mysql password
+MYSQL_DB=your database name
+
+SESSION_SECRET=your session seceret
+
+GOOGLE_MAP_API_KRY=your google map key
+
+LINE_LOGIN_CHANNEL_ID=your line login channel id
+LINE_LOGIN_CHANNEL_SECRET=your line login channel secret
+LINE_LOGIN_CALLBACK_URL=your line login callback url
+
+LINE_PAY_ID=your line pay id
+LINE_PAY_PASSWORD=your line pay password
+LINE_PAY_CHANNEL_ID=your line pay channel id
+LINE_PAY_SECRET=your line pay secret
+
+FB_CLIENT_ID=your facebook client id
+FB_CLIENT_SECRET=your facebook client secret
+FB_CALLBACK_URL=your facebook callback url
+
+GOOGLE_KEY=your google login key
+GOOGLE_SECRET=your google login secret
+GOOGLE_CALLBACK_URL=your google login callback url
+
+GMAIL_ACCOUNT=your gmail account
+GMAIL_PASSWORD=your gmail password
 ```
 
 2. Setup RSA password,pubkic key and private key,modify following parameter
 
 ```
- priPassword = 'your password'
- privateKey='-----BEGIN ENCRYPTED PRIVATE KEY-----   -----END ENCRYPTED PRIVATE KEY-----'
- publicKey='-----BEGIN PUBLIC KEY----- -----END PUBLIC KEY-----'
+priPassword = 'your password'
+privateKey='-----BEGIN ENCRYPTED PRIVATE KEY-----   -----END ENCRYPTED PRIVATE KEY-----'
+publicKey='-----BEGIN PUBLIC KEY----- -----END PUBLIC KEY-----'
 ```
 
 3. Open your terminal and run following command,server will listen on port 3000
@@ -56,7 +86,10 @@ MYSQL_DB=test
 ```
 npm run tsc-prod
 ```
-
+4. Create fake data,input  following url in your browser
+```
+http://localhost:8081/api/init
+```
 ## API Server
 
 ### Enroll member
@@ -123,6 +156,24 @@ npm run tsc-prod
 
 ---
 
+
+### forgot password
+
+##### Requset
+`Post api/forgotPassword`
+
+| Parameter | Type | Require |Description |
+| :-------- | :------- | :------- | :------------------------- |
+| `email` | `string` | **Required** |member's email|
+
+##### Response
+| Code  | Description       | Result                |
+| :---- | :---------------- | :-------------------- |
+| `200` | sucessful send new password email  | `""`|
+| `400` | parameter error   | `"parameter error"` |
+| `401` | change password fail | `"change password fail"`       |
+| `500` | server is busying | `"server is busying"` |
+---
 ### Get member info
 
 `Get api/memberInfo`
@@ -157,7 +208,7 @@ npm run tsc-prod
 | :---- | :--------------------------- | :------------------------------------------------ |
 | `200` | sucessful update member info | `"{account: "t0",avatar: "",email: "t0@gmail.com",exp: 0,isBusker: false,male: true,name:"0_name",loginMode:0(0:local,1:Line,2:Facebook,3:Google)}`                                              |
 | `400` | parameter error   | `"parameter error"` |
-| `401` | failed to update member info | `"failed to get member info、you aren't member "` |
+| `401` | failed to update member info | `"failed to get member info you aren't member "` |
 | `500` | server is busying            | `"server is busying"`                             |
 
 ---
@@ -217,7 +268,7 @@ npm run tsc-prod
 ##### Response
 | Code  | Description       | Result                                 |
 | :---- | :---------------- | :------------------------------------- |
-| `200` | sucessful get   | `{"name":'a',"type":'singer'(buskerType),"description":'description1',"likeAmount":10,"avatar":'',linePayOrderUrl:''}` |
+| `200` | sucessful get   | `{name:'a',type:0(buskerType),description:'description1',likeAmount:10,avatar:'',linePayOrderUrl:''}` |
 | `400` | parameter error   | `"parameter error"`                    |
 | `401` | failed to get   | `"failed to apply、you aren't member"` |
 | `500` | server is busying | `"server is busying"`                  |
@@ -232,7 +283,7 @@ npm run tsc-prod
 
 | Code  | Description        | Result                                   |
 | :---- | :----------------- | :--------------------------------------- |
-| `200` | sucessful get data | `[{"time":"2021-08-16T09:26:00.000Z"}]`" |
+| `200` | sucessful get data | `[{time:"2021-08-16T09:26:00.000Z"}]`" |
 | `500` | server is busying  | `"server is busying"`                    |
 
 ---
@@ -251,7 +302,7 @@ npm run tsc-prod
 
 | Code  | Description        | Result                                                                                                                                                           |
 | :---- | :----------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `200` | sucessful get data | `{dataArr:[{"name":'a',id":1(buskerId),"likeAmount":0,"title":"title1","description":"description1","time":"2021-08-16T08:17:01.000Z",'location':'taipei',"lineMoney":0,"latitude":121.56,"longitude":25.03,avatar:''}],dataAmount:1}"` |
+| `200` | sucessful get data | `{dataArr:[{name:'a',id:1(buskerId),likeAmount:0,title:"title1",description:"description1",time:"2021-08-16T08:17:01.000Z",location:'taipei',lineMoney:0,latitude:121.56,longitude:25.03,avatar:''}],dataAmount:1}"` |
 | `400` | parameter error    | `"parameter error"`                                                                                                                                              |
 | `500` | server is busying  | `"server is busying"`                                                                                                                                            |
 
@@ -270,7 +321,7 @@ npm run tsc-prod
 ##### Response
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
-| `200` | sucessful add performance | `{"performanceId":4200,"name":"busker","email":"account01@email.com","location":"台灣台北港","description":"Description1","title":"唱歌","latitude":25.0329636,"longitude":121.5654268,"time":"2021-09-23 05:48:00"}`                                             |
+| `200` | sucessful add performance | `{performanceId:4200,name:"busker",email:"account01@email.com",location:"Taipei",description:"Description1",title:"唱歌",latitude:25.0329636,longitude:121.5654268,time:"2021-09-23 05:48:00"}`                                             |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to apply           | `"failed to apply、you aren't member or busker"` |
 | `500` | server is busying         | `"server is busying"`                            |
@@ -282,7 +333,7 @@ npm run tsc-prod
 ##### Response
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
-| `200` | sucessful get data | `"{"amount":0}"` |
+| `200` | sucessful get data | `"{amount:0}"` |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to get             | `"failed to get data"` |
 | `500` | server is busying         | `"server is busying"`                            |
@@ -296,7 +347,7 @@ npm run tsc-prod
 
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
-| `200` | sucessful get data | `" [{"performanceId":"1","title":"","location":"","time":"2021/09/11 20:00"}]"` |
+| `200` | sucessful get data | `" [{performanceId:"1",title:"Taipei",location:"",time:"2021/09/11 20:00"}]"` |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to get             | `"failed to get data"` |
 | `500` | server is busying         | `"server is busying"`                            |
@@ -322,7 +373,7 @@ npm run tsc-prod
 
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
-| `200` | sucessful get data | `" [{"count":"1","time":"2021-10-09 "}]"` |
+| `200` | sucessful get data | `" [{count:"1",time:"2021-10-09 "}]"` |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to get             | `"failed to get data"` |
 | `500` | server is busying         | `"server is busying"`                            |
@@ -335,11 +386,21 @@ npm run tsc-prod
 
 | Code  | Description               | Result                                           |
 | :---- | :------------------------ | :----------------------------------------------- |
-| `200` | sucessful get data | `" [{"count":"1","time":"2021/09/11"}]"` |
+| `200` | sucessful get data | `" [count:"1",time:"2021/09/11"}]"` |
 | `400` | parameter error           | `"parameter error"`                              |
 | `401` | failed to get             | `"failed to get data"` |
 | `500` | server is busying         | `"server is busying"`                            |
-
+---
+## Contributors 
+[shuan86(backend+frontend)](https://github.com/shuan86)
+[s490607(frontend)](https://github.com/s490607)
+[yaya75315(frontend)](https://github.com/yaya75315)
+[HsiuHsu(designer)](https://github.com/HsiuHsu)
+## Awards
+2020資料創新應用競賽-AWS 協辦  銅獎
+[IThome news](https://www.ithome.com.tw/pr/137868)
+![image](https://github.com/shuan86/starbusker-backend-v2/blob/develop/award/StarBusker_新聞截圖.png)
+![image](https://github.com/shuan86/starbusker-backend-v2/blob/develop/award/StarBusker_銅獎合照.png)
 ## License
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
