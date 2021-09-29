@@ -39,7 +39,7 @@ npm install
 
 ### Start Server
 
-1. Setup database environment,open **src/env/test.env 、 dev.env 、 prod.env** file,modify following parameter
+1. Setup  environment,open **src/env/test.env 、 dev.env 、 prod.env** file,modify following parameter
 
 ```
 CLIENT_URL=http://localhost:3000
@@ -73,10 +73,9 @@ GMAIL_ACCOUNT=your gmail account
 GMAIL_PASSWORD=your gmail password
 ```
 
-2. Setup RSA password,pubkic key and private key,modify following parameter
+2. Setup your public key and private key,open src/config/rsaKey.ts, and modify following parameter
 
 ```
-priPassword = 'your password'
 privateKey='-----BEGIN ENCRYPTED PRIVATE KEY-----   -----END ENCRYPTED PRIVATE KEY-----'
 publicKey='-----BEGIN PUBLIC KEY----- -----END PUBLIC KEY-----'
 ```
