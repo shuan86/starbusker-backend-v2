@@ -15,7 +15,7 @@
     "test": " jest test ",
     "test:path": " jest  --testPathPattern='busker.api.test' ",
     "test:watch": "jest --watch test",
-    "copyFiles": "cp -r ./src/public ./dist/public"
+    "copyFiles": "@powershell  cp -Force ./src/public ./dist/public"
   },
   "keywords": [],
   "author": "",

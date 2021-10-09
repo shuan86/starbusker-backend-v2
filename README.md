@@ -89,6 +89,13 @@ npm run tsc-prod
 ```
 http://localhost:8081/api/init
 ```
+5. change copy command in package.json(scripts)
+```
+windows:
+"copyFiles": "@powershell  cp -Force ./src/public ./dist/public"
+mac:
+"copyFiles": "cp -r ./src/public ./dist/public"
+```
 ## API Server
 
 ### Enroll member
