@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteUser = exports.updateUser = exports.getUser = exports.createUser = exports.getUsers = void 0;
+exports.sum = exports.deleteUser = exports.updateUser = exports.getUser = exports.createUser = exports.getUsers = void 0;
 const user_entity_1 = require("../entities/user.entity");
 const typeorm_1 = require("typeorm");
 function getUsers() {
@@ -42,4 +42,6 @@ function deleteUser(id) {
     return typeorm_1.getRepository(user_entity_1.User).delete(id);
 }
 exports.deleteUser = deleteUser;
+const sum = (a, b) => a + b;
+exports.sum = sum;
 //# sourceMappingURL=user.repo.js.map

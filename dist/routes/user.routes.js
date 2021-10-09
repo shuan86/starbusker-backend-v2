@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const route_abstract_1 = require("./route.abstract");
-const userController_1 = require("../controllers/userController");
+const route_abstract_1 = __importDefault(require("./route.abstract"));
+const userController_1 = __importDefault(require("../controllers/userController"));
 class UserRoutes extends route_abstract_1.default {
     constructor() {
         super();

@@ -28,3 +28,5 @@ export function deleteUser(id: string) {
   return getRepository(User).delete(id);
 }
 
+type sumType = (a: number, b: number) => number;
+export const sum: sumType = (a, b) => a + b;
